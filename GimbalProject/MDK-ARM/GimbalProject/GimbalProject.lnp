@@ -1,0 +1,25 @@
+--cpu Cortex-M0
+"gimbalproject\startup_stm32f072xb.o"
+"gimbalproject\main.o"
+"gimbalproject\stm32f0xx_it.o"
+"gimbalproject\stm32f0xx_hal_msp.o"
+"gimbalproject\stm32f0xx_hal_tim.o"
+"gimbalproject\stm32f0xx_hal_tim_ex.o"
+"gimbalproject\stm32f0xx_hal_rcc.o"
+"gimbalproject\stm32f0xx_hal_rcc_ex.o"
+"gimbalproject\stm32f0xx_hal.o"
+"gimbalproject\stm32f0xx_hal_i2c.o"
+"gimbalproject\stm32f0xx_hal_i2c_ex.o"
+"gimbalproject\stm32f0xx_hal_gpio.o"
+"gimbalproject\stm32f0xx_hal_dma.o"
+"gimbalproject\stm32f0xx_hal_cortex.o"
+"gimbalproject\stm32f0xx_hal_pwr.o"
+"gimbalproject\stm32f0xx_hal_pwr_ex.o"
+"gimbalproject\stm32f0xx_hal_flash.o"
+"gimbalproject\stm32f0xx_hal_flash_ex.o"
+"gimbalproject\stm32f0xx_hal_exti.o"
+"gimbalproject\system_stm32f0xx.o"
+--strict --scatter "GimbalProject\GimbalProject.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "GimbalProject.map" -o GimbalProject\GimbalProject.axf
