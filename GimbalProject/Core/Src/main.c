@@ -15,8 +15,12 @@
   *
   ******************************************************************************
 
-/* Includes ------------------------------------------------------------------*/
+Includes ------------------------------------------------------------------*/
 #include "main.h"
+#ifdef __main
+#include "I2C.c"
+#include "USART.c"
+#endif
 
 void SystemClock_Config(void);
 
@@ -29,6 +33,16 @@ int main(void)
 {
   /* Configure the system clock */
   SystemClock_Config();
+	
+	// TODO: Wire up IMU sensor -> VCC to 3V, GND to GND, SDA to STM-SDA, SCL to STM-SCL
+	
+	// TODO: Read WHO_AM_I register 
+	
+	// TODO: Configure for reading Accelerometer data
+	
+	// TODO: Configure for reading Gyroscope data
+	
+	// TODO: Read and print data to PuTTY console via USART
 
   while (1)
   {

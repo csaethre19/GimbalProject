@@ -3,6 +3,8 @@
 "gimbalproject\main.o"
 "gimbalproject\stm32f0xx_it.o"
 "gimbalproject\stm32f0xx_hal_msp.o"
+"gimbalproject\i2c.o"
+"gimbalproject\usart.o"
 "gimbalproject\stm32f0xx_hal_tim.o"
 "gimbalproject\stm32f0xx_hal_tim_ex.o"
 "gimbalproject\stm32f0xx_hal_rcc.o"
