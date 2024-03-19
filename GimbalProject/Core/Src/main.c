@@ -17,10 +17,9 @@
 
 Includes ------------------------------------------------------------------*/
 #include "main.h"
-#ifdef __main
-#include "I2C.c"
-#include "USART.c"
-#endif
+
+#include "I2C.h"
+#include "USART.h"
 
 void SystemClock_Config(void);
 
@@ -35,9 +34,27 @@ int main(void)
   SystemClock_Config();
 	
 	// TODO: Wire up IMU sensor -> VCC to 3V, GND to GND, SDA to STM-SDA, SCL to STM-SCL
+	Enable_GPIO_Clks();
+	
+	Init_LEDs();
+	
+	I2C_Ports_Config();
+	
+	I2C_SetUp();
 	
 	// TODO: Read WHO_AM_I register 
+	I2C_SetRegAddress(0x69, 0x75); // Write WHO_AM_I address 
+	USART_Transmit_String("Set register address");
+	USART_Transmit_Newline();
+	uint8_t data = I2C_ReadRegister(0x69); // Read from WHO_AM_I register
+	USART_Transmit_String("Got data from register");
+	USART_Transmit_Newline();
 	
+	if (data == 0x68) 	GPIOC->ODR |= GPIO_ODR_7; // SUCCESS - set blue LED HIGH
+	else GPIOC->ODR |= GPIO_ODR_6; // FAILURE - set red LED HIGH
+	
+	// Set up USART for debugging
+	//USART_SetUp();
 	// TODO: Configure for reading Accelerometer data
 	
 	// TODO: Configure for reading Gyroscope data

@@ -1,23 +1,7 @@
 #include <stdlib.h>
 
-#include "main.h"
+#include "USART.h"
 
-
-void Init_LEDs(void);
-
-void Enable_GPIO_Clks();
-
-void USART_SetUp();
-
-void USART_SetUp();
-
-void USART_USART_Transmit_Byte(uint8_t b);
-
-void USART_Transmit_String(const char* str);
-
-void USART_Transmit_Number(int16_t number);
-
-void USART_Transmit_Newline();
 
 
 void USART_SetUp() {
@@ -26,6 +10,7 @@ void USART_SetUp() {
 	// PC5 -> USART_3RX (receiver)
 	// Use bit pattern for AF1 -> 0001
 	// Using GPIOC_AFRL register
+	// BAUD RATE: 115200
 	
 	GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER4 | GPIO_MODER_MODER5)) 
 								| GPIO_MODER_MODER4_1 | GPIO_MODER_MODER5_1; 
