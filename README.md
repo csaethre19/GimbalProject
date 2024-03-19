@@ -3,3 +3,4 @@
 Group members:
 
 - Charlotte Saethre
+- Kirra Kotsenburg
