@@ -23,6 +23,9 @@ Includes ------------------------------------------------------------------*/
 
 void SystemClock_Config(void);
 
+#define MPU6050_ADDR 0x68
+#define PWR_MGMT_1   0x6B
+#define WHO_AM_I     0x75
 
 /**
   * @brief  The application entry point.
@@ -42,21 +45,28 @@ int main(void)
 	
 	I2C_SetUp();
 	
-	// TODO: Read WHO_AM_I register 
-	I2C_SetRegAddress(0x69, 0x75); // Write WHO_AM_I address 
-	USART_Transmit_String("Set register address");
-	USART_Transmit_Newline();
-	uint8_t data = I2C_ReadRegister(0x69); // Read from WHO_AM_I register
-	USART_Transmit_String("Got data from register");
-	USART_Transmit_Newline();
+	I2C_SetRegAddress(MPU6050_ADDR, WHO_AM_I); // Write WHO_AM_I address 
 	
-	if (data == 0x68) 	GPIOC->ODR |= GPIO_ODR_7; // SUCCESS - set blue LED HIGH
+	int8_t data = I2C_ReadRegister(MPU6050_ADDR); // Read from WHO_AM_I register
+	
+	int8_t expected_whoAmI = 0x68;
+	int8_t expected_pwrMgmt = 0x40;
+
+	if (data == expected_whoAmI) 	GPIOC->ODR |= GPIO_ODR_7; // SUCCESS - set blue LED HIGH
 	else GPIOC->ODR |= GPIO_ODR_6; // FAILURE - set red LED HIGH
 	
-	// Set up USART for debugging
-	//USART_SetUp();
 	// TODO: Configure for reading Accelerometer data
+	// taking device out of sleep mode - initializing it
+	I2C_WriteRegister(MPU6050_ADDR, PWR_MGMT_1, 0x00);
+	I2C_SetRegAddress(MPU6050_ADDR, PWR_MGMT_1);
+	int8_t pwr_mgmt = I2C_ReadRegister(MPU6050_ADDR);
 	
+	if (pwr_mgmt == 0) 
+	{
+		USART_Transmit_String("MPU6050 Awake!");
+		USART_Transmit_Newline();
+	}
+
 	// TODO: Configure for reading Gyroscope data
 	
 	// TODO: Read and print data to PuTTY console via USART

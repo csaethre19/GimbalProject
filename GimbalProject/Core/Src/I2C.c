@@ -11,9 +11,10 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 	USART_Transmit_Number(deviceAddr);
 	USART_Transmit_Newline();
 	
-		USART_Transmit_String("SET REG regAddr: ");
+	USART_Transmit_String("SET REG regAddr: ");
 	USART_Transmit_Number(regAddr);
 	USART_Transmit_Newline();
+	
 	I2C2->CR2 = 0; // clear register
 	// Use SADD[7:1] bit field in CR2 register to set slave address to addr
 	I2C2->CR2 |= (deviceAddr << 1);
@@ -31,7 +32,7 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 	// Check if NACK set
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
-		GPIOC->ODR |= GPIO_ODR_6; // RED - I2C not working!
+		GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
 	}
 	
 	// Write data into the TXDR 
