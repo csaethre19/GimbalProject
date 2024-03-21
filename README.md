@@ -4,3 +4,4 @@ Group members:
 
 - Charlotte Saethre
 - Kirra Kotsenburg
+- Alex Leavitt
