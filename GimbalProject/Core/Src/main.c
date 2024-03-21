@@ -55,8 +55,7 @@ int main(void)
 	if (data == expected_whoAmI) 	GPIOC->ODR |= GPIO_ODR_7; // SUCCESS - set blue LED HIGH
 	else GPIOC->ODR |= GPIO_ODR_6; // FAILURE - set red LED HIGH
 	
-	// TODO: Configure for reading Accelerometer data
-	// taking device out of sleep mode - initializing it
+	// Taking device out of sleep mode
 	I2C_WriteRegister(MPU6050_ADDR, PWR_MGMT_1, 0x00);
 	I2C_SetRegAddress(MPU6050_ADDR, PWR_MGMT_1);
 	int8_t pwr_mgmt = I2C_ReadRegister(MPU6050_ADDR);
@@ -66,10 +65,12 @@ int main(void)
 		USART_Transmit_String("MPU6050 Awake!");
 		USART_Transmit_Newline();
 	}
-
-	// TODO: Configure for reading Gyroscope data
 	
-	// TODO: Read and print data to PuTTY console via USART
+	// TODO: Set digital low pass filter for noise performance using register 0x1A (CONFIG register)
+
+	// All axes for gyro and acc are enabled by default - once device is not in sleep mode anymore, we can start reading
+	
+	// TODO: Read and print data for Gyroscope and Accelerometer to PuTTY console via USART
 
   while (1)
   {

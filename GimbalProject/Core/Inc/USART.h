@@ -6,8 +6,6 @@ void Enable_GPIO_Clks();
 
 void USART_SetUp();
 
-void USART_SetUp();
-
 void USART_USART_Transmit_Byte(uint8_t b);
 
 void USART_Transmit_String(const char* str);
