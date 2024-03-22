@@ -7,13 +7,13 @@
 
 void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 {
-	USART_Transmit_String("SET REG deviceAddr: ");
-	USART_Transmit_Number(deviceAddr);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("SET REG deviceAddr: ");
+	//USART_Transmit_Number(deviceAddr);
+	//USART_Transmit_Newline();
 	
-	USART_Transmit_String("SET REG regAddr: ");
-	USART_Transmit_Number(regAddr);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("SET REG regAddr: ");
+	//USART_Transmit_Number(regAddr);
+	//USART_Transmit_Newline();
 	
 	I2C2->CR2 = 0; // clear register
 	// Use SADD[7:1] bit field in CR2 register to set slave address to addr
@@ -94,9 +94,9 @@ void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data)
 */
 int8_t I2C_ReadRegister(uint16_t deviceAddr) 
 {
-	USART_Transmit_String("READ deviceAddr: ");
-	USART_Transmit_Number(deviceAddr);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("READ deviceAddr: ");
+	//USART_Transmit_Number(deviceAddr);
+	//USART_Transmit_Newline();
 	I2C2->CR2 = 0; // clear register
 	int8_t data = 0;
 
@@ -125,9 +125,9 @@ int8_t I2C_ReadRegister(uint16_t deviceAddr)
 	// Read contents of RXDR register and return data - remember it is 1 byte at a time
 	data = I2C2->RXDR;
 		
-	USART_Transmit_String("data: ");
-	USART_Transmit_Number(data);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("data: ");
+	//USART_Transmit_Number(data);
+	//USART_Transmit_Newline();
 	
 	return data;
 }
@@ -135,8 +135,8 @@ int8_t I2C_ReadRegister(uint16_t deviceAddr)
 void I2C_SetUp()
 {
 	USART_SetUp(); // for debugging
-	USART_Transmit_String("USART set up");
-	USART_Transmit_Newline();
+	//USART_Transmit_String("USART set up");
+	//USART_Transmit_Newline();
 	// PB11 -> SDA Line (data)
 	// PB13 -> SCL Line (clock)
 	// Enable I2C system clock using RCC register
