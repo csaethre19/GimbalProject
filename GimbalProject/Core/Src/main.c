@@ -28,11 +28,16 @@ void SystemClock_Config(void);
 
 #define PWR_MGMT_1     0x6B
 #define GYRO_CONFIG    0x1B
+#define ACC_CONFIG     0x1A
 #define SMPLRT_DIV     0x19
 #define CONFIG         0x1A
 
 #define GYRO_XOUT_LOW  0x44
 #define GYRO_XOUT_HIGH 0x43
+#define GYRO_YOUT_LOW  0x46
+#define GYRO_YOUT_HIGH 0x44
+#define GYRO_ZOUT_LOW  0x47
+#define GYRO_ZOUT_HIGH 0x48
 
 int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr);
 
@@ -66,7 +71,7 @@ int main(void)
 	
 	USART_Transmit_Newline();
 	
-	// Taking device out of sleep mode
+	// Wake u device and set clock to 8MHz
 	I2C_WriteRegister(MPU6050_ADDR, PWR_MGMT_1, 0x00);
 	I2C_SetRegAddress(MPU6050_ADDR, PWR_MGMT_1);
 	int8_t pwr_mgmt = I2C_ReadRegister(MPU6050_ADDR);
@@ -84,10 +89,10 @@ if (pwr_mgmt == 0)
 	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to 500 deg/s");
 	USART_Transmit_Newline();
 	
-	// Set sample rate
-	I2C_WriteRegister(MPU6050_ADDR, SMPLRT_DIV, 0x19);
+	// Set SMPRT_DIV register to get 1kHz sample rate
+	I2C_WriteRegister(MPU6050_ADDR, SMPLRT_DIV, 0x07);
 	
-	I2C_SetRegAddress(MPU6050_ADDR, SMPLRT_DIV); // sample rate divider register
+	I2C_SetRegAddress(MPU6050_ADDR, SMPLRT_DIV); 
 	int8_t sample_rate = I2C_ReadRegister(MPU6050_ADDR);
 	USART_Transmit_String("sample rate: ");
 	USART_Transmit_Number(sample_rate);
@@ -100,7 +105,6 @@ if (pwr_mgmt == 0)
 	
 	// TODO: Read and print data for Gyroscope and Accelerometer to PuTTY console via USART
 	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_XOUT_LOW, GYRO_XOUT_HIGH);
-
 
   while (1)
   {
