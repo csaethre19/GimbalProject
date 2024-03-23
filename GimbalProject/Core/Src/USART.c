@@ -85,14 +85,10 @@ void USART_Transmit_Newline()
     USART_Transmit_Byte('\n'); // Line Feed
 }
 
-void Enable_GPIO_Clks()
-{
-	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-}
-
 void Init_LEDs(void)
 {
+	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+	
 	// Set pins to general purpose output mode in MODER register
   GPIOC->MODER |= (1<<12); // PC6 RED
 	GPIOC->MODER |= (1<<14); // PC7 BLUE

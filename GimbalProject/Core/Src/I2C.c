@@ -134,9 +134,10 @@ int8_t I2C_ReadRegister(uint16_t deviceAddr)
 
 void I2C_SetUp()
 {
+	I2C_Ports_Config();
+	
 	USART_SetUp(); // for debugging
-	//USART_Transmit_String("USART set up");
-	//USART_Transmit_Newline();
+	
 	// PB11 -> SDA Line (data)
 	// PB13 -> SCL Line (clock)
 	// Enable I2C system clock using RCC register
@@ -155,6 +156,9 @@ void I2C_SetUp()
 
 void I2C_Ports_Config() 
 {
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+	
 	// Set PB11 to alt func mode (and PB13)
 	GPIOB->MODER = (GPIOB->MODER & ~(GPIO_MODER_MODER11 | GPIO_MODER_MODER13)) 
 								| GPIO_MODER_MODER11_1 | GPIO_MODER_MODER13_1; 
@@ -176,7 +180,7 @@ void I2C_Ports_Config()
 	// set HIGH
 	GPIOB->ODR |= GPIO_ODR_14;
 	
-	// Set PC0 to output mode, push-pull output type
+	// Set PC0 to output mode, push-pull output type - what were we using PC0 for in lab5?
 	GPIOC->MODER |= (1 << 0);
 	GPIOC->OTYPER &= ~(1 << 0);
 	// set HIGH

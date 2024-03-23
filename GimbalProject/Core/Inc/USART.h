@@ -2,8 +2,6 @@
 
 void Init_LEDs(void);
 
-void Enable_GPIO_Clks();
-
 void USART_SetUp();
 
 void USART_USART_Transmit_Byte(uint8_t b);

@@ -39,7 +39,10 @@ void SystemClock_Config(void);
 #define GYRO_ZOUT_LOW  0x47
 #define GYRO_ZOUT_HIGH 0x48
 
+
 int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr);
+
+void MPU_Init(void);
 
 
 /**
@@ -51,27 +54,34 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 	
-	// TODO: Wire up IMU sensor -> VCC to 3V, GND to GND, SDA to STM-SDA, SCL to STM-SCL
-	Enable_GPIO_Clks();
-	
 	Init_LEDs();
-	
-	I2C_Ports_Config();
-	
+		
 	I2C_SetUp();
 	
-	I2C_SetRegAddress(MPU6050_ADDR, WHO_AM_I); // Write WHO_AM_I address 
+	MPU_Init();
 	
-	int8_t whoAmI = I2C_ReadRegister(MPU6050_ADDR); // Read from WHO_AM_I register
-	
-	int8_t expected_whoAmI = 0x68;
+	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_XOUT_LOW, GYRO_XOUT_HIGH);
 
-	if (whoAmI == expected_whoAmI) 	USART_Transmit_String("Successfully read WHO_AM_I"); // SUCCESS - set blue LED HIGH
-	else USART_Transmit_String("Erorr: did not get expected WHO_AM_I"); // FAILURE - set red LED HIGH
-	
+  while (1)
+  {
+		
+			//HAL_Delay(10);
+
+  }
+}
+
+void MPU_Init()
+{
+	// Check WHO_AM_I register
+	I2C_SetRegAddress(MPU6050_ADDR, WHO_AM_I);
+	int8_t whoAmI = I2C_ReadRegister(MPU6050_ADDR);
+	int8_t expected_whoAmI = 0x68;
+	if (whoAmI == expected_whoAmI) 	USART_Transmit_String("Successfully read WHO_AM_I"); 
+	else USART_Transmit_String("Erorr: did not get expected WHO_AM_I"); 
+
 	USART_Transmit_Newline();
 	
-	// Wake u device and set clock to 8MHz
+	// Wake up device and set clock to 8MHz
 	I2C_WriteRegister(MPU6050_ADDR, PWR_MGMT_1, 0x00);
 	I2C_SetRegAddress(MPU6050_ADDR, PWR_MGMT_1);
 	int8_t pwr_mgmt = I2C_ReadRegister(MPU6050_ADDR);
@@ -82,36 +92,30 @@ if (pwr_mgmt == 0)
 		USART_Transmit_Newline();
 	}
 	
-	// Setting full scale range to +-500 degress/sec
+	// Setting full-scale range to +-500 degress/sec
 	I2C_WriteRegister(MPU6050_ADDR, GYRO_CONFIG, 0x08);
 	I2C_SetRegAddress(MPU6050_ADDR, GYRO_CONFIG);
 	int8_t gyro_config = I2C_ReadRegister(MPU6050_ADDR);
 	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to 500 deg/s");
+	
 	USART_Transmit_Newline();
 	
 	// Set SMPRT_DIV register to get 1kHz sample rate
 	I2C_WriteRegister(MPU6050_ADDR, SMPLRT_DIV, 0x07);
-	
 	I2C_SetRegAddress(MPU6050_ADDR, SMPLRT_DIV); 
 	int8_t sample_rate = I2C_ReadRegister(MPU6050_ADDR);
 	USART_Transmit_String("sample rate: ");
 	USART_Transmit_Number(sample_rate);
+	
 	USART_Transmit_Newline();
 	
 	// Configure DLPF for balanced noise performance - setting to ~44Hz bandwidth
 	I2C_WriteRegister(MPU6050_ADDR, CONFIG, 0x03);
+	I2C_SetRegAddress(MPU6050_ADDR, GYRO_CONFIG);
+	int8_t config = I2C_ReadRegister(MPU6050_ADDR);
+	if (config == 0x03) USART_Transmit_String("Enabled digital low pass filter");
 	
-	// All axes for gyro and acc are enabled by default - once device is not in sleep mode anymore, we can start reading
-	
-	// TODO: Read and print data for Gyroscope and Accelerometer to PuTTY console via USART
-	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_XOUT_LOW, GYRO_XOUT_HIGH);
-
-  while (1)
-  {
-		
-			//HAL_Delay(10);
-
-  }
+	USART_Transmit_Newline();
 }
 
 int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr)
