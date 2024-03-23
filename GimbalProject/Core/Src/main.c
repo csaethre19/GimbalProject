@@ -23,6 +23,15 @@ Includes ------------------------------------------------------------------*/
 
 void SystemClock_Config(void);
 
+// When adding pull-resistor to pin AD0 on circuit this should be
+// changing address to have an LSB that matches logic level on that pin
+// So, address should be changed to 0x69 
+// Without updating the addr below all works still
+// With changing it to the expected address, the who am I read does not work
+// but reading and writing to the other configuration registers does work
+
+// In either case, reads from any data measurement registers are all zeros. 
+
 #define MPU6050_ADDR   0x68
 #define WHO_AM_I       0x75
 
@@ -55,12 +64,12 @@ int main(void)
   SystemClock_Config();
 	
 	Init_LEDs();
-		
+	
 	I2C_SetUp();
 	
 	MPU_Init();
 	
-	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_XOUT_LOW, GYRO_XOUT_HIGH);
+	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_ZOUT_LOW, GYRO_ZOUT_HIGH);
 
   while (1)
   {
@@ -78,7 +87,13 @@ void MPU_Init()
 	int8_t expected_whoAmI = 0x68;
 	if (whoAmI == expected_whoAmI) 	USART_Transmit_String("Successfully read WHO_AM_I"); 
 	else USART_Transmit_String("Erorr: did not get expected WHO_AM_I"); 
-
+	
+	USART_Transmit_Newline();
+	
+	USART_Transmit_String("WHO_AM_I=");
+	USART_Transmit_Number(whoAmI);
+	USART_Transmit_Newline();
+	
 	USART_Transmit_Newline();
 	
 	// Wake up device and set clock to 8MHz
@@ -100,18 +115,20 @@ if (pwr_mgmt == 0)
 	
 	USART_Transmit_Newline();
 	
-	// Set SMPRT_DIV register to get 1kHz sample rate
-	I2C_WriteRegister(MPU6050_ADDR, SMPLRT_DIV, 0x07);
+	// Set SMPRT_DIV register to get 1kHz sample rate - when DLPF enabled Gyro Output Rate is 1kHz
+	// sample rate = Gyro Output Rate / (1 + SMPLRT_DIV)
+	I2C_WriteRegister(MPU6050_ADDR, SMPLRT_DIV, 0x00);
 	I2C_SetRegAddress(MPU6050_ADDR, SMPLRT_DIV); 
-	int8_t sample_rate = I2C_ReadRegister(MPU6050_ADDR);
+	int8_t sample_rate_div = I2C_ReadRegister(MPU6050_ADDR);
 	USART_Transmit_String("sample rate: ");
-	USART_Transmit_Number(sample_rate);
+	USART_Transmit_Number(1 / (1 + sample_rate_div));
+	USART_Transmit_String(" kHz");
 	
 	USART_Transmit_Newline();
 	
 	// Configure DLPF for balanced noise performance - setting to ~44Hz bandwidth
 	I2C_WriteRegister(MPU6050_ADDR, CONFIG, 0x03);
-	I2C_SetRegAddress(MPU6050_ADDR, GYRO_CONFIG);
+	I2C_SetRegAddress(MPU6050_ADDR, CONFIG);
 	int8_t config = I2C_ReadRegister(MPU6050_ADDR);
 	if (config == 0x03) USART_Transmit_String("Enabled digital low pass filter");
 	
@@ -125,7 +142,7 @@ int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr)
 	
 	char xl_str[] = "GYRO_XOUT_LOW: ";
 	USART_Transmit_String(xl_str);
-	USART_Transmit_Number(low);
+	USART_Transmit_Binary(low);
 	USART_Transmit_Newline();
 	
 	I2C_SetRegAddress(MPU6050_ADDR, GYRO_XOUT_HIGH);
@@ -133,7 +150,7 @@ int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr)
 	
 	char xh_str[] = "GYRO_XOUT_HIGH: ";
 	USART_Transmit_String(xh_str);
-	USART_Transmit_Number(high);
+	USART_Transmit_Binary(high);
 	USART_Transmit_Newline();
 	
 	int16_t data = ((int16_t)high << 8) | (uint8_t)low;

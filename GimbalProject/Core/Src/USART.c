@@ -45,6 +45,18 @@ void USART_Transmit_Byte(uint8_t b)
 	USART3->TDR = b;
 }
 
+void USART_Transmit_Binary(uint8_t byte) 
+	{
+    for (int8_t i = 7; i >= 0; i--) {
+        // Check each bit in the byte
+        if (byte & (1 << i)) {
+            USART_Transmit_Byte('1'); // If bit is set, send '1'
+        } else {
+            USART_Transmit_Byte('0'); // If bit is clear, send '0'
+        }
+    }
+}
+
 void USART_Transmit_String(const char* str)
 {
     while (*str)

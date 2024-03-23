@@ -145,7 +145,7 @@ void I2C_SetUp()
 	
 	// Configure bus timing using I2Cx_TIMINGR register to 400kHz highspeed-mode (taken from figure 5.4)
 	I2C2->TIMINGR |= (0x0 << 28); // PRESC
-	I2C2->TIMINGR |= (0x9 << 0); // SCLL
+	I2C2->TIMINGR |= (0x9 << 0);  // SCLL
 	I2C2->TIMINGR |= (0x3 << 8); 	// SCHL
 	I2C2->TIMINGR |= (0x1 << 16); // SDADEL
 	I2C2->TIMINGR |= (0x3 << 20); // SCLDEL
