@@ -23,33 +23,39 @@ Includes ------------------------------------------------------------------*/
 
 void SystemClock_Config(void);
 
-// When adding pull-resistor to pin AD0 on circuit this should be
-// changing address to have an LSB that matches logic level on that pin
-// So, address should be changed to 0x69 
-// Without updating the addr below all works still
-// With changing it to the expected address, the who am I read does not work
-// but reading and writing to the other configuration registers does work
-
-// In either case, reads from any data measurement registers are all zeros. 
 
 #define MPU6050_ADDR   0x68
 #define WHO_AM_I       0x75
 
 #define PWR_MGMT_1     0x6B
-#define GYRO_CONFIG    0x1B
-#define ACC_CONFIG     0x1A
 #define SMPLRT_DIV     0x19
 #define CONFIG         0x1A
 
-#define GYRO_XOUT_LOW  0x44
+#define GYRO_CONFIG    0x1B
 #define GYRO_XOUT_HIGH 0x43
+#define GYRO_XOUT_LOW  0x44
+
+#define GYRO_YOUT_HIGH 0x45
 #define GYRO_YOUT_LOW  0x46
-#define GYRO_YOUT_HIGH 0x44
-#define GYRO_ZOUT_LOW  0x47
-#define GYRO_ZOUT_HIGH 0x48
+
+#define GYRO_ZOUT_HIGH 0x47
+#define GYRO_ZOUT_LOW  0x48
+
+#define ACC_CONFIG     0x1A
+#define ACC_XOUT_HIGH  0x3B
+#define ACC_XOUT_LOW   0x3C
+
+#define ACC_YOUT_HIGH  0x3D
+#define ACC_YOUT_LOW   0x3E
+
+#define ACC_ZOUT_HIGH  0x3F
+#define ACC_ZOUT_LOW   0x40
+
+#define TEMP_OUT_HIGH  0x41
+#define TEMP_OUT_LOW   0x42
 
 
-int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr);
+int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroHighAddr, int8_t gyroLowAddr);
 
 void MPU_Init(void);
 
@@ -69,7 +75,7 @@ int main(void)
 	
 	MPU_Init();
 	
-	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_ZOUT_LOW, GYRO_ZOUT_HIGH);
+	int16_t data = ReadGyroData(MPU6050_ADDR, GYRO_XOUT_HIGH, GYRO_XOUT_LOW);
 
   while (1)
   {
@@ -111,7 +117,15 @@ if (pwr_mgmt == 0)
 	I2C_WriteRegister(MPU6050_ADDR, GYRO_CONFIG, 0x08);
 	I2C_SetRegAddress(MPU6050_ADDR, GYRO_CONFIG);
 	int8_t gyro_config = I2C_ReadRegister(MPU6050_ADDR);
-	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to 500 deg/s");
+	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to +-500 deg/s");
+	
+	USART_Transmit_Newline();
+	
+	// Setting accelerometer to +-8g
+	I2C_WriteRegister(MPU6050_ADDR, ACC_CONFIG, 0x10);
+	I2C_SetRegAddress(MPU6050_ADDR, ACC_CONFIG);
+	int8_t acc_config = I2C_ReadRegister(MPU6050_ADDR);
+	if (acc_config == 0x10) USART_Transmit_String("Successfully configured ACC to +-8g");	
 	
 	USART_Transmit_Newline();
 	
@@ -135,9 +149,9 @@ if (pwr_mgmt == 0)
 	USART_Transmit_Newline();
 }
 
-int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr)
+int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroHighAddr, int8_t gyroLowAddr)
 {
-	I2C_SetRegAddress(MPU6050_ADDR, GYRO_XOUT_LOW); 
+	I2C_SetRegAddress(MPU6050_ADDR, gyroLowAddr); 
 	int8_t low = I2C_ReadRegister(MPU6050_ADDR); 
 	
 	char xl_str[] = "GYRO_XOUT_LOW: ";
@@ -145,7 +159,7 @@ int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroLowAddr, int8_t gyroHighAddr)
 	USART_Transmit_Binary(low);
 	USART_Transmit_Newline();
 	
-	I2C_SetRegAddress(MPU6050_ADDR, GYRO_XOUT_HIGH);
+	I2C_SetRegAddress(MPU6050_ADDR, gyroHighAddr);
 	int8_t high = I2C_ReadRegister(MPU6050_ADDR); 
 	
 	char xh_str[] = "GYRO_XOUT_HIGH: ";
