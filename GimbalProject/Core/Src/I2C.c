@@ -132,6 +132,69 @@ int8_t I2C_ReadRegister(uint16_t deviceAddr)
 	return data;
 }
 
+void I2C_BurstRead(uint16_t deviceAddr, uint8_t firstReg, int8_t* dataBuffer, uint8_t length)
+{
+		I2C_SetRegAddress(deviceAddr, firstReg);
+	USART_Transmit_String("Set register address for first read...");
+	USART_Transmit_Newline();
+	
+	// Clear the CR2 register
+	I2C2->CR2 = 0;
+
+	I2C2->CR2 |= (deviceAddr << 1);
+
+	// Set the number of bytes to read
+	I2C2->CR2 |= ((uint32_t)length << 16);
+
+		// Set RD_WRN to READ operation - 1 indicates READ
+	I2C2->CR2 |= (1 << 10);
+	
+	// Set the auto-end bit to stop the I2C automatically after the specified length of bytes are read
+  I2C2->CR2 |= I2C_CR2_AUTOEND;
+
+	// Set the start bit to begin the address frame
+	I2C2->CR2 |= I2C_CR2_START;
+
+
+
+	for (uint8_t i = 0; i < length; i++)
+	{
+			// Wait until RXNE (Receive Buffer Not Empty) flag is set
+			while(!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)))
+			{
+
+			}
+			
+			USART_Transmit_String("Receive Buffer Not Empty");
+			USART_Transmit_Newline();
+			
+			// Check for NACK
+			if (I2C2->ISR & I2C_ISR_NACKF)
+			{
+					break;
+			}
+
+			// Read the byte from the receive register
+			dataBuffer[i] = I2C2->RXDR;
+			USART_Transmit_String("data: ");
+			USART_Transmit_Number(dataBuffer[i]);
+			USART_Transmit_Newline();
+	}
+
+	// Wait for the STOPF flag, indicating the end of the transmission
+	while (!(I2C2->ISR & I2C_ISR_STOPF))
+	{
+
+	}
+	
+	USART_Transmit_String("Stop flag set, end of transmission");
+	USART_Transmit_Newline();
+
+	// Clear the STOPF flag by writing to ICR
+	I2C2->ICR |= I2C_ICR_STOPCF;
+
+}
+
 void I2C_SetUp()
 {
 	I2C_Ports_Config();
