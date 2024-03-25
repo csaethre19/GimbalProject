@@ -5,54 +5,17 @@
 
 
 
-void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
-{
-	//USART_Transmit_String("SET REG deviceAddr: ");
-	//USART_Transmit_Number(deviceAddr);
-	//USART_Transmit_Newline();
-	
-	//USART_Transmit_String("SET REG regAddr: ");
-	//USART_Transmit_Number(regAddr);
-	//USART_Transmit_Newline();
-	
-	I2C2->CR2 = 0; // clear register
-	// Use SADD[7:1] bit field in CR2 register to set slave address to addr
-	I2C2->CR2 |= (deviceAddr << 1);
-	// Use NBYTES[7:0] bit field to set number of data bytes to be transmitted to 1
-	I2C2->CR2 |= (0x1 << 16);
-	// Set RD_WRN to WRITE operation - 0 indicates WRITE
-	I2C2->CR2 &= ~(1 << 10);
-	// Set START bit to begin the address frame
-	I2C2->CR2 |= I2C_CR2_START;
-	
-	// While TXIS or NACKF flags not set wait
-	while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF))) {} // getting stuck here on second call to this function!
-	// Once TXIS flag set continue
-
-	// Check if NACK set
-	if (I2C2->ISR & I2C_ISR_NACKF)
-	{
-		GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
-	}
-	
-	// Write data into the TXDR 
-	I2C2->TXDR = regAddr;
-		
-	// Wait until TC flag set - transfer complete
-	while (!(I2C2->ISR & I2C_ISR_TC)) {}
-
-}
-
 /*
 
 	I2C communication handler for writing to specified device.
-	deviceAddr - Address of device communicating on I2C
-	data 			 - Either a register address or the data to be written to a register
+	deviceAddr - Address of device communicating on I2C.
+	regAddr    - Register address to write to.
+	data 			 - Either a register address or the data to be written to a register.
 
 */
 void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data) 
 {
-	I2C2->CR2 = 0; // clear register
+	I2C2->CR2 = 0; // Clear register
 	// Use SADD[7:1] bit field in CR2 register to set slave address to addr
 	I2C2->CR2 |= (deviceAddr << 1);
 	// Use NBYTES[7:0] bit field to set number of data bytes to be transmitted to 1
@@ -74,7 +37,6 @@ void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data)
 	
 	// Set reg address
 	I2C2->TXDR = regAddr;
-
 	
 	while (!(I2C2->ISR & I2C_ISR_TXIS)) {}
 		
@@ -87,20 +49,51 @@ void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data)
 }
 
 /*
+	I2C communication handler for setting a register address prior to read.
+	deviceAddr - Address of device communicating on I2C.
+	regAddr    - Register address to read from. 
+*/
+void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
+{
+	I2C2->CR2 = 0; // Clear register
+	// Use SADD[7:1] bit field in CR2 register to set slave address to addr
+	I2C2->CR2 |= (deviceAddr << 1);
+	// Use NBYTES[7:0] bit field to set number of data bytes to be transmitted to 1
+	I2C2->CR2 |= (0x1 << 16);
+	// Set RD_WRN to WRITE operation - 0 indicates WRITE
+	I2C2->CR2 &= ~(1 << 10);
+	// Set START bit to begin the address frame
+	I2C2->CR2 |= I2C_CR2_START;
+	
+	// While TXIS or NACKF flags not set wait
+	while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF))) {} 
+	// Once TXIS flag set continue
 
-	I2C communication handler for reading from specified device.
+	// Check if NACK set
+	if (I2C2->ISR & I2C_ISR_NACKF)
+	{
+		GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
+	}
+	
+	// Write data into the TXDR 
+	I2C2->TXDR = regAddr;
+		
+	// Wait until TC flag set - transfer complete
+	while (!(I2C2->ISR & I2C_ISR_TC)) {}
+}
+
+/*
+	I2C communication handler for performing single byte read.
 	deviceAddr - Address of device communicating on I2C
 	returns		 - 1 byte of data read from specified register
 */
 int8_t I2C_ReadRegister(uint16_t deviceAddr) 
 {
-	//USART_Transmit_String("READ deviceAddr: ");
-	//USART_Transmit_Number(deviceAddr);
-	//USART_Transmit_Newline();
-	I2C2->CR2 = 0; // clear register
+	// Clear register
+	I2C2->CR2 = 0; 
+	// Single byte data to be returned
 	int8_t data = 0;
-
-	// Use SADD[7:1] bit field in CR2 register to set slave address to L3GD20
+	// Use SADD[7:1] bit field in CR2 register to set slave address
 	I2C2->CR2 |= (deviceAddr << 1);
 	// Use NBYTES[7:0] bit field to set number of data bytes to be transmitted to 1
 	I2C2->CR2 |= (0x1 << 16);
@@ -124,76 +117,65 @@ int8_t I2C_ReadRegister(uint16_t deviceAddr)
 		
 	// Read contents of RXDR register and return data - remember it is 1 byte at a time
 	data = I2C2->RXDR;
-		
-	//USART_Transmit_String("data: ");
-	//USART_Transmit_Number(data);
-	//USART_Transmit_Newline();
 	
 	return data;
 }
 
-void I2C_BurstRead(uint16_t deviceAddr, uint8_t firstReg, int8_t* dataBuffer, uint8_t length)
+/*
+	I2C communication handler for performing burst read.
+	deviceAddr - Address of device communicating on I2C.
+	regAddr    - Register address to read from.
+	dataBuffer - Pointer to 8-bit integers to store values read from the RXDR register.
+	length     - Number of bytes requesting to be read.
+	returns		 - 0 for success and -1 if NACK was sent.
+*/
+int I2C_ReadBurst(uint16_t deviceAddr, uint8_t regAddr, int8_t *dataBuffer, uint16_t length)
 {
-		I2C_SetRegAddress(deviceAddr, firstReg);
-	USART_Transmit_String("Set register address for first read...");
-	USART_Transmit_Newline();
-	
-	// Clear the CR2 register
-	I2C2->CR2 = 0;
+	// Set the register address to start read from
+	I2C_SetRegAddress(deviceAddr, regAddr);
 
-	I2C2->CR2 |= (deviceAddr << 1);
+	I2C2->CR2 = 0; // Clear register
+	I2C2->CR2 |= (deviceAddr << 1); // Set the slave address 
+	I2C2->CR2 |= (length << 16); // Set the number of bytes you want to read
+	I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
+	I2C2->CR2 |= I2C_CR2_START; // Send the start condition
 
-	// Set the number of bytes to read
-	I2C2->CR2 |= ((uint32_t)length << 16);
-
-		// Set RD_WRN to READ operation - 1 indicates READ
-	I2C2->CR2 |= (1 << 10);
-	
-	// Set the auto-end bit to stop the I2C automatically after the specified length of bytes are read
-  I2C2->CR2 |= I2C_CR2_AUTOEND;
-
-	// Set the start bit to begin the address frame
-	I2C2->CR2 |= I2C_CR2_START;
-
-
-
-	for (uint8_t i = 0; i < length; i++)
+	for (int8_t i = 0; i < length; i++)
 	{
-			// Wait until RXNE (Receive Buffer Not Empty) flag is set
-			while(!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)))
-			{
+			// Wait for RXNE or NACKF flag to be set
+			while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF))) {}
 
-			}
-			
-			USART_Transmit_String("Receive Buffer Not Empty");
-			USART_Transmit_Newline();
-			
-			// Check for NACK
 			if (I2C2->ISR & I2C_ISR_NACKF)
 			{
-					break;
+					// If a NACK is received, exit with error
+					GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
+					return -1; // Error code for NACK
 			}
 
-			// Read the byte from the receive register
+			// Read the data from the RXDR
 			dataBuffer[i] = I2C2->RXDR;
-			USART_Transmit_String("data: ");
+			
+			USART_Transmit_String("data[");
+			USART_Transmit_Number(i);
+			USART_Transmit_String("]: ");
 			USART_Transmit_Number(dataBuffer[i]);
+			USART_Transmit_String(" b");
+			USART_Transmit_Binary(dataBuffer[i]);
 			USART_Transmit_Newline();
+
+			// If it's the last byte, send NACK after reading
+			if (i == length - 1)
+			{
+					I2C2->CR2 |= I2C_CR2_NACK; // Generate NACK
+			}
 	}
 
-	// Wait for the STOPF flag, indicating the end of the transmission
-	while (!(I2C2->ISR & I2C_ISR_STOPF))
-	{
+	// Generate Stop condition after the last byte
+	I2C2->CR2 |= I2C_CR2_STOP;
 
-	}
-	
-	USART_Transmit_String("Stop flag set, end of transmission");
-	USART_Transmit_Newline();
-
-	// Clear the STOPF flag by writing to ICR
-	I2C2->ICR |= I2C_ICR_STOPCF;
-
+	return 0; // Success
 }
+
 
 void I2C_SetUp()
 {

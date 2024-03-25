@@ -32,6 +32,7 @@ void SystemClock_Config(void);
 #define CONFIG         0x1A
 
 #define GYRO_CONFIG    0x1B
+#define GYRO_LSB_SENS  65.5 // for +-500 deg/s
 #define GYRO_XOUT_HIGH 0x43
 #define GYRO_XOUT_LOW  0x44
 
@@ -42,6 +43,7 @@ void SystemClock_Config(void);
 #define GYRO_ZOUT_LOW  0x48
 
 #define ACC_CONFIG     0x1A
+#define ACC_LSB_SENS   4096 // for +-8g
 #define ACC_XOUT_HIGH  0x3B
 #define ACC_XOUT_LOW   0x3C
 
@@ -156,14 +158,34 @@ if (pwr_mgmt == 0)
 
 void BurstReadGyroData(int8_t devicAddr, int8_t firstReg)
 {
-	int8_t* dataBuffer;
-	I2C_BurstRead(devicAddr, firstReg, dataBuffer, 6);
+	int8_t dataBuffer[4];
+	I2C_ReadBurst(devicAddr, firstReg, dataBuffer, 4); // reading 4 bytes to get the high/low X and the high/low Y
 	
-	char xh_str[] = "GYRO_XOUT_HIGH: ";
-	USART_Transmit_String(xh_str);
-	USART_Transmit_Number((int16_t)dataBuffer[0]);
+	int8_t xhigh = dataBuffer[0];
+	int8_t xlow = dataBuffer[1];
+	int16_t x_raw = ((int16_t)xhigh << 8) | (int8_t)xlow;
+	int16_t X = x_raw/GYRO_LSB_SENS;
+	
+	USART_Transmit_String("X_RAW: ");
+	USART_Transmit_Number(x_raw);
 	USART_Transmit_Newline();
 	
+	USART_Transmit_String("X: ");
+	USART_Transmit_Number(X);
+	USART_Transmit_Newline();
+	
+	int8_t yhigh = dataBuffer[2];
+	int8_t ylow = dataBuffer[3];
+	int16_t y_raw = ((int16_t)yhigh << 8) | (int8_t)ylow;
+	int16_t Y = y_raw/GYRO_LSB_SENS;
+	
+	USART_Transmit_String("Y_RAW: ");
+	USART_Transmit_Number(y_raw);
+	USART_Transmit_Newline();
+	
+	USART_Transmit_String("Y: ");
+	USART_Transmit_Number(Y);
+	USART_Transmit_Newline();
 }
 
 int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroHighAddr, int8_t gyroLowAddr)
@@ -171,23 +193,20 @@ int16_t ReadGyroData(int8_t deviceAddr, int8_t gyroHighAddr, int8_t gyroLowAddr)
 	I2C_SetRegAddress(MPU6050_ADDR, gyroHighAddr);
 	int8_t high = I2C_ReadRegister(MPU6050_ADDR); 
 	
-	char xh_str[] = "GYRO_XOUT_HIGH: ";
-	USART_Transmit_String(xh_str);
+	USART_Transmit_String("GYRO_XOUT_HIGH: ");
 	USART_Transmit_Binary(high);
 	USART_Transmit_Newline();
 	
 	I2C_SetRegAddress(MPU6050_ADDR, gyroLowAddr); 
 	int8_t low = I2C_ReadRegister(MPU6050_ADDR); 
 	
-	char xl_str[] = "GYRO_XOUT_LOW: ";
-	USART_Transmit_String(xl_str);
+	USART_Transmit_String("GYRO_XOUT_LOW: ");
 	USART_Transmit_Binary(low);
 	USART_Transmit_Newline();
 	
 	int16_t data = ((int16_t)high << 8) | (int8_t)low;
 
-	char xd_str[] = "GYRO_XOUT: ";
-	USART_Transmit_String(xd_str);
+	USART_Transmit_String("GYRO_XOUT: ");
 	USART_Transmit_Number(data);
 	USART_Transmit_Newline();
 
