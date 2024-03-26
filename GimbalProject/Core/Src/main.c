@@ -40,15 +40,17 @@ int main(void)
 	
 	MPU_Init();
 	
-	int16_t gyro_data[2];
-	ReadGyroData(gyro_data);
-	
-	int16_t accel_data[2];
-	ReadAccelData(accel_data);
-	
   while (1)
   {
-
+		//float gyro_data[2];
+		//ReadGyroData(gyro_data);
+		
+		USART_Transmit_Newline();
+		
+		float accel_data[2];
+		ReadAccelData(accel_data);
+		
+		HAL_Delay(1000);
   }
 }
 

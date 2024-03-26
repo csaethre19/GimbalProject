@@ -12,4 +12,6 @@ void USART_Transmit_String(const char* str);
 
 void USART_Transmit_Number(int16_t number);
 
+void USART_Transmit_Float(float number, unsigned int decimal_places);
+
 void USART_Transmit_Newline();

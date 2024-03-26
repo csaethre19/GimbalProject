@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "USART.h"
 
@@ -95,6 +96,15 @@ void USART_Transmit_Newline()
 {
     USART_Transmit_Byte('\r'); // Carriage Return
     USART_Transmit_Byte('\n'); // Line Feed
+}
+
+void USART_Transmit_Float(float number, unsigned int decimal_places)
+{
+    char numberString[32]; // Buffer large enough for float representation
+    // Convert the float to a string
+    snprintf(numberString, sizeof(numberString), "%.*f", decimal_places, number);
+    // Transmit the converted string
+    USART_Transmit_String(numberString);
 }
 
 void Init_LEDs(void)
