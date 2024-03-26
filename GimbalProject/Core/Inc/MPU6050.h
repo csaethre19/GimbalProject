@@ -56,15 +56,15 @@ typedef struct {
 
 	float KalmanAngleX;
 	float KalmanAngleY;
+	float KalmanAngleZ;
 	
 } MPU6050_t;
 
-void MPU_Init(void);
+void MPU_Init(uint16_t deviceAddr);
 
-// TODO: add arg for a MPU6050_t that is passed by reference to hold all the data
-void ReadGyroData(float* data);
+void ReadGyroData(MPU6050_t *dataStruct);
 
-void ReadAccelData(float* data);
+void ReadAccelData(MPU6050_t *dataStruct);
 
 int CalculateAccelPitchAngle(int16_t AccelX, int16_t AccelY, int16_t AccelZ);
 

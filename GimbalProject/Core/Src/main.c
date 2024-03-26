@@ -22,6 +22,8 @@ Includes ------------------------------------------------------------------*/
 #include "USART.h"
 #include "MPU6050.h"
 
+MPU6050_t mpu6050;
+
 void SystemClock_Config(void);
 
 
@@ -38,17 +40,15 @@ int main(void)
 	
 	I2C_SetUp();
 	
-	MPU_Init();
+	mpu6050.deviceAddr = 0x68;
+	
+	MPU_Init(mpu6050.deviceAddr);
 	
   while (1)
   {
-		//float gyro_data[2];
-		//ReadGyroData(gyro_data);
 		
-		USART_Transmit_Newline();
-		
-		float accel_data[2];
-		ReadAccelData(accel_data);
+		ReadGyroData(&mpu6050);
+		ReadAccelData(&mpu6050);
 		
 		HAL_Delay(1000);
   }
