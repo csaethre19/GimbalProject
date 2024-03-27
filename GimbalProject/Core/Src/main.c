@@ -40,16 +40,11 @@ int main(void)
 	
 	I2C_SetUp();
 	
-	mpu6050.deviceAddr = 0x68;
-	
-	MPU_Init(mpu6050.deviceAddr);
+	MPU_Init(&mpu6050, 0x68);
 	
   while (1)
   {
-		
-		ReadGyroData(&mpu6050);
-		ReadAccelData(&mpu6050);
-		
+		KalmanFilter(&mpu6050);
 		HAL_Delay(1000);
   }
 }

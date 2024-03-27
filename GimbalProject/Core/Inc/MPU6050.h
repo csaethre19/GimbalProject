@@ -53,19 +53,27 @@ typedef struct {
 	float Gx;
 	float Gy;
 	float Gz;
-
-	float KalmanAngleX;
-	float KalmanAngleY;
-	float KalmanAngleZ;
+	
+	float RateRoll;
+	float RatePitch;
+	float AngleRoll;
+	float AnglePitch;
+	
+	float KalmanAngleRoll;
+	float KalmanAnglePitch;
+	float KalmanAngleUncertaintyRoll;
+	float KalmanAngleUncertaintyPitch;
 	
 } MPU6050_t;
 
-void MPU_Init(uint16_t deviceAddr);
+void MPU_Init(MPU6050_t *dataStruct, uint16_t deviceAddr);
 
 void ReadGyroData(MPU6050_t *dataStruct);
 
 void ReadAccelData(MPU6050_t *dataStruct);
 
-int CalculateAccelPitchAngle(int16_t AccelX, int16_t AccelY, int16_t AccelZ);
+float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ);
 
-int CalculateGyroPitchAngle(int16_t prevRate, int16_t currentRate, int samplePeriod);
+float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ);
+
+void KalmanFilter(MPU6050_t *dataStruct);

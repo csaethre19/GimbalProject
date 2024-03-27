@@ -1,8 +1,10 @@
 #include "MPU6050.h"
 
 
-void MPU_Init(uint16_t deviceAddr)
+void MPU_Init(MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
+	dataStruct->deviceAddr = deviceAddr;
+	
 	// Check WHO_AM_I register
 	I2C_SetRegAddress(deviceAddr, WHO_AM_I);
 	int8_t whoAmI = I2C_ReadRegister(MPU6050_ADDR);
@@ -58,6 +60,12 @@ if (pwr_mgmt == 0)
 	USART_Transmit_Newline();
 	
 	USART_Transmit_Newline();
+	
+	// Setting initial values for Kalman Filter parameters
+	dataStruct->KalmanAnglePitch = 0.0;
+	dataStruct->KalmanAngleRoll = 0.0;
+	dataStruct->KalmanAngleUncertaintyPitch = 2*2;
+	dataStruct->KalmanAngleUncertaintyRoll = 2*2;
 }
 
 void ReadGyroData(MPU6050_t *dataStruct)
@@ -75,6 +83,7 @@ void ReadGyroData(MPU6050_t *dataStruct)
 	float gyro_x = x_raw/GYRO_LSB_SENS;
 	dataStruct->Gyro_X_RAW = x_raw;
 	dataStruct->Gx = gyro_x;
+	dataStruct->RateRoll = gyro_x;
 	
 	USART_Transmit_String("X_RAW: ");
 	USART_Transmit_Number(x_raw);
@@ -90,6 +99,7 @@ void ReadGyroData(MPU6050_t *dataStruct)
 	float gyro_y = y_raw/GYRO_LSB_SENS;
 	dataStruct->Gyro_Y_RAW = y_raw;
 	dataStruct->Gy = gyro_y;
+	dataStruct->RatePitch = gyro_y;
 	
 	USART_Transmit_String("Y_RAW: ");
 	USART_Transmit_Number(y_raw);
@@ -173,18 +183,43 @@ void ReadAccelData(MPU6050_t *dataStruct)
 	USART_Transmit_Newline();
 	
 	USART_Transmit_Newline();
+	
+	dataStruct->AngleRoll = CalculateAngleRoll(accel_x, accel_y, accel_z);
+	dataStruct->AnglePitch = CalculateAnglePitch(accel_x, accel_y, accel_z);
 }
 
-int CalculateAccelPitchAngle(int16_t AccelX, int16_t AccelY, int16_t AccelZ)
+float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ)
 {
-	int anglePitchRad = atan(-AccelX / sqrt(AccelY * AccelY + AccelZ * AccelZ));
-	
-	return anglePitchRad;
+	return atan(AccelY/sqrt(AccelX*AccelX+AccelZ*AccelZ))*1/(3.142/180);
 }
 
-int CalculateGyroPitchAngle(int16_t prevRate, int16_t currentRate, int samplePeriod)
+float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 {
-	int anglePitchRad = prevRate + currentRate * samplePeriod;
+	return -atan(AccelX/sqrt(AccelY*AccelY+AccelZ*AccelZ))*1/(3.142/180);
+}
+
+void KalmanFilter(MPU6050_t *dataStruct)
+{
+	ReadGyroData(dataStruct);
+	ReadAccelData(dataStruct);
 	
-	return anglePitchRad;
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + dataStruct->RateRoll*0.004;
+	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + 0.004 * 0.004 * 4 * 4;
+	float kalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * 1/(1*dataStruct->KalmanAngleUncertaintyRoll + 3 * 3);
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + kalmanGainRoll * (dataStruct->AngleRoll-dataStruct->KalmanAngleRoll);
+	
+	USART_Transmit_String("KalmanAngleRoll: ");
+	USART_Transmit_Float(dataStruct->KalmanAngleRoll, 4);
+	USART_Transmit_Newline();
+	
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + dataStruct->RatePitch*0.004;
+	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + 0.004 * 0.004 * 4 * 4;
+	float kalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * 1/(1*dataStruct->KalmanAngleUncertaintyPitch + 3 * 3);
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + kalmanGainPitch * (dataStruct->AnglePitch-dataStruct->KalmanAnglePitch);
+	
+	USART_Transmit_String("KalmanAnglePitch: ");
+	USART_Transmit_Float(dataStruct->KalmanAnglePitch, 4);
+	USART_Transmit_Newline();
+	
+	USART_Transmit_Newline();
 }
