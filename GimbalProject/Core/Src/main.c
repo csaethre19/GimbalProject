@@ -15,8 +15,14 @@
   *
   ******************************************************************************
 
-/* Includes ------------------------------------------------------------------*/
+Includes ------------------------------------------------------------------*/
 #include "main.h"
+
+#include "I2C.h"
+#include "USART.h"
+#include "MPU6050.h"
+
+MPU6050_t mpu6050;
 
 void SystemClock_Config(void);
 
@@ -29,10 +35,17 @@ int main(void)
 {
   /* Configure the system clock */
   SystemClock_Config();
-
+	
+	Init_LEDs();
+	
+	I2C_SetUp();
+	
+	MPU_Init(&mpu6050, 0x68);
+	
   while (1)
   {
-
+		KalmanFilter(&mpu6050);
+		HAL_Delay(1000);
   }
 }
 
