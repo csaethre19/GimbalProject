@@ -3651,9 +3651,9 @@
       </Doc>
       <Doc>
         <Name>..\Core\Src\MPU6050.c</Name>
-        <ColumnNumber>134</ColumnNumber>
+        <ColumnNumber>2</ColumnNumber>
         <TopLine>194</TopLine>
-        <CurrentLine>218</CurrentLine>
+        <CurrentLine>219</CurrentLine>
         <Folding>0</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
