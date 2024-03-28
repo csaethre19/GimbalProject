@@ -4,7 +4,7 @@ void Init_LEDs(void);
 
 void USART_SetUp();
 
-void USART_USART_Transmit_Byte(uint8_t b);
+void USART_Transmit_Byte(uint8_t b);
 
 void USART_Transmit_Binary(uint8_t byte);
 
