@@ -22,7 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "USART.h"
-
+#include "DCMotor.h"
+#include "BLDCMotor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,6 +34,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define RX_BUFFER_SIZE 128
+#define Yaw_Motor 1;
+#define Pitch_Motor 1;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -112,7 +115,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	Init_LEDs();
 	//Setup Motor Drivers
-	//DC Motor Setup (Yaw)
+	//Motor Setup (Yaw & Pitch for now)
+	initDCMotor(1);//initialize a state for Yaw Motor
+	initBLDCOutput(1);//initialize a state for Pitch Motor
 	
 	
 	
@@ -125,10 +130,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	int DCtracker = 0;
+	int BLDCtracker = 0;
   while (1)
   {
+		DCSetOutput(DCtracker, Yaw_Motor);
+		BLDC_Output(BLDCtracker, Pitch_Motor);
+		
+		DCtracker ++;
+		BLDCtracker ++;
+		if(DCtracker > 1000) DCtracker = -1000;
+		if(BLDCtracker > 359) BLDCtracker = 0;
     /* USER CODE END WHILE */
-
+		
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
