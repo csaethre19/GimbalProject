@@ -131,16 +131,18 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	int DCtracker = 0;
+	int DC_Direction = 1;
 	double BLDCtracker = 0;
   while (1)
   {
 		DCSetOutput(DCtracker, Yaw_Motor);
 		BLDC_Output(BLDCtracker, Pitch_Motor);
 		
-		DCtracker ++;
+		DCtracker += DC_Direction;
 		BLDCtracker += 1;
-		if(DCtracker > 1000) DCtracker = -1000;
+		if((DCtracker > 999) || (DCtracker < 999)) DC_Direction *= -1;
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
+		HAL_Delay(10);
     /* USER CODE END WHILE */
 		
     /* USER CODE BEGIN 3 */
