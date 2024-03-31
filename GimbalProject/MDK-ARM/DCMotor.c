@@ -2,7 +2,10 @@
 
 #include "DCMotor.h"
 
+#define Yaw1_TimARR 1000;
 #define Yaw 1;
+#define Yaw1_Ch1 TIM1->CCR1;
+#define Yaw1_Ch2 TIM1->CCR2;
 
 /*
 	DC motor driver,
@@ -16,10 +19,32 @@
 */
 void DCSetOutput(int Output, int MotorNum)
 {
+	if((Output < -1000) || (Output > 1000)) return;
 	
+	if(MotorNum == Yaw){
+		if(Output > 0){//CW? Direction instructed, Ch2 not 100% duty cycle
+			Yaw1_Ch1 = Yaw1_TimARR;
+			//Max Spin Rate = Yaw1_TimARR * 0      ie. Output = 1000 -> (1 - (Output / 1000)) = 0
+			//Min Spin Rate = Yaw1_TimARR * 0.999  ie. Output = 0001 -> (1 - (Output / 1000)) = 0.999
+			Yaw1_Ch2 = Yaw1_TimARR * (1 - (Output / 1000)); 
+		}
+		else if(Output < 0){//CCW? Direction instructed, Ch1 not 100% duty cycle
+			Yaw1_Ch2 = Yaw1_TimARR;
+			//Max Spin Rate = Yaw1_TimARR * 0      ie. Output = 1000 -> (1 - (Output / 1000)) = 0
+			//Min Spin Rate = Yaw1_TimARR * 0.999  ie. Output = 0001 -> (1 - (Output / 1000)) = 0.999
+			Yaw1_Ch1 = Yaw1_TimARR * (1 - (Output / 1000)); 
+		}
+		else{//Output = 0
+			Yaw1_Ch1 = Yaw1_TimARR;
+			Yaw1_Ch2 = Yaw1_TimARR;
+		}
+	}
 }
 
-void DCinitOutput(int Output, int MotorNum)
+void initDCOutput(int Output, int MotorNum)
 {
-	
+	if(MotorNum == Yaw){
+		Yaw1_Ch1 = Yaw1_TimARR;//Duty Cycle = 100%
+		Yaw1_Ch2 = Yaw1_TimARR;//Duty Cycle = 100%
+	}
 }
