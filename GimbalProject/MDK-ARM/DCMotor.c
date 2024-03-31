@@ -41,7 +41,7 @@ void DCSetOutput(int Output, int MotorNum)
 	}
 }
 
-void initDCOutput(int Output, int MotorNum)
+void initDCOutput(int MotorNum)
 {
 	if(MotorNum == Yaw){//put the provided DC motor into its brake state;
 		Yaw1_Ch1 = Yaw1_TimARR;//Duty Cycle = 100%
