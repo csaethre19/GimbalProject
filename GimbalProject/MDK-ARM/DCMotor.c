@@ -1,4 +1,4 @@
-#include <stdlib.h>
+/*#include <stdlib.h>
 
 #include "DCMotor.h"
 
@@ -7,16 +7,16 @@
 #define Yaw1_Ch1 TIM1->CCR1;
 #define Yaw1_Ch2 TIM1->CCR2;
 
-/*
-	DC motor driver,
-	Functions that drive the implementation of a single DC motor
-	Two PWM outputs
-*/
 
-/*
-	DCSetOutput takes in a value from -1000 to 1000
-	Based on this, the DC motor is set to rotate CW or CCW from 0% to 100% power
-*/
+//	DC motor driver,
+//	Functions that drive the implementation of a single DC motor
+//	Two PWM outputs
+
+
+
+//	DCSetOutput takes in a value from -1000 to 1000
+//	Based on this, the DC motor is set to rotate CW or CCW from 0% to 100% power
+
 void DCSetOutput(int Output, int MotorNum)
 {
 	if((Output < -1000) || (Output > 1000)) return;
@@ -48,3 +48,4 @@ void initDCOutput(int MotorNum)
 		Yaw1_Ch2 = Yaw1_TimARR;//Duty Cycle = 100%
 	}
 }
+*/

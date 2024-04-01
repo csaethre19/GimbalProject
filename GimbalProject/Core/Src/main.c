@@ -22,8 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "USART.h"
-#include "DCMotor.h"
-#include "BLDCMotor.h"
+#include <math.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,6 +36,26 @@
 #define RX_BUFFER_SIZE 128
 #define Yaw_Motor 1;
 #define Pitch_Motor 1;
+
+//EVENTUALLY INCLUDED IN OTHER FILES< HERE FOR NOW
+//BLDCMotor defines
+#define PI 3.1415926535897932;
+#define Pitch_TimARR 1000;
+#define Roll_TimARR 1000;
+#define Pitch 1;
+#define Roll 2;
+#define Pitch_1A TIM2->CCR1;
+#define Pitch_1B TIM2->CCR2;
+#define Pitch_1C TIM2->CCR3;
+#define Roll_2A TIM3->CCR1;
+#define Roll_2B TIM3->CCR2;
+#define Roll_2C TIM3->CCR3;
+//DCmotor defines
+#define Yaw1_TimARR 1000;
+#define Yaw 1;
+#define Yaw1_Ch1 TIM1->CCR1;
+#define Yaw1_Ch2 TIM1->CCR2;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,7 +90,10 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
-
+void DCSetOutput(int Output, int MotorNum);
+void initDCOutput(int MotorNum);
+void BLDC_Output(double Angle1, int MotorNum);
+void initBLDCOutput(int MotorNum);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -116,8 +139,8 @@ int main(void)
 	Init_LEDs();
 	//Setup Motor Drivers
 	//Motor Setup (Yaw & Pitch for now)
-	initDCMotor(1);//initialize a state for Yaw Motor
-	initBLDCOutput(1);//initialize a state for Pitch Motor
+	initDCOutput( 1 );//initialize a state for Yaw Motor
+	initBLDCOutput( 1 );//initialize a state for Pitch Motor
 	
 	
 	
@@ -135,14 +158,42 @@ int main(void)
 	double BLDCtracker = 0;
   while (1)
   {
-		DCSetOutput(DCtracker, Yaw_Motor);
-		BLDC_Output(BLDCtracker, Pitch_Motor);
+		GPIOC -> ODR ^= GPIO_ODR_6;
+		//DCSetOutput(1000,1);
+		//BLDC_Output(10,1);
+		HAL_Delay(250);
+		GPIOC -> ODR ^= GPIO_ODR_6;
+		//DCSetOutput(500,1);
+		//BLDC_Output(50,1);
+		HAL_Delay(250);
+		GPIOC -> ODR ^= GPIO_ODR_6;
+		//DCSetOutput(-100,1);
+		//BLDC_Output(100,1);
+		HAL_Delay(250);
+		GPIOC -> ODR ^= GPIO_ODR_6;
+		//DCSetOutput(500,1);
+		//BLDC_Output(500,1);
+		HAL_Delay(250);
+		GPIOC -> ODR ^= GPIO_ODR_6;
+		TIM1->CCR1 = 500;
+		TIM1->CCR2 = 500;
+		TIM2->CCR1 = 500;
+		TIM2->CCR2 = 500;
+		TIM2->CCR3 = 500;
+		//DCSetOutput(500,1);
+		//BLDC_Output(350,1);
+		HAL_Delay(250);
+		
+		/*
+		DCSetOutput(DCtracker, 1);
+		BLDC_Output(BLDCtracker, 1);
 		
 		DCtracker += DC_Direction;
 		BLDCtracker += 1;
-		if((DCtracker > 999) || (DCtracker < 999)) DC_Direction *= -1;
+		if((DCtracker > 999) || (DCtracker < 999)) {DC_Direction -= 2 * DC_Direction; GPIOC -> ODR ^= GPIO_ODR_6;}
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
 		HAL_Delay(10);
+		/*
     /* USER CODE END WHILE */
 		
     /* USER CODE BEGIN 3 */
@@ -608,6 +659,161 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+//BLDC & DC MOTOR METHODS TEMPORARY LOCATION
+/*
+	DCSetOutput takes in a value from -1000 to 1000
+	Based on this, the DC motor is set to rotate CW or CCW from 0% to 100% power
+*/
+void DCSetOutput(int Output, int MotorNum)
+{
+	if((Output < -1000) || (Output > 1000)) return;
+	
+	if(MotorNum == 1){//Yaw = DC_1
+		if(Output > 0){//CW? Direction instructed, Ch2 not 100% duty cycle
+			TIM1->CCR1 = 1000;
+			//Max Spin Rate = Yaw1_TimARR * 0      ie. Output = 1000 -> (1 - (Output / 1000)) = 0
+			//Min Spin Rate = Yaw1_TimARR * 0.999  ie. Output = 0001 -> (1 - (Output / 1000)) = 0.999
+			TIM1->CCR2 = 1000 * (1 - (Output / 1000)); 
+		}
+		else if(Output < 0){//CCW? Direction instructed, Ch1 not 100% duty cycle
+			TIM1->CCR2 = 1000;
+			//Max Spin Rate = Yaw1_TimARR * 0      ie. Output = 1000 -> (1 - (Output / 1000)) = 0
+			//Min Spin Rate = Yaw1_TimARR * 0.999  ie. Output = 0001 -> (1 - (Output / 1000)) = 0.999
+			TIM1->CCR1 = 1000 * (1 - (Output / 1000)); 
+		}
+		else{//Output = 0
+			TIM1->CCR1 = 1000;
+			TIM1->CCR2 = 1000;
+		}
+	}
+}
+
+void initDCOutput(int MotorNum)
+{
+	if(MotorNum == 1){//put the provided DC motor into its brake state;
+		TIM1->CCR1 = 1000;//Duty Cycle = 100%
+		TIM1->CCR2 = 1000;//Duty Cycle = 100%
+	}
+}
+
+/*
+	This implementation of BLDCMotor control takes in a value from 0-359 as the "desired angle"
+	The determination of what this "desired angle" is currently intended to be performed elsewhere
+	This code simply drives the signals delivered to the motors,
+	as well as defaults to some hopefully harmless power up values
+	
+	PLANNED ADDITIONS:
+	1. Handle the PID loop through simple function calls within this method
+	2. Deal with the current measurement appropriately (Pitch/Roll Current ADC input)
+	3.?
+*/
+
+/*
+	Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
+*/
+void BLDC_Output(double Angle1, int MotorNum)
+{
+	if((Angle1 < 0) || (Angle1 > 360)) return;
+	
+	int Angle2 = Angle1 + 120;
+	int Angle3 = Angle1 + 240;
+	Angle1 = fmod(Angle1, 360);
+	Angle2 = fmod(Angle2, 360);
+	Angle2 = fmod(Angle3, 360);
+	
+	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+	//Angle2 Conversion
+	Angle2 = (double)Angle2 * PI;
+	Angle2 = Angle2 / 180;
+	Angle2 = sin(Angle2);
+	//Angle3 Conversion
+	Angle3 = (double)Angle3 * PI;
+	Angle3 = Angle3 / 180;
+	Angle3 = sin(Angle3);
+
+	
+	if(MotorNum == 1){
+		Angle1 = Angle1 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + Pitch_TimARR;
+		Angle2 = Angle2 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + Pitch_TimARR;
+		Angle3 = Angle3 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + Pitch_TimARR;
+		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
+		TIM2->CCR1 = Angle1 * 0.7;
+		TIM2->CCR2 = Angle2 * 0.7;
+		TIM2->CCR3 = Angle3 * 0.7;
+		return;
+	}
+	else if(MotorNum == 2){
+		Angle1 = Angle1 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + Roll_TimARR;
+		Angle2 = Angle2 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + Roll_TimARR;
+		Angle3 = Angle3 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + Roll_TimARR;
+		TIM3->CCR1 = Angle1 * 0.7;
+		TIM3->CCR2 = Angle2 * 0.7;
+		TIM3->CCR3 = Angle3 * 0.7;
+		return;
+	}
+	
+	return;
+}
+
+/*
+Give some random initial value to the Duty cycle of the BLDC motors
+*/
+void initBLDCOutput(int MotorNum)
+{
+	int Angle1 = 0;
+	int Angle2 = Angle1 + 120;
+	int Angle3 = Angle1 + 240;
+	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+	//Angle2 Conversion
+	Angle2 = (double)Angle2 * PI;
+	Angle2 = Angle2 / 180;
+	Angle2 = sin(Angle2);
+	//Angle3 Conversion
+	Angle3 = (double)Angle3 * PI;
+	Angle3 = Angle3 / 180;
+	Angle3 = sin(Angle3);
+
+	
+	if(MotorNum == 1){
+		Angle1 = Angle1 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + Pitch_TimARR;
+		Angle2 = Angle2 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + Pitch_TimARR;
+		Angle3 = Angle3 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + Pitch_TimARR;	
+		TIM2->CCR1 = Angle1 * 0.7;
+		TIM2->CCR2 = Angle2 * 0.7;
+		TIM2->CCR3 = Angle3 * 0.7;
+		return;
+	}
+	else if(MotorNum == 2){
+		Angle1 = Angle1 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + Roll_TimARR;
+		Angle2 = Angle2 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + Roll_TimARR;
+		Angle3 = Angle3 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + Roll_TimARR;
+		TIM3->CCR1 = Angle1 * 0.7;
+		TIM3->CCR2 = Angle2 * 0.7;
+		TIM3->CCR3 = Angle3 * 0.7;
+		return;
+	}
+}
+
 
 /* USER CODE END 4 */
 

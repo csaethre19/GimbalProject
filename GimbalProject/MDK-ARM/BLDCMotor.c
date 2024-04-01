@@ -1,4 +1,4 @@
-#include <stdlib.h>
+/*#include <stdlib.h>
 #include <math.h>
 
 #include "BLDCMotor.h"
@@ -16,21 +16,21 @@
 #define Roll_2B TIM3->CCR2;
 #define Roll_2C TIM3->CCR3;
 
-/*
-	This implementation of BLDCMotor control takes in a value from 0-359 as the "desired angle"
-	The determination of what this "desired angle" is currently intended to be performed elsewhere
-	This code simply drives the signals delivered to the motors,
-	as well as defaults to some hopefully harmless power up values
-	
-	PLANNED ADDITIONS:
-	1. Handle the PID loop through simple function calls within this method
-	2. Deal with the current measurement appropriately (Pitch/Roll Current ADC input)
-	3.?
-*/
 
-/*
-	Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
-*/
+// This implementation of BLDCMotor control takes in a value from 0-359 as the "desired angle"
+//	The determination of what this "desired angle" is currently intended to be performed elsewhere
+//	This code simply drives the signals delivered to the motors,
+//	as well as defaults to some hopefully harmless power up values
+	
+//	PLANNED ADDITIONS:
+//	1. Handle the PID loop through simple function calls within this method
+//	2. Deal with the current measurement appropriately (Pitch/Roll Current ADC input)
+//	3.?
+
+
+
+	//Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
+
 void BLDC_Output(double Angle1, int MotorNum)
 {
 	if((Angle1 < 0) || (Angle1 > 360)) return;
@@ -85,9 +85,9 @@ void BLDC_Output(double Angle1, int MotorNum)
 	return;
 }
 
-/*
-Give some random initial value to the Duty cycle of the BLDC motors
-*/
+
+//Give some random initial value to the Duty cycle of the BLDC motors
+
 void initBLDCOutput(int MotorNum)
 {
 	int Angle1 = 0;
@@ -132,6 +132,5 @@ void initBLDCOutput(int MotorNum)
 		Pitch_2C = Angle3 * 0.7;
 		return;
 	}
-	
-	
 }
+*/
