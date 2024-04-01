@@ -121,14 +121,9 @@ int main(void)
 	Init_LEDs();
 	//Setup Motor Drivers
 	//Motor Setup (Yaw & Pitch for now)
-	initDCOutput( 1 );//initialize a state for Yaw Motor
-	initBLDCOutput( 1 );//initialize a state for Pitch Motor
+	//initDCOutput( 1 );//initialize a state for Yaw Motor
+	//initBLDCOutput( 1 );//initialize a state for Pitch Motor
 	
-	
-	
-	//NVIC_SetPriority(USART3_4_IRQn, 1);
-	//USART_Transmit_String("Hi");
-	//USART_Transmit_Newline();
 	
 	 HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
   /* USER CODE END 2 */
@@ -177,7 +172,7 @@ int main(void)
 		HAL_Delay(10);
 		*/
     /* USER CODE END WHILE */
-		
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -629,12 +624,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_Indicator_GPIO_Port, LED_Indicator_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, Roll_Enable_Pin|Pitch_Enable_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : LED_Indicator_Pin */
   GPIO_InitStruct.Pin = LED_Indicator_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_Indicator_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : Roll_Enable_Pin Pitch_Enable_Pin */
+  GPIO_InitStruct.Pin = Roll_Enable_Pin|Pitch_Enable_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

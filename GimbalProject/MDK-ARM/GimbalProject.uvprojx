@@ -410,6 +410,16 @@
               <FilePath>..\Core\Src\MPU6050.c</FilePath>
             </File>
             <File>
+              <FileName>DCMotor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\DCMotor.c</FilePath>
+            </File>
+            <File>
+              <FileName>BLDCMotor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\BLDCMotor.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
@@ -423,16 +433,6 @@
               <FileName>stm32f0xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f0xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>DCMotor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\DCMotor.c</FilePath>
-            </File>
-            <File>
-              <FileName>BLDCMotor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\BLDCMotor.c</FilePath>
             </File>
           </Files>
         </Group>
