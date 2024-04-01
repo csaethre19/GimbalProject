@@ -1,4 +1,4 @@
-/*#include <stdlib.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include "BLDCMotor.h"
@@ -56,7 +56,7 @@ void BLDC_Output(double Angle1, int MotorNum)
 	Angle3 = sin(Angle3);
 
 	
-	if(MotorNum == Pitch){
+	if(MotorNum == 1){
 		Angle1 = Angle1 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + Pitch_TimARR;
 		Angle2 = Angle2 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
@@ -64,21 +64,21 @@ void BLDC_Output(double Angle1, int MotorNum)
 		Angle3 = Angle3 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
-		Pitch_1A = Angle1 * 0.7;
-		Pitch_1B = Angle2 * 0.7;
-		Pitch_1C = Angle3 * 0.7;
+		TIM2->CCR1 = Angle1 * 0.7;
+		TIM3->CCR2 = Angle2 * 0.7;
+		TIM3->CCR3 = Angle3 * 0.7;
 		return;
 	}
-	else if(MotorNum == Roll){
+	else if(MotorNum == 2){
 		Angle1 = Angle1 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + Roll_TimARR;
 		Angle2 = Angle2 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle2 = Angle2 + Roll_TimARR;
 		Angle3 = Angle3 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + Roll_TimARR;
-		Pitch_2A = Angle1 * 0.7;
-		Pitch_2B = Angle2 * 0.7;
-		Pitch_2C = Angle3 * 0.7;
+		TIM2->CCR1 = Angle1 * 0.7;
+		TIM3->CCR2 = Angle2 * 0.7;
+		TIM3->CCR3 = Angle3 * 0.7;
 		return;
 	}
 	
@@ -108,29 +108,28 @@ void initBLDCOutput(int MotorNum)
 	Angle3 = sin(Angle3);
 
 	
-	if(MotorNum == Pitch){
+	if(MotorNum == 1){
 		Angle1 = Angle1 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + Pitch_TimARR;
 		Angle2 = Angle2 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle2 = Angle2 + Pitch_TimARR;
 		Angle3 = Angle3 * Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + Pitch_TimARR;	
-		Pitch_1A = Angle1 * 0.7;
-		Pitch_1B = Angle2 * 0.7;
-		Pitch_1C = Angle3 * 0.7;
+		TIM2->CCR1 = Angle1 * 0.7;
+		TIM2->CCR2 = Angle2 * 0.7;
+		TIM2->CCR3 = Angle3 * 0.7;
 		return;
 	}
-	else if(MotorNum == Roll){
+	else if(MotorNum == 2){
 		Angle1 = Angle1 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + Roll_TimARR;
 		Angle2 = Angle2 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle2 = Angle2 + Roll_TimARR;
 		Angle3 = Angle3 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + Roll_TimARR;
-		Pitch_2A = Angle1 * 0.7;
-		Pitch_2B = Angle2 * 0.7;
-		Pitch_2C = Angle3 * 0.7;
+		TIM3->CCR1 = Angle1 * 0.7;
+		TIM3->CCR2 = Angle2 * 0.7;
+		TIM3->CCR3 = Angle3 * 0.7;
 		return;
 	}
 }
-*/

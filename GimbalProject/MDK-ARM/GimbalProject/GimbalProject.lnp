@@ -6,6 +6,7 @@
 "gimbalproject\main.o"
 "gimbalproject\stm32f0xx_it.o"
 "gimbalproject\stm32f0xx_hal_msp.o"
+"gimbalproject\dcmotor.o"
 "gimbalproject\bldcmotor.o"
 "gimbalproject\stm32f0xx_hal_adc.o"
 "gimbalproject\stm32f0xx_hal_adc_ex.o"
