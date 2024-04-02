@@ -74,7 +74,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
-
+void read_adc();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -134,6 +134,7 @@ int main(void)
   {
 		KalmanFilter(&mpu6050);
 		HAL_Delay(1000);
+		read_adc();
     /* USER CODE END WHILE */
 		
     /* USER CODE BEGIN 3 */
@@ -678,6 +679,38 @@ void USART3_4_IRQHandler(void)
 
   /* USER CODE END USART3_4_IRQn 1 */
 }
+
+void read_adc(){
+	
+		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		if(ADC1->DR > 220){
+		GPIOC->ODR |= GPIO_ODR_6;
+	} else{ // For if a voltage drops below threshold
+		GPIOC->ODR &= ~GPIO_ODR_6; // red
+	}
+	
+		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		if(ADC1->DR > 220){
+			GPIOC->ODR |= GPIO_ODR_7;
+	} else{ // For if a voltage drops below threshold
+			GPIOC->ODR &= ~GPIO_ODR_7; // blue
+	}
+		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		if(ADC1->DR > 220){
+			GPIOC->ODR |= GPIO_ODR_9;
+	} else{ // For if a voltage drops below threshold
+			GPIOC->ODR &= ~GPIO_ODR_9; // green
+	}
+	
+	
+}
+
 /* USER CODE END 4 */
 
 /**
