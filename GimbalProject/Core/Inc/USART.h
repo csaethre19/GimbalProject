@@ -1,3 +1,13 @@
+/*
+* 	USART communication functionality.
+
+*		PIN setup:
+*	  PC4 -> USART_3TX (transmitter)
+*	  PC5 -> USART_3RX (receiver)
+*
+*		STMCubeMX has been used to set up I2C. 
+*		Transmit functions are the only things being used. 
+*/
 #include "main.h"
 
 

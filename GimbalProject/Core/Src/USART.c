@@ -12,7 +12,6 @@ void USART_SetUp() {
 	// Use bit pattern for AF1 -> 0001
 	// Using GPIOC_AFRL register
 	// BAUD RATE: 115200
-
 	
 	GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER4 | GPIO_MODER_MODER5)) 
 								| GPIO_MODER_MODER4_1 | GPIO_MODER_MODER5_1; 

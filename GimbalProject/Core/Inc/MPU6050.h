@@ -1,9 +1,18 @@
+/*
+* 	MPU6050 IMU reading and filtering functionality.
+*
+* 	KalmanFilter() is the function that should be called by the main application to 
+*		read and process data. 
+*/
 #include <math.h>
 #include "main.h"
 #include "I2C.h"
 #include "USART.h"
 
-
+/* -------------------------------------------------------------------------------------------------------------
+ *  Global Variable and Type Declarations
+ *  -------------------------------------------------------------------------------------------------------------
+ */
 #define MPU6050_ADDR   0x68
 #define WHO_AM_I       0x75
 
@@ -36,6 +45,8 @@
 #define TEMP_OUT_HIGH  0x41
 #define TEMP_OUT_LOW   0x42
 
+// datastruct used to hold gyro/accel data that are read from MPU6050 device
+// contains latest kalman filtered measurements 
 typedef struct {
 	
 	uint16_t deviceAddr;
@@ -66,14 +77,51 @@ typedef struct {
 	
 } MPU6050_t;
 
+/*
+	Initializes an MPU6050 IMU given a MPU6050_t type and a device address, specified by deviceAddr parameter.
+	This function will wake up the device given the device address and an I2C line.
+	Parameters for the device are set within the configuration registers such as
+	full-scale range setting for gyroscope and accelerometer data, data sampling rate, 
+	and enabling digital low pass filter setting. 
+	If MPU6050 initialization is successfull, UART messages will print to console to confirm this.
+*/
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr);
 
+
+/*
+	Reads Gyroscope data for all three axes (X, Y, and Z) from specified MPU6050 device.
+	Uses I2C read burst to get data and saves raw and converted values in dataStruct.
+	Conversion is based on the raw value divided by the LSB sensitivity constant (macro defined in this file).
+*/
 void ReadGyroData(volatile MPU6050_t *dataStruct);
 
+/*
+	Reads Accelerometer data for all three axes (X, Y, and Z) from specified MPU6050 device.
+	Uses I2C read burst to get data and saves raw and converted values in dataStruct.
+	Conversion is based on the raw value divided by the LSB sensitivity constant (macro defined in this file).
+	
+	The Angle Roll and Angle Pitch are also calculated using all data from all three accelerometer axes and
+	saved into dataStruct. 
+*/
 void ReadAccelData(volatile MPU6050_t *dataStruct);
 
+
+/*
+	Given X, Y, and Z accelerometer data calculates the roll angle. 
+*/
 float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ);
 
+/*
+	Given X, Y, and Z accelerometer data calculates the roll pitch. 
+*/
 float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ);
 
+
+/*
+	Reads gyroscope and accelerometer data from MPU6050 (reads will save applicable data in dataStruct).
+	Calculates kalman filtered values for pitch and roll given the values saved in dataStruct for the 
+	specified MPU6050 device. 
+*/
 void KalmanFilter(volatile MPU6050_t *dataStruct);
+
+
