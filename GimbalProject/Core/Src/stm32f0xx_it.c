@@ -23,6 +23,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "USART.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,6 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define CMD_BUFFER_SIZE 16 // Adjust as necessary for your command length
 
 /* USER CODE END PD */
 
@@ -42,7 +46,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+char cmdBuffer[CMD_BUFFER_SIZE];
+uint32_t cmdBufferPos = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -166,11 +171,84 @@ void I2C2_IRQHandler(void)
 void USART3_4_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_4_IRQn 0 */
+	double value = 0;
+	char* endPtr;
+	
 	if ((USART3->ISR & USART_ISR_RXNE) != 0) {
 		char ch = USART3->RDR;
 		USART_Transmit_Byte(ch);
-	}
-	GPIOC->ODR ^= GPIO_ODR_8;
+		
+		if (ch == '\r') // Command delimiter or buffer full
+    {
+				cmdBuffer[cmdBufferPos] = '\0'; // Null-terminate the string
+					//processCommand(cmdBuffer); // Process the buffered command
+				if (strcmp(cmdBuffer, "rdpitch") == 0)
+				{
+
+					USART_Transmit_String("Angle pitch = 901");
+					USART_Transmit_Newline();
+				}
+				else if(strcmp(cmdBuffer, "rdroll") == 0){
+
+					USART_Transmit_String("Angle roll = 9000");
+					USART_Transmit_Newline();
+				}
+				else if(strcmp(cmdBuffer, "rdyaw") == 0){
+
+					USART_Transmit_String("Angle roll = 420");
+					USART_Transmit_Newline();
+				}
+				else if(strncmp(cmdBuffer, "wrpitch", 7) == 0){
+
+					char* extractedString = &cmdBuffer[8];
+					value = strtod(extractedString, &endPtr);
+					if(endPtr != extractedString){
+						USART_Transmit_String("wrpitch: Set pitch to ");
+						USART_Transmit_Float(value, 3);
+						USART_Transmit_Newline();						
+					}else{
+					USART_Transmit_String("ERROR: Parsing failed!\n");						
+					}
+				}
+				else if(strncmp(cmdBuffer, "wrroll", 6) == 0){
+
+					char* extractedString = &cmdBuffer[7];
+					value = strtod(extractedString, &endPtr);
+					if(endPtr != extractedString){
+						USART_Transmit_String("wrroll: Set roll to ");
+						USART_Transmit_Float(value, 3);
+						USART_Transmit_Newline();						
+					}else{
+						USART_Transmit_String("ERROR: Parsing failed!\n");						
+					}
+				}
+				else if(strncmp(cmdBuffer, "wryaw", 5) == 0){
+
+					char* extractedString = &cmdBuffer[6];
+					value = strtod(extractedString, &endPtr);
+					if(endPtr != extractedString){
+						USART_Transmit_String("wryaw: Set yaw to ");
+						USART_Transmit_Float(value, 3);
+						USART_Transmit_Newline();						
+					}else{
+						USART_Transmit_String("ERROR: Parsing failed!\n");						
+					}
+				}
+				else
+				{
+					// Command not recognized
+					USART_Transmit_String("ERROR: Command not recognized\n");
+				}
+						
+          cmdBufferPos = 0; // Reset the buffer for the next command
+
+		}
+    else
+    {
+				cmdBuffer[cmdBufferPos++] = ch; // Store the character and move the position
+    }
+		
+	}	
 	USART3->ISR = 0;
   /* USER CODE END USART3_4_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);

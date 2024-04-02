@@ -111,11 +111,8 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	Init_LEDs();
-	//NVIC_SetPriority(USART3_4_IRQn, 1);
-	//USART_Transmit_String("Hi");
-	//USART_Transmit_Newline();
 	
-	 HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
