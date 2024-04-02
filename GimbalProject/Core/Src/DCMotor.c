@@ -26,13 +26,13 @@ void DCSetOutput(int Output, int MotorNum)
 			TIM1->CCR1 = Yaw1_TimARR;
 			//Max Spin Rate = Yaw1_TimARR * 0      ie. Output = 1000 -> (1 - (Output / 1000)) = 0
 			//Min Spin Rate = Yaw1_TimARR * 0.999  ie. Output = 0001 -> (1 - (Output / 1000)) = 0.999
-			TIM1->CCR2 = 1000 * (1 - (Output / 1000)); 
+			TIM1->CCR2 = 1000 * (double)(1 - ((double)Output / 1000)); 
 		}
 		else if(Output < 0){//CCW? Direction instructed, Ch1 not 100% duty cycle
 			TIM1->CCR2 = Yaw1_TimARR;
 			//Max Spin Rate = Yaw1_TimARR * 0      ie. Output = 1000 -> (1 - (Output / 1000)) = 0
 			//Min Spin Rate = Yaw1_TimARR * 0.999  ie. Output = 0001 -> (1 - (Output / 1000)) = 0.999
-			TIM1->CCR1 = 1000 * (1 - (Output / 1000)); 
+			TIM1->CCR1 = 1000 * (double)(1 + ((double)Output / 1000)); 
 		}
 		else{//Output = 0
 			TIM1->CCR1 = Yaw1_TimARR;

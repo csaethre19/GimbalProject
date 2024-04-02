@@ -142,47 +142,39 @@ int main(void)
 	double BLDCtracker = 0;
   while (1)
   {
+		/*
 		GPIOC -> ODR ^= GPIO_ODR_6;
-		TIM1->CCR1 = 500;
-		TIM1->CCR2 = 500;
 		//DCSetOutput(1000,1);
 		//BLDC_Output(10,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
-		TIM1->CCR1 = 100;
-		TIM1->CCR2 = 100;
 		//DCSetOutput(500,1);
 		//BLDC_Output(50,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
-		TIM1->CCR1 = 1000;
-		TIM1->CCR2 = 1000;
 		//DCSetOutput(-100,1);
 		//BLDC_Output(100,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
-		TIM1->CCR1 = 800;
-		TIM1->CCR2 = 800;
 		//DCSetOutput(500,1);
 		//BLDC_Output(500,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
-		TIM1->CCR1 = 250;
-		TIM1->CCR2 = 250;
 		//DCSetOutput(500,1);
 		//BLDC_Output(350,1);
 		HAL_Delay(250);
+		*/
 		
-		/*
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
+		BLDC_Output(BLDCtracker, 2);
 		
 		DCtracker += DC_Direction;
-		BLDCtracker += 1;
-		if((DCtracker > 999) || (DCtracker < 999)) {DC_Direction -= 2 * DC_Direction; GPIOC -> ODR ^= GPIO_ODR_6;}
+		BLDCtracker += 0.5;
+		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(10);
-		*/
+		HAL_Delay(5);
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -678,12 +670,12 @@ void init_PitchMotor()
 	Angle3 = Angle3 / 180;
 	Angle3 = sin(Angle3);
 
-	Angle1 = Angle1 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle1 = Angle1 + 1000;
-	Angle2 = Angle2 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle2 = Angle2 + 1000;
-	Angle3 = Angle3 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle3 = Angle3 + 1000;
+	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle1 = Angle1 + 500;
+	Angle2 = Angle2 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle2 = Angle2 + 500;
+	Angle3 = Angle3 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle3 = Angle3 + 500;
 	Angle1 = Angle1 * 0.7;
 	Angle2 = Angle2 * 0.7;
 	Angle3 = Angle3 * 0.7;
@@ -695,11 +687,13 @@ void init_PitchMotor()
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	sConfigOC.Pulse = Angle1;
   HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);  
-	sConfigOC.Pulse = Angle2;
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); 
+
+	//sConfigOC.Pulse = Angle2;
   HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);  
-	sConfigOC.Pulse = Angle3;
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+
+	//sConfigOC.Pulse = Angle3;
   HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); 
 	return;	
@@ -743,10 +737,10 @@ void init_RollMotor()
 		sConfigOC.Pulse = Angle1;
     HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);  
-		sConfigOC.Pulse = Angle2;
+
     HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);  
-		sConfigOC.Pulse = Angle3;
+
     HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  
 		return;
