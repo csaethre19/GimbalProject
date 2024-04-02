@@ -142,38 +142,16 @@ int main(void)
 	double BLDCtracker = 0;
   while (1)
   {
-		/*
-		GPIOC -> ODR ^= GPIO_ODR_6;
-		//DCSetOutput(1000,1);
-		//BLDC_Output(10,1);
-		HAL_Delay(250);
-		GPIOC -> ODR ^= GPIO_ODR_6;
-		//DCSetOutput(500,1);
-		//BLDC_Output(50,1);
-		HAL_Delay(250);
-		GPIOC -> ODR ^= GPIO_ODR_6;
-		//DCSetOutput(-100,1);
-		//BLDC_Output(100,1);
-		HAL_Delay(250);
-		GPIOC -> ODR ^= GPIO_ODR_6;
-		//DCSetOutput(500,1);
-		//BLDC_Output(500,1);
-		HAL_Delay(250);
-		GPIOC -> ODR ^= GPIO_ODR_6;
-		//DCSetOutput(500,1);
-		//BLDC_Output(350,1);
-		HAL_Delay(250);
-		*/
 		
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
 		
 		DCtracker += DC_Direction;
-		BLDCtracker += 0.5;
+		BLDCtracker += 50;
 		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(5);
+		HAL_Delay(1);
 		
     /* USER CODE END WHILE */
 
