@@ -35,8 +35,8 @@ void BLDC_Output(double Angle1, int MotorNum)
 {
 	if((Angle1 < 0) || (Angle1 > 360)) return;
 	
-	int Angle2 = Angle1 + 120;
-	int Angle3 = Angle1 + 240;
+	double Angle2 = Angle1 + 120;
+	double Angle3 = Angle1 + 240;
 	Angle1 = fmod(Angle1, 360);
 	Angle2 = fmod(Angle2, 360);
 	Angle2 = fmod(Angle3, 360);
@@ -90,6 +90,7 @@ void BLDC_Output(double Angle1, int MotorNum)
 
 void initBLDCOutput(int MotorNum)
 {
+
 	int Angle1 = 0;
 	int Angle2 = Angle1 + 120;
 	int Angle3 = Angle1 + 240;
@@ -119,6 +120,7 @@ void initBLDCOutput(int MotorNum)
 		TIM2->CCR2 = Angle2 * 0.7;
 		TIM2->CCR3 = Angle3 * 0.7;
 		return;
+
 	}
 	else if(MotorNum == 2){
 		Angle1 = Angle1 * Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
@@ -130,6 +132,8 @@ void initBLDCOutput(int MotorNum)
 		TIM3->CCR1 = Angle1 * 0.7;
 		TIM3->CCR2 = Angle2 * 0.7;
 		TIM3->CCR3 = Angle3 * 0.7;
+		
 		return;
 	}
 }
+

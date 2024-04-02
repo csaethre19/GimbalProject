@@ -76,7 +76,9 @@ static void MX_TIM3_Init(void);
 
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
-void user_pwm_setvalue(uint16_t value);
+void init_PitchMotor();
+void init_RollMotor();
+void init_YawMotor();
 
 /* USER CODE END PFP */
 
@@ -132,33 +134,41 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	init_YawMotor();
+	init_PitchMotor();
+	init_RollMotor();
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
   while (1)
   {
 		GPIOC -> ODR ^= GPIO_ODR_6;
+		TIM1->CCR1 = 500;
+		TIM1->CCR2 = 500;
 		//DCSetOutput(1000,1);
 		//BLDC_Output(10,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
+		TIM1->CCR1 = 100;
+		TIM1->CCR2 = 100;
 		//DCSetOutput(500,1);
 		//BLDC_Output(50,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
+		TIM1->CCR1 = 1000;
+		TIM1->CCR2 = 1000;
 		//DCSetOutput(-100,1);
 		//BLDC_Output(100,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
+		TIM1->CCR1 = 800;
+		TIM1->CCR2 = 800;
 		//DCSetOutput(500,1);
 		//BLDC_Output(500,1);
 		HAL_Delay(250);
 		GPIOC -> ODR ^= GPIO_ODR_6;
-		TIM1->CCR1 = 500;
-		TIM1->CCR2 = 500;
-		TIM2->CCR1 = 500;
-		TIM2->CCR2 = 500;
-		TIM2->CCR3 = 500;
+		TIM1->CCR1 = 250;
+		TIM1->CCR2 = 250;
 		//DCSetOutput(500,1);
 		//BLDC_Output(350,1);
 		HAL_Delay(250);
@@ -648,18 +658,118 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void user_pwm_setvalue(uint16_t value)
+void init_PitchMotor()
 {
+  double PI = 3.1415926535897932;
+	double Angle1 = 0;
+	double Angle2 = Angle1 + 120;
+	double Angle3 = Angle1 + 240;
+	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+	//Angle2 Conversion
+	Angle2 = (double)Angle2 * PI;
+	Angle2 = Angle2 / 180;
+	Angle2 = sin(Angle2);
+	//Angle3 Conversion
+	Angle3 = (double)Angle3 * PI;
+	Angle3 = Angle3 / 180;
+	Angle3 = sin(Angle3);
+
+	Angle1 = Angle1 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle1 = Angle1 + 1000;
+	Angle2 = Angle2 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle2 = Angle2 + 1000;
+	Angle3 = Angle3 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle3 = Angle3 + 1000;
+	Angle1 = Angle1 * 0.7;
+	Angle2 = Angle2 * 0.7;
+	Angle3 = Angle3 * 0.7;
+
+  TIM_OC_InitTypeDef sConfigOC;
+  
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	sConfigOC.Pulse = Angle1;
+  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);  
+	sConfigOC.Pulse = Angle2;
+  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);  
+	sConfigOC.Pulse = Angle3;
+  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); 
+	return;	
+}
+
+void init_RollMotor()
+{
+	double PI = 3.1415926535897932;
+	double Angle1 = 0;
+	double Angle2 = Angle1 + 120;
+	double Angle3 = Angle1 + 240;
+	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+	//Angle2 Conversion
+	Angle2 = (double)Angle2 * PI;
+	Angle2 = Angle2 / 180;
+	Angle2 = sin(Angle2);
+	//Angle3 Conversion
+	Angle3 = (double)Angle3 * PI;
+	Angle3 = Angle3 / 180;
+	Angle3 = sin(Angle3);
+
+		Angle1 = Angle1 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + 1000;
+		Angle2 = Angle2 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + 1000;
+		Angle3 = Angle3 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + 1000;
+		Angle1 = Angle1 * 0.7;
+		Angle2 = Angle2 * 0.7;
+		Angle3 = Angle3 * 0.7;
+
     TIM_OC_InitTypeDef sConfigOC;
   
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = value;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);  
+		sConfigOC.Pulse = Angle1;
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);  
+		sConfigOC.Pulse = Angle2;
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);  
+		sConfigOC.Pulse = Angle3;
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  
+		return;
 }
 
+void init_YawMotor()
+	{
+		int value = 1000;
+
+    TIM_OC_InitTypeDef sConfigOC;
+  
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+		sConfigOC.Pulse = 1000;
+		//begin outputting dutycycle = 100% on DC_Ch1 & DC_Ch2
+    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);  
+
+    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);  
+		return;
+}
 
 /* USER CODE END 4 */
 
