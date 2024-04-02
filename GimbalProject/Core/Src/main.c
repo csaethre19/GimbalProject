@@ -136,9 +136,8 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 3 interrupt
-	HAL_TIM_Base_Start_IT(&htim2);
-	HAL_TIM_Base_Start_IT(&htim3);
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
@@ -743,6 +742,18 @@ void init_YawMotor()
     HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);  
 		return;
+}
+	
+void PID_execute(){
+	//Sample new IMU data
+	
+	//Yaw PID
+	
+	//Pitch PID
+	
+	//Roll PID
+	
+	
 }
 
 /* USER CODE END 4 */

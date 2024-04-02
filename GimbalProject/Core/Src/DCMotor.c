@@ -1,18 +1,27 @@
 #include <stdlib.h>
 
 #include "DCMotor.h"
+#include "MPU6050.h"
 
 #define Yaw1_TimARR 1000;
 #define Yaw 1;
 #define Yaw1_Ch1 TIM1->CCR1;
 #define Yaw1_Ch2 TIM1->CCR2;
 
+//Yaw PID variables
+volatile int16_t yaw_error_integral = 0;    // Integrated yaw error signal
+volatile int16_t yaw_error_derivative = 0;    // Derivated yaw error signal
+volatile int16_t target_yaw = 0;        // Desired yaw angle target
+volatile int16_t measured_yaw = 0;       // Measured yaw angle
+volatile int16_t yaw_error = 0;             // Yaw error signal
 
 //	DC motor driver,
 //	Functions that drive the implementation of a single DC motor
 //	Two PWM outputs
 
 
+
+void DC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation)
 
 //	DCSetOutput takes in a value from -1000 to 1000
 //	Based on this, the DC motor is set to rotate CW or CCW from 0% to 100% power

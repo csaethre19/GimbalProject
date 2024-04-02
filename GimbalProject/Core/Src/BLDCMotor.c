@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "BLDCMotor.h"
+#include "MPU6050.h"
 
 #define PI 3.1415926535897932;
 
@@ -18,6 +19,30 @@
 #define Roll_2B TIM3->CCR2;
 #define Roll_2C TIM3->CCR3;
 
+//PID TRACKER PITCH
+volatile int16_t pitch_error_integral = 0;    // Integrated pitch error signal
+
+volatile int16_t roll_error_integral = 0;    // Integrated roll error signal
+volatile int16_t pitch_error_derivative = 0;    // Derivated pitch error signal
+
+volatile int16_t roll_error_derivative = 0;    // Derivated roll error signal
+volatile int16_t target_pitch = 0;        // Desired pitch angle target
+
+volatile int16_t target_roll = 0;        // Desired roll angle target
+volatile int16_t measured_pitch = 0;       // Measured pitch angle
+
+volatile int16_t measured_roll = 0;       // Measured roll angle
+volatile int16_t pitch_error = 0;             // Pitch error signal
+
+volatile int16_t roll_error = 0;             // Roll error signal
+volatile uint8_t Kp_Roll = 1;                // Proportional gain
+volatile uint8_t Ki_Roll = 1;                // Integral gain
+volatile uint8_t Kd_Roll = 1;                // Derivative gain
+volatile uint8_t Kp_Pitch = 1;                // Proportional gain
+volatile uint8_t Ki_Pitch = 1;                // Integral gain
+volatile uint8_t Kd_Pitch = 1;                // Derivative gain
+//PID TRACKER ROLL
+
 
 // This implementation of BLDCMotor control takes in a value from 0-359 as the "desired angle"
 //	The determination of what this "desired angle" is currently intended to be performed elsewhere
@@ -32,6 +57,10 @@
 
 
 	//Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
+
+void BLDC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation){
+	
+}
 
 void BLDC_Output(double Angle1, int MotorNum)
 {
@@ -92,55 +121,6 @@ void BLDC_Output(double Angle1, int MotorNum)
 
 void initBLDCOutput(int MotorNum)
 {
-
-	int Angle1 = 0;
-	int Angle2 = Angle1 + 120;
-	int Angle3 = Angle1 + 240;
-	if(Angle2 > 360) Angle2 -= 360;
-	if(Angle3 > 360) Angle3 -= 360;
-	//Angle1 Conversion
-	Angle1 = (double)Angle1 * PI;
-	Angle1 = Angle1 / 180;
-	Angle1 = sin(Angle1);
-	//Angle2 Conversion
-	Angle2 = (double)Angle2 * PI;
-	Angle2 = Angle2 / 180;
-	Angle2 = sin(Angle2);
-	//Angle3 Conversion
-	Angle3 = (double)Angle3 * PI;
-	Angle3 = Angle3 / 180;
-	Angle3 = sin(Angle3);
-
 	
-	if(MotorNum == 1){
-		Angle1 = Angle1 * half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle1 = Angle1 + half_Pitch_TimARR;
-		Angle2 = Angle2 * half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle2 = Angle2 + half_Pitch_TimARR;
-		Angle3 = Angle3 * half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle3 = Angle3 + half_Pitch_TimARR;
-		//TEMPORARY (Checking if outputs are fucked on this dev board)
-		TIM1->CCR1 = Angle2 * 0.7;
-		TIM1->CCR2 = Angle3 * 0.7;
-		//TEMPORARY
-		TIM2->CCR1 = Angle1 * 0.7;
-		TIM2->CCR2 = Angle2 * 0.7;
-		TIM2->CCR3 = Angle3 * 0.7;
-		return;
-
-	}
-	else if(MotorNum == 2){
-		Angle1 = Angle1 * half_Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle1 = Angle1 + half_Roll_TimARR;
-		Angle2 = Angle2 * half_Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle2 = Angle2 + half_Roll_TimARR;
-		Angle3 = Angle3 * half_Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle3 = Angle3 + half_Roll_TimARR;
-		TIM3->CCR1 = Angle1 * 0.7;
-		TIM3->CCR2 = Angle2 * 0.7;
-		TIM3->CCR3 = Angle3 * 0.7;
-		
-		return;
-	}
 }
 

@@ -208,18 +208,18 @@ void KalmanFilter(MPU6050_t *dataStruct)
 	float kalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * 1/(1*dataStruct->KalmanAngleUncertaintyRoll + 3 * 3);
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + kalmanGainRoll * (dataStruct->AngleRoll-dataStruct->KalmanAngleRoll);
 	
-	USART_Transmit_String("KalmanAngleRoll: ");
-	USART_Transmit_Float(dataStruct->KalmanAngleRoll, 4);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("KalmanAngleRoll: ");
+	//USART_Transmit_Float(dataStruct->KalmanAngleRoll, 4);
+	//USART_Transmit_Newline();
 	
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + dataStruct->RatePitch*0.004;
 	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + 0.004 * 0.004 * 4 * 4;
 	float kalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * 1/(1*dataStruct->KalmanAngleUncertaintyPitch + 3 * 3);
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + kalmanGainPitch * (dataStruct->AnglePitch-dataStruct->KalmanAnglePitch);
 	
-	USART_Transmit_String("KalmanAnglePitch: ");
-	USART_Transmit_Float(dataStruct->KalmanAnglePitch, 4);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("KalmanAnglePitch: ");
+	//USART_Transmit_Float(dataStruct->KalmanAnglePitch, 4);
+	//USART_Transmit_Newline();
 	
-	USART_Transmit_Newline();
+	//USART_Transmit_Newline();
 }
