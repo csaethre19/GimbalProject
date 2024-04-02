@@ -136,6 +136,9 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 3 interrupt
+	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_Base_Start_IT(&htim3);
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
@@ -379,7 +382,7 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
@@ -456,7 +459,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
@@ -523,7 +526,7 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
