@@ -22,7 +22,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "USART.h"
-
+#include "MPU6050.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,6 +36,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define RX_BUFFER_SIZE 128
+#define CMD_BUFFER_SIZE 16 // Adjust as necessary for your command length
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -54,6 +58,9 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 uint8_t rx_data[RX_BUFFER_SIZE];
 volatile uint32_t rx_index = 0;
+char cmdBuffer[CMD_BUFFER_SIZE];
+uint32_t cmdBufferPos = 0;
+volatile MPU6050_t mpu6050;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -83,6 +90,9 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
+	// Work on inputs for ADC and PWM
+	
+	
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -110,15 +120,20 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 	
 	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	
+	MPU_Init(&mpu6050, 0x68);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		KalmanFilter(&mpu6050);
+		HAL_Delay(1000);
     /* USER CODE END WHILE */
 		
     /* USER CODE BEGIN 3 */
@@ -572,7 +587,97 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief This function handles USART3 and USART4 global interrupts.
+  */
+void USART3_4_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_4_IRQn 0 */
+	double value = 0;
+	char* endPtr;
+	
+	if ((USART3->ISR & USART_ISR_RXNE) != 0) {
+		char ch = USART3->RDR;
+		USART_Transmit_Byte(ch);
+		
+		if (ch == '\r') // Command delimiter or buffer full
+    {
+				cmdBuffer[cmdBufferPos] = '\0'; // Null-terminate the string
+					//processCommand(cmdBuffer); // Process the buffered command
+				if (strcmp(cmdBuffer, "rdpitch") == 0)
+				{
 
+					USART_Transmit_String("Angle pitch = 901");
+					USART_Transmit_Newline();
+				}
+				else if(strcmp(cmdBuffer, "rdroll") == 0){
+
+					USART_Transmit_String("Angle roll = 9000");
+					USART_Transmit_Newline();
+				}
+				else if(strcmp(cmdBuffer, "rdyaw") == 0){
+
+					USART_Transmit_String("Angle roll = 420");
+					USART_Transmit_Newline();
+				}
+				else if(strncmp(cmdBuffer, "wrpitch", 7) == 0){
+
+					char* extractedString = &cmdBuffer[8];
+					value = strtod(extractedString, &endPtr);
+					if(endPtr != extractedString){
+						USART_Transmit_String("wrpitch: Set pitch to ");
+						USART_Transmit_Float(value, 3);
+						USART_Transmit_Newline();						
+					}else{
+					USART_Transmit_String("ERROR: Parsing failed!\n");						
+					}
+				}
+				else if(strncmp(cmdBuffer, "wrroll", 6) == 0){
+
+					char* extractedString = &cmdBuffer[7];
+					value = strtod(extractedString, &endPtr);
+					if(endPtr != extractedString){
+						USART_Transmit_String("wrroll: Set roll to ");
+						USART_Transmit_Float(value, 3);
+						USART_Transmit_Newline();						
+					}else{
+						USART_Transmit_String("ERROR: Parsing failed!\n");						
+					}
+				}
+				else if(strncmp(cmdBuffer, "wryaw", 5) == 0){
+
+					char* extractedString = &cmdBuffer[6];
+					value = strtod(extractedString, &endPtr);
+					if(endPtr != extractedString){
+						USART_Transmit_String("wryaw: Set yaw to ");
+						USART_Transmit_Float(value, 3);
+						USART_Transmit_Newline();						
+					}else{
+						USART_Transmit_String("ERROR: Parsing failed!\n");						
+					}
+				}
+				else
+				{
+					// Command not recognized
+					USART_Transmit_String("ERROR: Command not recognized\n");
+				}
+						
+          cmdBufferPos = 0; // Reset the buffer for the next command
+
+		}
+    else
+    {
+				cmdBuffer[cmdBufferPos++] = ch; // Store the character and move the position
+    }
+		
+	}	
+	USART3->ISR = 0;
+  /* USER CODE END USART3_4_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3);
+  /* USER CODE BEGIN USART3_4_IRQn 1 */
+
+  /* USER CODE END USART3_4_IRQn 1 */
+}
 /* USER CODE END 4 */
 
 /**

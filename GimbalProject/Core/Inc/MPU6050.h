@@ -66,14 +66,14 @@ typedef struct {
 	
 } MPU6050_t;
 
-void MPU_Init(MPU6050_t *dataStruct, uint16_t deviceAddr);
+void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr);
 
-void ReadGyroData(MPU6050_t *dataStruct);
+void ReadGyroData(volatile MPU6050_t *dataStruct);
 
-void ReadAccelData(MPU6050_t *dataStruct);
+void ReadAccelData(volatile MPU6050_t *dataStruct);
 
 float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ);
 
 float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ);
 
-void KalmanFilter(MPU6050_t *dataStruct);
+void KalmanFilter(volatile MPU6050_t *dataStruct);

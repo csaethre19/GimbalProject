@@ -73,6 +73,7 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
 		GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
+		USART_Transmit_String("Set Reg Address not working!\n\r");
 	}
 	
 	// Write data into the TXDR 
@@ -149,19 +150,12 @@ int I2C_ReadBurst(uint16_t deviceAddr, uint8_t regAddr, int8_t *dataBuffer, uint
 			{
 					// If a NACK is received, exit with error
 					GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
+					USART_Transmit_String("Read burst not working!\n\r");
 					return -1; // Error code for NACK
 			}
 
 			// Read the data from the RXDR
 			dataBuffer[i] = I2C2->RXDR;
-			
-			USART_Transmit_String("data[");
-			USART_Transmit_Number(i);
-			USART_Transmit_String("]: ");
-			USART_Transmit_Number(dataBuffer[i]);
-			USART_Transmit_String(" b");
-			USART_Transmit_Binary(dataBuffer[i]);
-			USART_Transmit_Newline();
 
 			// If it's the last byte, send NACK after reading
 			if (i == length - 1)

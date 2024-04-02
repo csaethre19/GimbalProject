@@ -1,5 +1,8 @@
 #include "main.h"
 
+	/*SCL -> PB10
+	 SDA -> PB11
+	*/
 
 void I2C_Ports_Config();
 
