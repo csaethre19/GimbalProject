@@ -58,6 +58,9 @@ volatile uint8_t Kd_Pitch = 1;                // Derivative gain
 
 	//Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
 
+void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
+void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
+
 void BLDC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation){
 	
 }
