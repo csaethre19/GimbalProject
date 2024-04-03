@@ -127,7 +127,8 @@ int main(void)
 	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
 	MPU_Init(&mpu6050, 0x68);
-	QMC_Init();
+	// Uncomment to use Magnetometer
+	//QMC_Init();
 			
   /* USER CODE END 2 */
 
