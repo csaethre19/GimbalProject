@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include "main.h"
 
 //CHANNEL NUMBERS:
 //YAW   = 1
@@ -22,9 +23,11 @@ volatile int Roll_TimeHigh;
 //that data to this function, which will handle all required logic
 void process_eventTime(int eventTime, int rise0_or_faLL1, int PWM_channel)
 {
+	
 	switch(PWM_channel)
 	{
 		case 1: {
+			//GPIOC->ODR ^= GPIO_ODR_6;
 			if(rise0_or_faLL1 == 0){//RISING EDGE
 				Yaw_RiseTime = eventTime;
 			}
@@ -36,6 +39,7 @@ void process_eventTime(int eventTime, int rise0_or_faLL1, int PWM_channel)
 			return;
 		}
 		case 2: {
+			//GPIOC->ODR ^= GPIO_ODR_7;
 			if(rise0_or_faLL1 == 0){//RISING EDGE
 				Pitch_RiseTime = eventTime;
 			}
@@ -47,6 +51,7 @@ void process_eventTime(int eventTime, int rise0_or_faLL1, int PWM_channel)
 			return;
 		}
 		case 3: {
+			//GPIOC->ODR ^= GPIO_ODR_9;
 			if(rise0_or_faLL1 == 0){//RISING EDGE
 				Roll_RiseTime = eventTime;
 			}

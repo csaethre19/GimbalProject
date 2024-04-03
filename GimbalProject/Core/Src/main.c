@@ -81,6 +81,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
+void init_PWMinput();
 
 /* USER CODE END PFP */
 
@@ -127,11 +128,6 @@ int main(void)
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 	Init_LEDs();
-	//Setup Motor Drivers
-	//Motor Setup (Yaw & Pitch for now)
-	//initDCOutput( 1 );//initialize a state for Yaw Motor
-	//initBLDCOutput( 1 );//initialize a state for Pitch Motor
-	
 	
 	 HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
   /* USER CODE END 2 */
@@ -142,24 +138,19 @@ int main(void)
 	init_PitchMotor();
 	init_RollMotor();
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
-	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
+	init_PWMinput();
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
-	int slowdowncowboy = 0;
+	int slowdown = 0;
   while (1)
   {
-		slowdowncowboy += 1;
-		if(slowdowncowboy == 100){
-			GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
-			if(provide_channel(1) > 1500){GPIOC->ODR |= GPIO_ODR_6;}
-			if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
-			if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
-			
-			slowdowncowboy = 0;
-		}
-		
+
+		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
+		if(provide_channel(1) > 1500){GPIOC->ODR |= GPIO_ODR_6;}
+		if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
+		if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
+
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
@@ -168,7 +159,7 @@ int main(void)
 		BLDCtracker += 50;
 		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(1);
+		HAL_Delay(10);
 		
     /* USER CODE END WHILE */
 
@@ -869,6 +860,17 @@ void init_YawMotor()
 		return;
 }
 	
+void init_PWMinput()
+{
+	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
+	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
+	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
+	
+	
+}
+
 void PID_execute(){
 	//Sample new IMU data
 	

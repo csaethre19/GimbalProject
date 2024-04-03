@@ -164,9 +164,6 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 
 /**
   * @brief This function handles TIM15 global interrupt.
-	* Timer 15 has two functional channels:
-	* Channel 1: Input Capture (Rise&Fall) = Yaw PWM input
-	* Channel 2: Input Capture (Rise&Fall) = Pitch PWM input
   */
 void TIM15_IRQHandler(void)
 {
@@ -176,17 +173,17 @@ void TIM15_IRQHandler(void)
         if (__HAL_TIM_GET_IT_SOURCE(&htim15, TIM_IT_CC1) != RESET) // Check if the interrupt is enabled
         {
             uint32_t captureValue = HAL_TIM_ReadCapturedValue(&htim15, TIM_CHANNEL_1);
-            if (captureValue != 0) // Non-zero capture value indicates a rising edge
+            if (HAL_GPIO_ReadPin(GPIOB , GPIO_PIN_14) != GPIO_PIN_RESET)//Checking if logic level of PWM pin is high
             {
                 // Positive edge occurred on channel 1
-                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
-								process_eventTime(timerValueBuffer, 0, 1);
+                //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+								process_eventTime(captureValue, 0, 1);
             }
             else
             {
                 // Negative edge occurred on channel 1
-                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
-                process_eventTime(timerValueBuffer, 1, 1);
+                //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+                process_eventTime((int)captureValue, 1, 1);
             }
             __HAL_TIM_CLEAR_FLAG(&htim15, TIM_FLAG_CC1); // Clear the interrupt flag
         }
@@ -197,17 +194,17 @@ void TIM15_IRQHandler(void)
         if (__HAL_TIM_GET_IT_SOURCE(&htim15, TIM_IT_CC2) != RESET) // Check if the interrupt is enabled
         {
             uint32_t captureValue = HAL_TIM_ReadCapturedValue(&htim15, TIM_CHANNEL_2);
-            if (captureValue != 0) // Non-zero capture value indicates a rising edge
+            if (HAL_GPIO_ReadPin(GPIOB , GPIO_PIN_15) != GPIO_PIN_RESET)//Checking if logic level of PWM pin is high
             {
                 // Positive edge occurred on channel 2
-                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
-								process_eventTime(timerValueBuffer, 0, 2);
+                //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+								process_eventTime((int)captureValue, 0, 2);
             }
             else
             {
                 // Negative edge occurred on channel 2
-                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
-                process_eventTime(timerValueBuffer, 1, 2);
+                //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+                process_eventTime((int)captureValue, 1, 2);
             }
             __HAL_TIM_CLEAR_FLAG(&htim15, TIM_FLAG_CC2); // Clear the interrupt flag
         }
@@ -221,8 +218,6 @@ void TIM15_IRQHandler(void)
 
 /**
   * @brief This function handles TIM17 global interrupt.
-  * TIMER 17 is connected to a RISE FALL INPUT CAPTURE CHANNEL 1
-	* This input capture channel is connected to a Roll PMW input
   */
 void TIM17_IRQHandler(void)
 {
@@ -232,17 +227,17 @@ void TIM17_IRQHandler(void)
         if (__HAL_TIM_GET_IT_SOURCE(&htim17, TIM_IT_CC1) != RESET) // Check if the interrupt is enabled
         {
             uint32_t captureValue = HAL_TIM_ReadCapturedValue(&htim17, TIM_CHANNEL_1);
-            if (captureValue != 0) // Non-zero capture value indicates a rising edge
+            if (HAL_GPIO_ReadPin(GPIOB , GPIO_PIN_9) != GPIO_PIN_RESET)//Checking if logic level of PWM pin is high
             {
-                // Positive edge occurred on channel 1
-                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim17); // Get the timer value buffer
-                process_eventTime(timerValueBuffer, 0, 3);
+                // Positive edge occurred on channel 1 of tim17
+                //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim17); // Get the timer value buffer
+                process_eventTime((int)captureValue, 0, 3);
             }
             else
             {
-                // Negative edge occurred on channel 1
-                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim17); // Get the timer value buffer
-                process_eventTime(timerValueBuffer, 1, 3);
+                // Negative edge occurred on channel 1 of tim17
+                //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim17); // Get the timer value buffer
+                process_eventTime((int)captureValue, 1, 3);
             }
             __HAL_TIM_CLEAR_FLAG(&htim17, TIM_FLAG_CC1); // Clear the interrupt flag
         }
