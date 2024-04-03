@@ -71,6 +71,12 @@ if (pwr_mgmt == 0)
 	dataStruct->KalmanAngleUncertaintyRoll = 2*2;
 }
 
+void QMC_Init(void)
+{
+		I2C_WriteRegister(QMC_ADDR, 0x0B, 0x01);
+		I2C_WriteRegister(QMC_ADDR, 0x09, 0x1D);
+}
+
 void ReadGyroData(volatile MPU6050_t *dataStruct)
 {
 	
@@ -101,6 +107,7 @@ void ReadGyroData(volatile MPU6050_t *dataStruct)
 	float gyro_z = z_raw/GYRO_LSB_SENS;
 	dataStruct->Gyro_Z_RAW = z_raw;
 	dataStruct->Gz = gyro_z;
+	dataStruct->RateYaw = gyro_z;
 
 	
 }
@@ -149,10 +156,31 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 	return -atan(AccelX/sqrt(AccelY*AccelY+AccelZ*AccelZ))*1/(3.142/180);
 }
 
+void ReadMagData(volatile MPU6050_t *dataStruct)
+{
+	int8_t dataBuffer[4]; // reading X and Y
+	
+	I2C_ReadBurst(dataStruct->deviceAddr, 0x00, dataBuffer, 4); 
+	
+	int8_t xhigh = dataBuffer[0];
+	int8_t xlow = dataBuffer[1];
+	float x_raw = (int16_t)(xhigh << 8 | xlow);
+	float mag_x = x_raw/MAG_LSB_SENS; 
+	
+	int8_t yhigh = dataBuffer[2];
+	int8_t ylow = dataBuffer[3];
+	float y_raw = (int16_t)(yhigh << 8 | ylow);
+	float mag_y = y_raw/MAG_LSB_SENS; 
+	
+	// Calculating Yaw Angle
+	dataStruct->AngleYaw = atan2(-mag_y, mag_x);
+}
+
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
 	ReadGyroData(dataStruct);
 	ReadAccelData(dataStruct);
+	ReadMagData(dataStruct);
 	
 	// ROLL KALMAN:
 	// State Prediction: predicting new angle by integrating rate of change using RateRoll and time step of 0.004
@@ -185,11 +213,33 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	// Uncertainty Update:
 	dataStruct->KalmanAngleUncertaintyPitch = (1-kalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
 	
-	//USART_Transmit_String("KalmanAnglePitch: ");
-	//USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
-	//USART_Transmit_Newline();
+	// PITCH YAW:
+	// State Prediction: predicting new angle by integrating rate of change using RatePitch and time step of 0.004
+	dataStruct->KalmanAngleYaw = dataStruct->KalmanAngleYaw+ dataStruct->RateYaw*0.004;
+	// Uncertainty Prediction: updating uncertainty of angle estimate by fixed amount (0.004 * 0.004 * 4 * 4 is arbitrary)
+	dataStruct->KalmanAngleUncertaintyYaw = dataStruct->KalmanAngleUncertaintyYaw + 0.004 * 0.004 * 4 * 4;
 	
-	//USART_Transmit_String("KalmanAngleRoll: ");
-	//USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
-	//USART_Transmit_Newline();
+	// Kalman Gain Calculation: balancing the estimated state's uncertainty with the measurement's uncertainty (3*3 is used as measurement noise variance)
+	float kalmanGainYaw = dataStruct->KalmanAngleUncertaintyYaw * 1/(1*dataStruct->KalmanAngleUncertaintyYaw + 3 * 3);
+	
+	// State Update: correcting the predicted state with the new information which incorporates AnglePitch accelerometer-based angle
+	dataStruct->KalmanAngleYaw = dataStruct->KalmanAngleYaw + kalmanGainPitch * (dataStruct->AngleYaw-dataStruct->KalmanAngleYaw);
+	
+	// Uncertainty Update:
+	dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
+	
+	USART_Transmit_String("KalmanAnglePitch: ");
+	USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
+	USART_Transmit_Newline();
+	
+	USART_Transmit_String("KalmanAngleRoll: ");
+	USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
+	USART_Transmit_Newline();
+	
+	USART_Transmit_String("KalmanAngleYaw: ");
+	USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
+	USART_Transmit_Newline();
+	
+	USART_Transmit_Newline();
+	
 }

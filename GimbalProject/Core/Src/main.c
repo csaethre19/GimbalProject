@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "USART.h"
 #include "MPU6050.h"
+#include "I2C.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -126,6 +127,8 @@ int main(void)
 	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
 	MPU_Init(&mpu6050, 0x68);
+	QMC_Init();
+			
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -133,6 +136,7 @@ int main(void)
   while (1)
   {
 		KalmanFilter(&mpu6050);
+		
 		HAL_Delay(1000);
     /* USER CODE END WHILE */
 		

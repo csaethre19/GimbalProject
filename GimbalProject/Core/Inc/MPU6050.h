@@ -13,6 +13,9 @@
  *  Global Variable and Type Declarations
  *  -------------------------------------------------------------------------------------------------------------
  */
+ 
+#define QMC_ADDR       0x0D
+#define MAG_LSB_SENS   3000 // for +- 8 Gauss
 #define MPU6050_ADDR   0x68
 #define WHO_AM_I       0x75
 
@@ -67,13 +70,19 @@ typedef struct {
 	
 	float RateRoll;
 	float RatePitch;
+	float RateYaw;
+	
 	float AngleRoll;
 	float AnglePitch;
+	float AngleYaw;
 	
 	float KalmanAngleRoll;
 	float KalmanAnglePitch;
+	float KalmanAngleYaw;
+	
 	float KalmanAngleUncertaintyRoll;
 	float KalmanAngleUncertaintyPitch;
+	float KalmanAngleUncertaintyYaw;
 	
 } MPU6050_t;
 
@@ -87,6 +96,11 @@ typedef struct {
 */
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr);
 
+
+/*
+
+*/
+void QMC_Init(void);
 
 /*
 	Reads Gyroscope data for all three axes (X, Y, and Z) from specified MPU6050 device.
@@ -105,6 +119,10 @@ void ReadGyroData(volatile MPU6050_t *dataStruct);
 */
 void ReadAccelData(volatile MPU6050_t *dataStruct);
 
+/*
+	
+*/
+void ReadMagData(volatile MPU6050_t *dataStruct);
 
 /*
 	Given X, Y, and Z accelerometer data calculates the roll angle. 
