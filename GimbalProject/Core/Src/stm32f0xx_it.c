@@ -273,24 +273,6 @@ void I2C2_IRQHandler(void)
 }
 
 
-/**
-  * @brief This function handles USART3 and USART4 global interrupts.
-  */
-void USART3_4_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART3_4_IRQn 0 */
-	if ((USART3->ISR & USART_ISR_RXNE) != 0) {
-		char ch = USART3->RDR;
-		USART_Transmit_Byte(ch);
-	}
-	//GPIOC->ODR ^= GPIO_ODR_8;
-	USART3->ISR = 0;
-  /* USER CODE END USART3_4_IRQn 0 */
-  HAL_UART_IRQHandler(&huart3);
-  /* USER CODE BEGIN USART3_4_IRQn 1 */
-
-  /* USER CODE END USART3_4_IRQn 1 */
-}
 
 /* USER CODE BEGIN 1 */
 
