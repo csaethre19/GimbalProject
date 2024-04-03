@@ -9,3 +9,7 @@ void set_desiredPitch(float desiredPitch);
 void BLDC_Output(double Angle1, int MotorNum);
 
 void initBLDCOutput(int MotorNum);
+
+
+void BLDCEnable(int MotorNum);
+void BLDCDisable(int MotorNum);

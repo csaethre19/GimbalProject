@@ -125,3 +125,13 @@ void initBLDCOutput(int MotorNum)
 	
 }
 
+void BLDCEnable(int MotorNum){
+	if(MotorNum == 1)GPIOA->ODR |= GPIO_ODR_15;
+	if(MotorNum == 2)GPIOA->ODR |= GPIO_ODR_14;
+		
+}
+
+void BLDCDisable(int MotorNum){
+	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;
+	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;
+}

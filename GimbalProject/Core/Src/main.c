@@ -137,20 +137,23 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
+	BLDCDisable(1);
+	BLDCEnable(2);
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	init_PWMinput();
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
-	int slowdown = 0;
   while (1)
   {
-
+		
 		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
 		if(provide_channel(1) > 1500){GPIOC->ODR |= GPIO_ODR_6;}
 		if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
 		if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
-
+		
+		
+		
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
@@ -867,8 +870,6 @@ void init_PWMinput()
 	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
 	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
 	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
-	
-	
 }
 
 void PID_execute(){
