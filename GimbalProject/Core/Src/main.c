@@ -39,8 +39,6 @@
 #define RX_BUFFER_SIZE 128
 
 
-
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
