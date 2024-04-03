@@ -154,15 +154,42 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	ReadGyroData(dataStruct);
 	ReadAccelData(dataStruct);
 	
+	// ROLL KALMAN:
+	// State Prediction: predicting new angle by integrating rate of change using RateRoll and time step of 0.004
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + dataStruct->RateRoll*0.004;
+	
+	// Uncertainty Prediction: updating uncertainty of angle estimate by fixed amount (0.004 * 0.004 * 4 * 4 is arbitrary)
 	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + 0.004 * 0.004 * 4 * 4;
+	
+	// Kalman Gain Calculation: balancing the estimated state's uncertainty with the measurement's uncertainty (3*3 is used as measurement noise variance)
 	float kalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * 1/(1*dataStruct->KalmanAngleUncertaintyRoll + 3 * 3);
+	
+	// State Update: correcting the predicted state with the new information which incorporates AngleRoll accelerometer-based angle
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + kalmanGainRoll * (dataStruct->AngleRoll-dataStruct->KalmanAngleRoll);
 	
+	// Uncertainty Update:
+	dataStruct->KalmanAngleUncertaintyRoll = (1-kalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
 	
+	// PITCH KALMAN:
+	// State Prediction: predicting new angle by integrating rate of change using RatePitch and time step of 0.004
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + dataStruct->RatePitch*0.004;
+	// Uncertainty Prediction: updating uncertainty of angle estimate by fixed amount (0.004 * 0.004 * 4 * 4 is arbitrary)
 	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + 0.004 * 0.004 * 4 * 4;
+	
+	// Kalman Gain Calculation: balancing the estimated state's uncertainty with the measurement's uncertainty (3*3 is used as measurement noise variance)
 	float kalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * 1/(1*dataStruct->KalmanAngleUncertaintyPitch + 3 * 3);
+	
+	// State Update: correcting the predicted state with the new information which incorporates AnglePitch accelerometer-based angle
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + kalmanGainPitch * (dataStruct->AnglePitch-dataStruct->KalmanAnglePitch);
 	
+	// Uncertainty Update:
+	dataStruct->KalmanAngleUncertaintyPitch = (1-kalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
+	
+	//USART_Transmit_String("KalmanAnglePitch: ");
+	//USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
+	//USART_Transmit_Newline();
+	
+	//USART_Transmit_String("KalmanAngleRoll: ");
+	//USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
+	//USART_Transmit_Newline();
 }

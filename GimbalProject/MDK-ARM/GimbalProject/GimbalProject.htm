@@ -3,7 +3,7 @@
 <title>Static Call Graph - [GimbalProject\GimbalProject.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image GimbalProject\GimbalProject.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Tue Apr  2 15:40:19 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Tue Apr  2 19:04:54 2024
 <BR><P>
 <H3>Maximum Stack Usage =        376 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -365,7 +365,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
-<BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
+<BR>[Called By]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
 </UL>
 
 <P><STRONG><a name="[50]"></a>__printf</STRONG> (Thumb, 270 bytes, Stack size 32 bytes, __printf_wp.o(.text))
@@ -378,7 +378,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
 
-<P><STRONG><a name="[d8]"></a>memcmp</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, memcmp.o(.text))
+<P><STRONG><a name="[d9]"></a>memcmp</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, memcmp.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
@@ -442,7 +442,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[57]"></a>_dadd</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, daddsub.o(.text), UNUSED)
@@ -453,7 +453,7 @@ Global Symbols
 <P><STRONG><a name="[ee]"></a>__aeabi_dsub</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, daddsub.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __aeabi_dsub
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[5a]"></a>_dsub</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, daddsub.o(.text), UNUSED)
@@ -464,7 +464,7 @@ Global Symbols
 <P><STRONG><a name="[ef]"></a>__aeabi_drsub</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, daddsub.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = __aeabi_drsub
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[5b]"></a>_drsb</STRONG> (Thumb, 28 bytes, Stack size 16 bytes, daddsub.o(.text), UNUSED)
@@ -472,12 +472,12 @@ Global Symbols
 <LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_dadd1
 </UL>
 
-<P><STRONG><a name="[d2]"></a>__aeabi_ddiv</STRONG> (Thumb, 0 bytes, Stack size 64 bytes, ddiv.o(.text))
+<P><STRONG><a name="[d3]"></a>__aeabi_ddiv</STRONG> (Thumb, 0 bytes, Stack size 64 bytes, ddiv.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = __aeabi_ddiv
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadAccelData
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadGyroData
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[5d]"></a>_ddiv</STRONG> (Thumb, 1072 bytes, Stack size 64 bytes, ddiv.o(.text), UNUSED)
@@ -514,7 +514,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadAccelData
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[126]"></a>_dmul</STRONG> (Thumb, 558 bytes, Stack size 56 bytes, dmul.o(.text), UNUSED)
@@ -522,7 +522,7 @@ Global Symbols
 <P><STRONG><a name="[c4]"></a>__aeabi_f2d</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, f2d.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadAccelData
-<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
+<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
 </UL>
 
 <P><STRONG><a name="[127]"></a>_f2d</STRONG> (Thumb, 80 bytes, Stack size 0 bytes, f2d.o(.text), UNUSED)
@@ -551,7 +551,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_errno_addr
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_tofloat
-<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
+<LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
 <LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ldexp
 </UL>
 
@@ -585,7 +585,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_local_sscanf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
+<BR>[Called By]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
 </UL>
 
 <P><STRONG><a name="[e6]"></a>__ARM_scalbn</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, dscalbn.o(.text))
@@ -594,7 +594,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_underflow
 <LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_overflow
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_infnan
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 <LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ldexp
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frexp
 </UL>
@@ -602,7 +602,7 @@ Global Symbols
 <P><STRONG><a name="[f0]"></a>_dsqrt</STRONG> (Thumb, 248 bytes, Stack size 20 bytes, dsqrt.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = _dsqrt
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
+<BR>[Called By]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
 </UL>
 
 <P><STRONG><a name="[3f]"></a>__rt_locale</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, rt_locale_intlibspace.o(.text))
@@ -897,7 +897,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
-<LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
+<LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 <LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_CheckIdleState
 </UL>
 
@@ -976,7 +976,7 @@ Global Symbols
 <LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_Slave_ISR_IT
 </UL>
 
-<P><STRONG><a name="[d4]"></a>HAL_IncTick</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f0xx_hal.o(.text.HAL_IncTick))
+<P><STRONG><a name="[d5]"></a>HAL_IncTick</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f0xx_hal.o(.text.HAL_IncTick))
 <BR><BR>[Called By]<UL><LI><a href="#[5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Handler
 </UL>
 
@@ -1027,7 +1027,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[d6]"></a>HAL_RCC_GetPCLK1Freq</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_hal_rcc.o(.text.HAL_RCC_GetPCLK1Freq))
+<P><STRONG><a name="[d7]"></a>HAL_RCC_GetPCLK1Freq</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f0xx_hal_rcc.o(.text.HAL_RCC_GetPCLK1Freq))
 <BR><BR>[Called By]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SetConfig
 </UL>
 
@@ -1204,8 +1204,8 @@ Global Symbols
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadGyroData
 </UL>
 
-<P><STRONG><a name="[cd]"></a>I2C_ReadRegister</STRONG> (Thumb, 112 bytes, Stack size 0 bytes, i2c.o(.text.I2C_ReadRegister))
-<BR><BR>[Called By]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<P><STRONG><a name="[d0]"></a>I2C_ReadRegister</STRONG> (Thumb, 112 bytes, Stack size 0 bytes, i2c.o(.text.I2C_ReadRegister))
+<BR><BR>[Called By]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 </UL>
 
 <P><STRONG><a name="[c0]"></a>I2C_SetRegAddress</STRONG> (Thumb, 120 bytes, Stack size 16 bytes, i2c.o(.text.I2C_SetRegAddress))
@@ -1213,13 +1213,13 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_String
 </UL>
-<BR>[Called By]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<BR>[Called By]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 </UL>
 
-<P><STRONG><a name="[d0]"></a>I2C_WriteRegister</STRONG> (Thumb, 128 bytes, Stack size 16 bytes, i2c.o(.text.I2C_WriteRegister))
+<P><STRONG><a name="[d1]"></a>I2C_WriteRegister</STRONG> (Thumb, 128 bytes, Stack size 16 bytes, i2c.o(.text.I2C_WriteRegister))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = I2C_WriteRegister
 </UL>
-<BR>[Called By]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<BR>[Called By]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 </UL>
 
 <P><STRONG><a name="[e3]"></a>Init_LEDs</STRONG> (Thumb, 140 bytes, Stack size 20 bytes, usart.o(.text.Init_LEDs))
@@ -1228,11 +1228,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[c1]"></a>KalmanFilter</STRONG> (Thumb, 232 bytes, Stack size 24 bytes, mpu6050.o(.text.KalmanFilter))
-<BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = KalmanFilter &rArr; ReadAccelData &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
+<P><STRONG><a name="[c1]"></a>KalmanFilter</STRONG> (Thumb, 304 bytes, Stack size 24 bytes, mpu6050.o(.text.KalmanFilter))
+<BR><BR>[Stack]<UL><LI>Max Depth = 208 + Unknown Stack Size
+<LI>Call Chain = KalmanFilter &rArr; ReadAccelData &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadAccelData
 <LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadGyroData
+<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
+<LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_String
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fmul
 <LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fdiv
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fsub
@@ -1245,15 +1249,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[cc]"></a>MPU_Init</STRONG> (Thumb, 304 bytes, Stack size 24 bytes, mpu6050.o(.text.MPU_Init))
+<P><STRONG><a name="[ce]"></a>MPU_Init</STRONG> (Thumb, 320 bytes, Stack size 24 bytes, mpu6050.o(.text.MPU_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = MPU_Init &rArr; USART_Transmit_Number
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
+<BR>[Calls]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Number
-<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ReadRegister
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ReadRegister
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_String
 <LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_SetRegAddress
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WriteRegister
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WriteRegister
 </UL>
 <BR>[Called By]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -1272,14 +1276,14 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = ReadAccelData &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ReadBurst
-<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sqrt
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fmul
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fadd
 <LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
-<LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
@@ -1290,7 +1294,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ReadBurst
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
-<LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
@@ -1302,7 +1306,7 @@ Global Symbols
 <P><STRONG><a name="[5]"></a>SysTick_Handler</STRONG> (Thumb, 8 bytes, Stack size 8 bytes, stm32f0xx_it.o(.text.SysTick_Handler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = SysTick_Handler
 </UL>
-<BR>[Calls]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_IncTick
+<BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_IncTick
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f072xb.o(RESET)
 </UL>
@@ -1319,7 +1323,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = UART_CheckIdleState &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
+<LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Init
 </UL>
@@ -1327,7 +1331,7 @@ Global Symbols
 <P><STRONG><a name="[ad]"></a>UART_SetConfig</STRONG> (Thumb, 296 bytes, Stack size 16 bytes, stm32f0xx_hal_uart.o(.text.UART_SetConfig))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = UART_SetConfig &rArr; HAL_RCC_GetSysClockFreq
 </UL>
-<BR>[Calls]<UL><LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetPCLK1Freq
+<BR>[Calls]<UL><LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetPCLK1Freq
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidiv
 </UL>
@@ -1340,7 +1344,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 </UL>
 
-<P><STRONG><a name="[d5]"></a>UART_WaitOnFlagUntilTimeout</STRONG> (Thumb, 418 bytes, Stack size 48 bytes, stm32f0xx_hal_uart.o(.text.UART_WaitOnFlagUntilTimeout))
+<P><STRONG><a name="[d6]"></a>UART_WaitOnFlagUntilTimeout</STRONG> (Thumb, 418 bytes, Stack size 48 bytes, stm32f0xx_hal_uart.o(.text.UART_WaitOnFlagUntilTimeout))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -1353,21 +1357,21 @@ Global Symbols
 <LI>Call Chain = USART3_4_IRQHandler &rArr; USART_Transmit_Float &rArr; __2snprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
-<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
-<LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
-<LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Byte
+<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
+<LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Byte
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_String
-<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
-<LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
+<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f072xb.o(RESET)
 </UL>
-<P><STRONG><a name="[d7]"></a>USART_Transmit_Byte</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, usart.o(.text.USART_Transmit_Byte))
+<P><STRONG><a name="[d8]"></a>USART_Transmit_Byte</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, usart.o(.text.USART_Transmit_Byte))
 <BR><BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
 </UL>
 
-<P><STRONG><a name="[da]"></a>USART_Transmit_Float</STRONG> (Thumb, 84 bytes, Stack size 56 bytes, usart.o(.text.USART_Transmit_Float))
+<P><STRONG><a name="[cc]"></a>USART_Transmit_Float</STRONG> (Thumb, 84 bytes, Stack size 56 bytes, usart.o(.text.USART_Transmit_Float))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184 + Unknown Stack Size
 <LI>Call Chain = USART_Transmit_Float &rArr; __2snprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
@@ -1375,28 +1379,32 @@ Global Symbols
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2snprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
 </UL>
 
-<P><STRONG><a name="[ce]"></a>USART_Transmit_Newline</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, usart.o(.text.USART_Transmit_Newline))
+<P><STRONG><a name="[cd]"></a>USART_Transmit_Newline</STRONG> (Thumb, 60 bytes, Stack size 0 bytes, usart.o(.text.USART_Transmit_Newline))
 <BR><BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
-<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
+<LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 </UL>
 
 <P><STRONG><a name="[cf]"></a>USART_Transmit_Number</STRONG> (Thumb, 196 bytes, Stack size 28 bytes, usart.o(.text.USART_Transmit_Number))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = USART_Transmit_Number
 </UL>
-<BR>[Called By]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<BR>[Called By]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 </UL>
 
 <P><STRONG><a name="[bf]"></a>USART_Transmit_String</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, usart.o(.text.USART_Transmit_String))
 <BR><BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
-<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
+<LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 <LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ReadBurst
 <LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_SetRegAddress
 </UL>
 
 <P><STRONG><a name="[48]"></a>main</STRONG> (Thumb, 1112 bytes, Stack size 120 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 328<LI>Call Chain = main &rArr; KalmanFilter &rArr; ReadAccelData &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
+<BR><BR>[Stack]<UL><LI>Max Depth = 328 + Unknown Stack Size
+<LI>Call Chain = main &rArr; KalmanFilter &rArr; ReadAccelData &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
@@ -1419,7 +1427,7 @@ Global Symbols
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KalmanFilter
-<LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
+<LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_LEDs
 <LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
@@ -1444,7 +1452,7 @@ Global Symbols
 
 <P><STRONG><a name="[6c]"></a>__ARM_fpclassify</STRONG> (Thumb, 40 bytes, Stack size 0 bytes, fpclassify.o(i.__ARM_fpclassify))
 <BR><BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_fp_dec_real
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[e4]"></a>__kernel_poly</STRONG> (Thumb, 172 bytes, Stack size 24 bytes, poly.o(i.__kernel_poly))
@@ -1453,7 +1461,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[e5]"></a>__mathlib_dbl_infnan</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, dunder.o(i.__mathlib_dbl_infnan))
@@ -1461,7 +1469,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_scalbn
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 </UL>
 
 <P><STRONG><a name="[e7]"></a>__mathlib_dbl_overflow</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, dunder.o(i.__mathlib_dbl_overflow))
@@ -1477,7 +1485,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_scalbn
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
+<BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;atan
 <LI><a href="#[ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ldexp
 </UL>
 
@@ -1515,7 +1523,7 @@ Global Symbols
 <LI><a href="#[50]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__printf
 </UL>
 
-<P><STRONG><a name="[d3]"></a>atan</STRONG> (Thumb, 472 bytes, Stack size 56 bytes, atan.o(i.atan))
+<P><STRONG><a name="[d4]"></a>atan</STRONG> (Thumb, 472 bytes, Stack size 56 bytes, atan.o(i.atan))
 <BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__kernel_poly
@@ -1524,7 +1532,7 @@ Global Symbols
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_infnan
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_scalbn
 <LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_drsub
 <LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
@@ -1552,7 +1560,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__support_ldexp
 </UL>
 
-<P><STRONG><a name="[d1]"></a>sqrt</STRONG> (Thumb, 66 bytes, Stack size 24 bytes, sqrt.o(i.sqrt))
+<P><STRONG><a name="[d2]"></a>sqrt</STRONG> (Thumb, 66 bytes, Stack size 24 bytes, sqrt.o(i.sqrt))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = sqrt &rArr; _dsqrt
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_dsqrt
@@ -1561,7 +1569,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadAccelData
 </UL>
 
-<P><STRONG><a name="[d9]"></a>strtod</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, strtod.o(i.strtod))
+<P><STRONG><a name="[da]"></a>strtod</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, strtod.o(i.strtod))
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = strtod &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real
 </UL>
 <BR>[Calls]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__strtod_int
