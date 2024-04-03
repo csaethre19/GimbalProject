@@ -21,9 +21,7 @@ volatile int16_t yaw_error = 0;             // Yaw error signal
 
 void set_desiredYaw(float desiredYaw){target_yaw = desiredYaw;}
 
-void DC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation){
-	
-}
+//void DC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation){}
 
 //	DCSetOutput takes in a value from -1000 to 1000
 //	Based on this, the DC motor is set to rotate CW or CCW from 0% to 100% power

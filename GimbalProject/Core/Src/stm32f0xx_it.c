@@ -25,6 +25,7 @@
 #include "USART.h"
 #include "BLDCMotor.h"
 #include "DCMotor.h"
+#include "PWM_input.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,6 +61,8 @@
 /* External variables --------------------------------------------------------*/
 extern I2C_HandleTypeDef hi2c2;
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim15;
+extern TIM_HandleTypeDef htim17;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
@@ -160,6 +163,99 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM15 global interrupt.
+	* Timer 15 has two functional channels:
+	* Channel 1: Input Capture (Rise&Fall) = Yaw PWM input
+	* Channel 2: Input Capture (Rise&Fall) = Pitch PWM input
+  */
+void TIM15_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM15_IRQn 0 */
+	if (__HAL_TIM_GET_FLAG(&htim15, TIM_FLAG_CC1) != RESET) // Check if Capture Compare 1 interrupt occurred
+    {
+        if (__HAL_TIM_GET_IT_SOURCE(&htim15, TIM_IT_CC1) != RESET) // Check if the interrupt is enabled
+        {
+            uint32_t captureValue = HAL_TIM_ReadCapturedValue(&htim15, TIM_CHANNEL_1);
+            if (captureValue != 0) // Non-zero capture value indicates a rising edge
+            {
+                // Positive edge occurred on channel 1
+                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+								process_eventTime(timerValueBuffer, 0, 1);
+            }
+            else
+            {
+                // Negative edge occurred on channel 1
+                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+                process_eventTime(timerValueBuffer, 1, 1);
+            }
+            __HAL_TIM_CLEAR_FLAG(&htim15, TIM_FLAG_CC1); // Clear the interrupt flag
+        }
+    }
+
+    if (__HAL_TIM_GET_FLAG(&htim15, TIM_FLAG_CC2) != RESET) // Check if Capture Compare 2 interrupt occurred
+    {
+        if (__HAL_TIM_GET_IT_SOURCE(&htim15, TIM_IT_CC2) != RESET) // Check if the interrupt is enabled
+        {
+            uint32_t captureValue = HAL_TIM_ReadCapturedValue(&htim15, TIM_CHANNEL_2);
+            if (captureValue != 0) // Non-zero capture value indicates a rising edge
+            {
+                // Positive edge occurred on channel 2
+                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+								process_eventTime(timerValueBuffer, 0, 2);
+            }
+            else
+            {
+                // Negative edge occurred on channel 2
+                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
+                process_eventTime(timerValueBuffer, 1, 2);
+            }
+            __HAL_TIM_CLEAR_FLAG(&htim15, TIM_FLAG_CC2); // Clear the interrupt flag
+        }
+    }
+  /* USER CODE END TIM15_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim15);
+  /* USER CODE BEGIN TIM15_IRQn 1 */
+
+  /* USER CODE END TIM15_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM17 global interrupt.
+  * TIMER 17 is connected to a RISE FALL INPUT CAPTURE CHANNEL 1
+	* This input capture channel is connected to a Roll PMW input
+  */
+void TIM17_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM17_IRQn 0 */
+	if (__HAL_TIM_GET_FLAG(&htim17, TIM_FLAG_CC1) != RESET) // Check if Capture Compare 1 interrupt occurred
+    {
+        if (__HAL_TIM_GET_IT_SOURCE(&htim17, TIM_IT_CC1) != RESET) // Check if the interrupt is enabled
+        {
+            uint32_t captureValue = HAL_TIM_ReadCapturedValue(&htim17, TIM_CHANNEL_1);
+            if (captureValue != 0) // Non-zero capture value indicates a rising edge
+            {
+                // Positive edge occurred on channel 1
+                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim17); // Get the timer value buffer
+                process_eventTime(timerValueBuffer, 0, 3);
+            }
+            else
+            {
+                // Negative edge occurred on channel 1
+                uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim17); // Get the timer value buffer
+                process_eventTime(timerValueBuffer, 1, 3);
+            }
+            __HAL_TIM_CLEAR_FLAG(&htim17, TIM_FLAG_CC1); // Clear the interrupt flag
+        }
+    }
+	
+  /* USER CODE END TIM17_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim17);
+  /* USER CODE BEGIN TIM17_IRQn 1 */
+
+  /* USER CODE END TIM17_IRQn 1 */
+}
+
+/**
   * @brief This function handles I2C2 global interrupt.
   */
 void I2C2_IRQHandler(void)
@@ -187,7 +283,7 @@ void USART3_4_IRQHandler(void)
 		char ch = USART3->RDR;
 		USART_Transmit_Byte(ch);
 	}
-	GPIOC->ODR ^= GPIO_ODR_8;
+	//GPIOC->ODR ^= GPIO_ODR_8;
 	USART3->ISR = 0;
   /* USER CODE END USART3_4_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);

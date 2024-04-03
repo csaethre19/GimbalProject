@@ -83,6 +83,10 @@ void Error_Handler(void);
 #define BLDC_2B_GPIO_Port GPIOA
 #define BLDC_2C_Pin GPIO_PIN_0
 #define BLDC_2C_GPIO_Port GPIOB
+#define Yaw_PWMIN_Pin GPIO_PIN_14
+#define Yaw_PWMIN_GPIO_Port GPIOB
+#define Pitch_PWMIN_Pin GPIO_PIN_15
+#define Pitch_PWMIN_GPIO_Port GPIOB
 #define LED_Indicator_Pin GPIO_PIN_6
 #define LED_Indicator_GPIO_Port GPIOC
 #define DC_Ch1_Pin GPIO_PIN_8
@@ -93,6 +97,8 @@ void Error_Handler(void);
 #define Roll_Enable_GPIO_Port GPIOA
 #define Pitch_Enable_Pin GPIO_PIN_15
 #define Pitch_Enable_GPIO_Port GPIOA
+#define Roll_PWMIN_Pin GPIO_PIN_9
+#define Roll_PWMIN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

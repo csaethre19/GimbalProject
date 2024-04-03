@@ -420,6 +420,16 @@
               <FilePath>..\Core\Src\BLDCMotor.c</FilePath>
             </File>
             <File>
+              <FileName>PWM_input.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\PWM_input.c</FilePath>
+            </File>
+            <File>
+              <FileName>PWM_input.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\Inc\PWM_input.h</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>

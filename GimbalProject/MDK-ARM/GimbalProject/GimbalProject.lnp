@@ -5,6 +5,7 @@
 "gimbalproject\mpu6050.o"
 "gimbalproject\dcmotor.o"
 "gimbalproject\bldcmotor.o"
+"gimbalproject\pwm_input.o"
 "gimbalproject\main.o"
 "gimbalproject\stm32f0xx_it.o"
 "gimbalproject\stm32f0xx_hal_msp.o"
