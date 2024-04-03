@@ -26,6 +26,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "BLDCMotor.h"
+#include "DCMotor.h"
+#include "PWM_input.h"
+#include <math.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,6 +40,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 #define RX_BUFFER_SIZE 128
 #define CMD_BUFFER_SIZE 16 // Adjust as necessary for your command length
 /* USER CODE END PD */
@@ -52,6 +58,8 @@ I2C_HandleTypeDef hi2c2;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim15;
+TIM_HandleTypeDef htim17;
 
 UART_HandleTypeDef huart3;
 
@@ -72,8 +80,14 @@ static void MX_I2C2_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_TIM15_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+void init_PitchMotor();
+void init_RollMotor();
+void init_YawMotor();
+void init_PWMinput();
 
 /* USER CODE END PFP */
 
@@ -119,6 +133,8 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
+  MX_TIM15_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
@@ -130,31 +146,44 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	init_YawMotor();
+	init_PitchMotor();
+	init_RollMotor();
+	BLDCDisable(1);
+	BLDCEnable(2);
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	init_PWMinput();
+	int DCtracker = 0;
+	int DC_Direction = 1;
+	double BLDCtracker = 0;
   while (1)
   {
 		KalmanFilter(&mpu6050);
 		HAL_Delay(1000);
     /* USER CODE END WHILE */
 		
+		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
+		if(provide_channel(1) > 1500){GPIOC->ODR |= GPIO_ODR_6;}
+		if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
+		if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
+		
+		
+		
+		DCSetOutput(DCtracker, 1);
+		BLDC_Output(BLDCtracker, 1);
+		BLDC_Output(BLDCtracker, 2);
+		
+		DCtracker += DC_Direction;
+		BLDCtracker += 50;
+		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+		if(BLDCtracker > 359.99) BLDCtracker = 0;
+		HAL_Delay(10);
+		
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	
-  if (huart->Instance == USART3)
-  {
-    rx_index++; // Move to the next position in the buffer
-    if (rx_index >= RX_BUFFER_SIZE)
-    {
-      // Buffer overflow handling
-      // Reset index to start overwriting data
-      rx_index = 0;
-    }
-    HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1); // Restart UART reception with interrupt
-  }
 }
 
 /**
@@ -254,6 +283,30 @@ static void MX_ADC_Init(void)
   /** Configure for the selected ADC regular channel to be converted.
   */
   sConfig.Channel = ADC_CHANNEL_5;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel to be converted.
+  */
+  sConfig.Channel = ADC_CHANNEL_11;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel to be converted.
+  */
+  sConfig.Channel = ADC_CHANNEL_12;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel to be converted.
+  */
+  sConfig.Channel = ADC_CHANNEL_13;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -366,6 +419,10 @@ static void MX_TIM1_Init(void)
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -522,6 +579,115 @@ static void MX_TIM3_Init(void)
 }
 
 /**
+  * @brief TIM15 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM15_Init(void)
+{
+
+  /* USER CODE BEGIN TIM15_Init 0 */
+
+  /* USER CODE END TIM15_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_IC_InitTypeDef sConfigIC = {0};
+
+  /* USER CODE BEGIN TIM15_Init 1 */
+
+  /* USER CODE END TIM15_Init 1 */
+  htim15.Instance = TIM15;
+  htim15.Init.Prescaler = 7;
+  htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim15.Init.Period = 65535;
+  htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim15.Init.RepetitionCounter = 0;
+  htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim15) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim15, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_Init(&htim15) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim15, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_BOTHEDGE;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 0;
+  if (HAL_TIM_IC_ConfigChannel(&htim15, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_ConfigChannel(&htim15, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM15_Init 2 */
+
+  /* USER CODE END TIM15_Init 2 */
+
+}
+
+/**
+  * @brief TIM17 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM17_Init(void)
+{
+
+  /* USER CODE BEGIN TIM17_Init 0 */
+
+  /* USER CODE END TIM17_Init 0 */
+
+  TIM_IC_InitTypeDef sConfigIC = {0};
+
+  /* USER CODE BEGIN TIM17_Init 1 */
+
+  /* USER CODE END TIM17_Init 1 */
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 7;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 65535;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_Init(&htim17) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_BOTHEDGE;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 0;
+  if (HAL_TIM_IC_ConfigChannel(&htim17, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM17_Init 2 */
+
+  /* USER CODE END TIM17_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -568,19 +734,29 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_Indicator_GPIO_Port, LED_Indicator_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PC9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_9;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, Roll_Enable_Pin|Pitch_Enable_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : LED_Indicator_Pin */
+  GPIO_InitStruct.Pin = LED_Indicator_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(LED_Indicator_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : Roll_Enable_Pin Pitch_Enable_Pin */
+  GPIO_InitStruct.Pin = Roll_Enable_Pin|Pitch_Enable_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -675,6 +851,141 @@ void USART3_4_IRQHandler(void)
   /* USER CODE END USART3_4_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_4_IRQn 1 */
+void init_PitchMotor()
+{
+  double PI = 3.1415926535897932;
+	double Angle1 = 0;
+	double Angle2 = Angle1 + 120;
+	double Angle3 = Angle1 + 240;
+	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+	//Angle2 Conversion
+	Angle2 = (double)Angle2 * PI;
+	Angle2 = Angle2 / 180;
+	Angle2 = sin(Angle2);
+	//Angle3 Conversion
+	Angle3 = (double)Angle3 * PI;
+	Angle3 = Angle3 / 180;
+	Angle3 = sin(Angle3);
+
+	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle1 = Angle1 + 500;
+	Angle2 = Angle2 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle2 = Angle2 + 500;
+	Angle3 = Angle3 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle3 = Angle3 + 500;
+	Angle1 = Angle1 * 0.7;
+	Angle2 = Angle2 * 0.7;
+	Angle3 = Angle3 * 0.7;
+
+  TIM_OC_InitTypeDef sConfigOC;
+  
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	sConfigOC.Pulse = Angle1;
+  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); 
+
+	//sConfigOC.Pulse = Angle2;
+  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+
+	//sConfigOC.Pulse = Angle3;
+  HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); 
+	return;	
+}
+
+void init_RollMotor()
+{
+	double PI = 3.1415926535897932;
+	double Angle1 = 0;
+	double Angle2 = Angle1 + 120;
+	double Angle3 = Angle1 + 240;
+	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+	//Angle2 Conversion
+	Angle2 = (double)Angle2 * PI;
+	Angle2 = Angle2 / 180;
+	Angle2 = sin(Angle2);
+	//Angle3 Conversion
+	Angle3 = (double)Angle3 * PI;
+	Angle3 = Angle3 / 180;
+	Angle3 = sin(Angle3);
+
+		Angle1 = Angle1 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + 1000;
+		Angle2 = Angle2 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + 1000;
+		Angle3 = Angle3 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + 1000;
+		Angle1 = Angle1 * 0.7;
+		Angle2 = Angle2 * 0.7;
+		Angle3 = Angle3 * 0.7;
+
+    TIM_OC_InitTypeDef sConfigOC;
+  
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+		sConfigOC.Pulse = Angle1;
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);  
+
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);  
+
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  
+		return;
+}
+
+void init_YawMotor()
+	{
+		int value = 1000;
+
+    TIM_OC_InitTypeDef sConfigOC;
+  
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+		sConfigOC.Pulse = 1000;
+		//begin outputting dutycycle = 100% on DC_Ch1 & DC_Ch2
+    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);  
+
+    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);  
+		return;
+}
+	
+void init_PWMinput()
+{
+	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
+	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
+	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
+}
+
+void PID_execute(){
+	//Sample new IMU data
+	
+	//Yaw PID
+	
+	//Pitch PID
+	
+	//Roll PID
+	
+	
+}
 
   /* USER CODE END USART3_4_IRQn 1 */
 }
