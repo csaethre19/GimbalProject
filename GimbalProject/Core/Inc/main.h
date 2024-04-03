@@ -59,6 +59,46 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Yaw_CurrSense_Pin GPIO_PIN_1
+#define Yaw_CurrSense_GPIO_Port GPIOC
+#define Pitch_CurrSense_Pin GPIO_PIN_2
+#define Pitch_CurrSense_GPIO_Port GPIOC
+#define Roll_CurrSense_Pin GPIO_PIN_3
+#define Roll_CurrSense_GPIO_Port GPIOC
+#define BLDC_1A_Pin GPIO_PIN_0
+#define BLDC_1A_GPIO_Port GPIOA
+#define BLDC_1B_Pin GPIO_PIN_1
+#define BLDC_1B_GPIO_Port GPIOA
+#define BLDC_1C_Pin GPIO_PIN_2
+#define BLDC_1C_GPIO_Port GPIOA
+#define Yaw_ADC_Pin GPIO_PIN_3
+#define Yaw_ADC_GPIO_Port GPIOA
+#define Pitch_ADC_Pin GPIO_PIN_4
+#define Pitch_ADC_GPIO_Port GPIOA
+#define Roll_ADC_Pin GPIO_PIN_5
+#define Roll_ADC_GPIO_Port GPIOA
+#define BLDC_2A_Pin GPIO_PIN_6
+#define BLDC_2A_GPIO_Port GPIOA
+#define BLDC_2B_Pin GPIO_PIN_7
+#define BLDC_2B_GPIO_Port GPIOA
+#define BLDC_2C_Pin GPIO_PIN_0
+#define BLDC_2C_GPIO_Port GPIOB
+#define Yaw_PWMIN_Pin GPIO_PIN_14
+#define Yaw_PWMIN_GPIO_Port GPIOB
+#define Pitch_PWMIN_Pin GPIO_PIN_15
+#define Pitch_PWMIN_GPIO_Port GPIOB
+#define LED_Indicator_Pin GPIO_PIN_6
+#define LED_Indicator_GPIO_Port GPIOC
+#define DC_Ch1_Pin GPIO_PIN_8
+#define DC_Ch1_GPIO_Port GPIOA
+#define DC_Ch2_Pin GPIO_PIN_9
+#define DC_Ch2_GPIO_Port GPIOA
+#define Roll_Enable_Pin GPIO_PIN_14
+#define Roll_Enable_GPIO_Port GPIOA
+#define Pitch_Enable_Pin GPIO_PIN_15
+#define Pitch_Enable_GPIO_Port GPIOA
+#define Roll_PWMIN_Pin GPIO_PIN_9
+#define Roll_PWMIN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
