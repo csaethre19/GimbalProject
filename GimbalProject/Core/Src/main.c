@@ -70,7 +70,7 @@ volatile uint32_t rx_index = 0;
 char cmdBuffer[CMD_BUFFER_SIZE];
 uint32_t cmdBufferPos = 0;
 volatile MPU6050_t mpu_moving;
-volatile MPU6050_t mpu_stationary
+volatile MPU6050_t mpu_stationary;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
 /* USER CODE END PV */
@@ -92,6 +92,9 @@ void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
 void init_PWMinput();
+void PID_execute();
+int constrain(int value, int minVal, int maxVal);
+int map(int value, int fromLow, int fromHigh, int toLow, int toHigh);
 
 /* USER CODE END PFP */
 
@@ -1014,9 +1017,45 @@ void PID_execute(){
 		set_desiredRoll(rollbuffer);
 		set_desiredYaw(yawbuffer);
 	}
-	if(useADC == 1){
+	
+	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
+		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
 		
+		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int pitchADC = ADC1->DR;
+		int pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
+		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
+		int pitchAngle = map(pitchBuffer, 1000, 2000, 0, 360);
+		
+	
+		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int rollADC = ADC1->DR;
+		int rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
+		rollBuffer = constrain(rollBuffer, 1000, 2000);
+		int rollAngle = map(rollBuffer, 1000, 2000, 0, 360);
+		
+	
+		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int yawADC = ADC1->DR;
+		int yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
+		yawBuffer = constrain(yawBuffer, 1000, 2000);
+		int yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
+    
+
+    // Set desired angles
+    set_desiredPitch(pitchAngle);
+    set_desiredRoll(rollAngle);
+    set_desiredYaw(yawAngle);	
+			
 	}
+	
+	
 	
 	//Sample new IMU data
 	//GET MPU_stationary data
@@ -1033,6 +1072,23 @@ void PID_execute(){
 	
 	
 }
+
+// Map function implementation used in PID_execute()
+int map(int value, int fromLow, int fromHigh, int toLow, int toHigh) {
+    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+// Constrain function implementation used in PID_execute()
+int constrain(int value, int minVal, int maxVal) {
+    if (value < minVal) {
+        return minVal;
+    } else if (value > maxVal) {
+        return maxVal;
+    } else {
+        return value;
+    }
+}
+
 
 /* USER CODE END 4 */
 
