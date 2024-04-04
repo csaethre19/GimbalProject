@@ -26,7 +26,7 @@
 #define CONFIG         0x1A
 
 #define GYRO_CONFIG    0x1B
-#define GYRO_LSB_SENS  65.5 // for +-500 deg/s
+#define GYRO_LSB_SENS  32.8 // for +-1000 deg/s
 #define GYRO_XOUT_HIGH 0x43
 #define GYRO_XOUT_LOW  0x44
 

@@ -31,8 +31,8 @@ if (pwr_mgmt == 0)
 		USART_Transmit_Newline();
 	}
 	
-	// Setting full-scale range to +-500 degress/sec
-	I2C_WriteRegister(deviceAddr, GYRO_CONFIG, 0x08);
+	// Setting full-scale range to +-1000 degress/sec
+	I2C_WriteRegister(deviceAddr, GYRO_CONFIG, 0x10);
 	I2C_SetRegAddress(deviceAddr, GYRO_CONFIG);
 	int8_t gyro_config = I2C_ReadRegister(deviceAddr);
 	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to +-500 deg/s");
@@ -212,13 +212,13 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 
 	
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004 * dataStruct->RateRoll);
-	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 4 * 4);
+	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 3 * 3);
 	float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
 	dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
 	
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004 * dataStruct->RatePitch);
-	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 4 * 4);
+	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 3 * 3);
 	float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
 	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;

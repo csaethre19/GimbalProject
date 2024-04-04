@@ -179,7 +179,7 @@ int main(void)
 		KalmanFilter(&mpu_moving);
 		KalmanFilter(&mpu_stationary);
 		
-		HAL_Delay(4);
+		HAL_Delay(1);
 
 		
 		/*//PWM TESTING CODE
