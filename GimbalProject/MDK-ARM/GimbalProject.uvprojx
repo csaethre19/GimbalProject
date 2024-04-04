@@ -390,6 +390,16 @@
               <FileType>2</FileType>
               <FilePath>startup_stm32f072xb.s</FilePath>
             </File>
+            <File>
+              <FileName>MPU.c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\MPU.c.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\Inc\MPU.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -444,6 +454,16 @@
               <FileName>stm32f0xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f0xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\Inc\MPU.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\MPU.c</FilePath>
             </File>
           </Files>
         </Group>
