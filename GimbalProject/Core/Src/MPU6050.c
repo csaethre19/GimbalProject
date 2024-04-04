@@ -229,20 +229,20 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	// Uncertainty Update:
 	//dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
 	
-	/*
-	USART_Transmit_String("KalmanAnglePitch: ");
+	
+	USART_Transmit_String("Pitch: ");
 	USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
 	USART_Transmit_Newline();
 	
-	USART_Transmit_String("KalmanAngleRoll: ");
+	USART_Transmit_String("Roll : ");
 	USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
 	USART_Transmit_Newline();
 	
-	USART_Transmit_String("KalmanAngleYaw: ");
-	USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
-	USART_Transmit_Newline();
+	//USART_Transmit_String("Yaw: ");
+	//USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
+	//USART_Transmit_Newline();
 	
 	USART_Transmit_Newline();
-	*/
+	
 	
 }

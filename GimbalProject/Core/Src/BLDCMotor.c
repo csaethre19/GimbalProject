@@ -21,26 +21,28 @@
 
 //PID TRACKER PITCH
 volatile int16_t pitch_error_integral = 0;    // Integrated pitch error signal
-
 volatile int16_t roll_error_integral = 0;    // Integrated roll error signal
+
 volatile int16_t pitch_error_derivative = 0;    // Derivated pitch error signal
-
 volatile int16_t roll_error_derivative = 0;    // Derivated roll error signal
-volatile int16_t target_pitch = 0;        // Desired pitch angle target
 
+volatile int16_t target_pitch = 0;        // Desired pitch angle target
 volatile int16_t target_roll = 0;        // Desired roll angle target
-volatile int16_t measured_pitch = 0;       // Measured pitch angle
 
 volatile int16_t measured_roll = 0;       // Measured roll angle
-volatile int16_t pitch_error = 0;             // Pitch error signal
+volatile int16_t measured_pitch = 0;       // Measured pitch angle
 
+volatile int16_t current_pitch_instruction = 0; //currently instructed motor angle for pitch axis
+volatile int16_t current_roll_instruction = 0;
+
+volatile int16_t pitch_error = 0;             // Pitch error signal
 volatile int16_t roll_error = 0;             // Roll error signal
 volatile uint8_t Kp_Roll = 1;                // Proportional gain
 volatile uint8_t Ki_Roll = 1;                // Integral gain
 volatile uint8_t Kd_Roll = 1;                // Derivative gain
-volatile uint8_t Kp_Pitch = 1;                // Proportional gain
-volatile uint8_t Ki_Pitch = 1;                // Integral gain
-volatile uint8_t Kd_Pitch = 1;                // Derivative gain
+volatile uint8_t Kp_Pitch = 10;                // Proportional gain
+volatile uint8_t Ki_Pitch = 10;                // Integral gain
+volatile uint8_t Kd_Pitch = 10;                // Derivative gain
 //PID TRACKER ROLL
 
 
@@ -61,7 +63,27 @@ volatile uint8_t Kd_Pitch = 1;                // Derivative gain
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
 
-void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){}
+void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){
+	//CURRENT IMPLEMENTATION IS NON IDEAL : Known issues are as follows:
+	//Proportional controller only
+	//clamping is done with untested conservative value
+	//No consideration of mechanical limits of system
+	//ONLY ONE MPU6050 INPUT IS CONSIDERED ie. the motor will rip the gimbal to shreds if instructed
+	//
+	
+	float error = target_pitch - targetOrientation->KalmanAnglePitch;
+	
+	int pitch_motor_Offset = (int)error * Kp_Pitch;
+	
+	if(pitch_motor_Offset > 50) pitch_motor_Offset = 50;
+	if(pitch_motor_Offset < -50) pitch_motor_Offset = -50;
+	
+	current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
+	
+	if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
+	if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+	BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
+}
 
 void BLDC_Output(double Angle1, int MotorNum)
 {
@@ -119,18 +141,18 @@ void BLDC_Output(double Angle1, int MotorNum)
 
 
 //Give some random initial value to the Duty cycle of the BLDC motors
-
+//init_Pitch & init_Roll replace this function
 void initBLDCOutput(int MotorNum)
 {
 	
 }
 
 void BLDCEnable(int MotorNum){
-	if(MotorNum == 1)GPIOA->ODR |= GPIO_ODR_15;
-	if(MotorNum == 2)GPIOA->ODR |= GPIO_ODR_14;
+	if(MotorNum == 1)GPIOA->ODR |= GPIO_ODR_15;//enable pitch motor driver
+	if(MotorNum == 2)GPIOA->ODR |= GPIO_ODR_14;//enable roll motor driver
 }
 
 void BLDCDisable(int MotorNum){
-	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;
-	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;
+	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;//disable pitch motor driver
+	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;//disable roll motor driver
 }
