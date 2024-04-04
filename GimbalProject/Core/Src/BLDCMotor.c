@@ -71,9 +71,9 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	//ONLY ONE MPU6050 INPUT IS CONSIDERED ie. the motor will rip the gimbal to shreds if instructed
 	//
 	
-	float error = target_pitch - targetOrientation->KalmanAnglePitch;
+	pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
 	
-	int pitch_motor_Offset = (int)error * Kp_Pitch;
+	int pitch_motor_Offset = (int)(pitch_error * Kp_Pitch);
 	
 	if(pitch_motor_Offset > 50) pitch_motor_Offset = 50;
 	if(pitch_motor_Offset < -50) pitch_motor_Offset = -50;

@@ -146,7 +146,7 @@ int main(void)
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
 	MPU_Init(&mpu_moving, 0x68);
-	MPU_Init(&mpu_stationary, 0x69);
+
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -160,26 +160,26 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//init_PWMinput();
 	
-	/*MOTOR TESTING CODE
+	//MOTOR TESTING CODE
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
 	BLDCDisable(2);
-	BLDCEnable(2);
+	BLDCEnable(1);
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
-	*/
+	
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
-		KalmanFilter(&mpu_moving);
-		KalmanFilter(&mpu_stationary);
+		//GPIOC->ODR ^= GPIO_ODR_6;
+		//KalmanFilter(&mpu_moving);
+		//KalmanFilter(&mpu_stationary);
 		
-		HAL_Delay(1);
+		//HAL_Delay(1);
 
 		
 		/*//PWM TESTING CODE
@@ -1016,17 +1016,17 @@ void PID_execute(){
 	if(useADC == 1){
 		
 	}
-	
+	GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
-	//KalmanFilter(&mpu_moving);
+	KalmanFilter(&mpu_moving);
 	//KalmanFilter(&mpu_stationary);
 	
 	//Yaw PID
 	
 	//Pitch PID
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 	//Roll PID
 	
 	
