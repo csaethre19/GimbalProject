@@ -146,6 +146,7 @@ int main(void)
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
 	MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_stationary, 0x69);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -176,8 +177,9 @@ int main(void)
   {
 		GPIOC->ODR ^= GPIO_ODR_6;
 		KalmanFilter(&mpu_moving);
+		KalmanFilter(&mpu_stationary);
 		
-		HAL_Delay(1);
+		HAL_Delay(4);
 
 		
 		/*//PWM TESTING CODE
