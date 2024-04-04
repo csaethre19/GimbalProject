@@ -69,7 +69,10 @@ uint8_t rx_data[RX_BUFFER_SIZE];
 volatile uint32_t rx_index = 0;
 char cmdBuffer[CMD_BUFFER_SIZE];
 uint32_t cmdBufferPos = 0;
-volatile MPU6050_t mpu6050;
+volatile MPU6050_t mpu_moving;
+volatile MPU6050_t mpu_stationary
+volatile int usePWM;//usePWM decides if PWM determines desired angles
+volatile int useADC;//useADC decides if Analog input determines desired angles
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -147,6 +150,10 @@ int main(void)
 	// Uncomment to use Magnetometer
 	//QMC_Init();
 			
+	//INPUT MODE SETUP
+	usePWM = 0;
+	useADC = 0;
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -163,7 +170,7 @@ int main(void)
 	double BLDCtracker = 0;
   while (1)
   {
-		//KalmanFilter(&mpu6050);
+		//KalmanFilter(mpu_moving);
 		
 		//HAL_Delay(1000);
     /* USER CODE END WHILE */
@@ -985,9 +992,36 @@ void init_PWMinput()
 }
 
 void PID_execute(){
+	//Update Desired Angles
+	//USART CAN ALWAYS UPDATE DESIRED VALUES
+	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
+		int pitchbuffer = provide_channel(1);
+		int rollbuffer  = provide_channel(2);
+		int yawbuffer   = provide_channel(3);
+		if(pitchbuffer < 1000) pitchbuffer = 1000;
+		if(rollbuffer  < 1000)  rollbuffer = 1000;
+		if(yawbuffer   < 1000)   yawbuffer = 1000;
+		if(pitchbuffer > 2000) pitchbuffer = 2000;
+		if(rollbuffer  > 2000)  rollbuffer = 2000;
+		if(yawbuffer   > 2000)   yawbuffer = 2000;
+		pitchbuffer = pitchbuffer - 1000;
+		pitchbuffer = pitchbuffer * 360 / 1000;
+		rollbuffer  = rollbuffer  - 1000;
+		rollbuffer  = rollbuffer  * 360 / 1000;
+		yawbuffer   = yawbuffer   - 1000;
+		yawbuffer   = yawbuffer   * 360 / 1000;
+		set_desiredPitch(pitchbuffer);
+		set_desiredRoll(rollbuffer);
+		set_desiredYaw(yawbuffer);
+	}
+	if(useADC == 1){
+		
+	}
+	
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
+	
 	
 	//Yaw PID
 	
