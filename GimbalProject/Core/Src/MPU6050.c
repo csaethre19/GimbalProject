@@ -77,10 +77,21 @@ void QMC_Init(void)
 		I2C_WriteRegister(QMC_ADDR, 0x09, 0x1D);
 }
 
+void PrepAccel(volatile MPU6050_t *dataStruct)
+{
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1A, 0x05);
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1C, 0x10);
+}
+
+void PrepGyro(volatile MPU6050_t *dataStruct)
+{
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1B, 0x8);
+}
+
 void ReadGyroData(volatile MPU6050_t *dataStruct)
 {
 	
-	int8_t dataBuffer[6]; // reading X, Y, and Z
+	int8_t dataBuffer[6]; // reading X, Y, and Z 
 	
 	I2C_ReadBurst(dataStruct->deviceAddr, GYRO_XOUT_HIGH, dataBuffer, 6); 
 	
@@ -148,12 +159,12 @@ void ReadAccelData(volatile MPU6050_t *dataStruct)
 
 float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ)
 {
-	return atan(AccelY/sqrt(AccelX*AccelX+AccelZ*AccelZ))*1/(3.142/180);
+	return atan(AccelY/sqrt((AccelX*AccelX)+(AccelZ*AccelZ)))*1/(3.141592/180);
 }
 
 float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 {
-	return -atan(AccelX/sqrt(AccelY*AccelY+AccelZ*AccelZ))*1/(3.142/180);
+	return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AccelZ)))*1/(3.141592/180);
 }
 
 void ReadMagData(volatile MPU6050_t *dataStruct)
@@ -178,11 +189,18 @@ void ReadMagData(volatile MPU6050_t *dataStruct)
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
+	PrepGyro(dataStruct);
 	ReadGyroData(dataStruct);
+	PrepAccel(dataStruct);
 	ReadAccelData(dataStruct);
 	// Not using Magnetometer right now!
 	//ReadMagData(dataStruct);
+	//my try
+	//Pitch Kalman Calculation:
 	
+	
+	
+	/*
 	// ROLL KALMAN:
 	// State Prediction: predicting new angle by integrating rate of change using RateRoll and time step of 0.004
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + dataStruct->RateRoll*0.004;
@@ -228,18 +246,23 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	
 	// Uncertainty Update:
 	//dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
+	*/
 	
-	
-	USART_Transmit_String("Pitch: ");
+	USART_Transmit_String("AxelY: ");
+	USART_Transmit_Float(dataStruct->Ay, 3);
 	USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
-	USART_Transmit_Newline();
+	//USART_Transmit_Newline();
 	
-	USART_Transmit_String("Roll : ");
-	USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
-	USART_Transmit_Newline();
+	USART_Transmit_String("  AxelX: ");
+	USART_Transmit_Float(dataStruct->Ax, 3);
+	//USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
+	//USART_Transmit_Newline();
+	
+	USART_Transmit_String("  AxelZ: ");
+	USART_Transmit_Float(dataStruct->Az, 3);
 	
 	//USART_Transmit_String("Yaw: ");
-	//USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
+	USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
 	//USART_Transmit_Newline();
 	
 	USART_Transmit_Newline();
