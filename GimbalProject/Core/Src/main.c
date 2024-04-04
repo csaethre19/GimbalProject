@@ -148,7 +148,8 @@ int main(void)
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
-	//MPU_Init(&mpu6050, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
 	//QMC_Init();
@@ -173,11 +174,19 @@ int main(void)
 	double BLDCtracker = 0;
   while (1)
   {
-		//KalmanFilter(mpu_moving);
+		USART_Transmit_String("Moving: ");
+		KalmanFilter(&mpu_moving);
+		USART_Transmit_Float(mpu_moving.AnglePitch, 3);
+		USART_Transmit_Newline();
 		
-		//HAL_Delay(1000);
+		USART_Transmit_String("Stationary: ");
+		KalmanFilter(&mpu_stationary);
+		USART_Transmit_Float(mpu_stationary.AnglePitch, 3);
+		USART_Transmit_Newline();
+		
+		HAL_Delay(1000);
     /* USER CODE END WHILE */
-		
+		/*
 		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
 		if(provide_channel(1) > 1500){GPIOC->ODR |= GPIO_ODR_6;}
 		if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
@@ -194,7 +203,7 @@ int main(void)
 		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
 		HAL_Delay(1);
-		
+		*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -792,7 +801,7 @@ void USART3_4_IRQHandler(void)
 		char ch = USART3->RDR;
 		USART_Transmit_Byte(ch);
 		
-		if (ch == '\r') // Command delimiter or buffer full
+		if (ch == '\r') // Command delimiter
     {
 				cmdBuffer[cmdBufferPos] = '\0'; // Null-terminate the string
 					//processCommand(cmdBuffer); // Process the buffered command
@@ -1021,7 +1030,8 @@ void PID_execute(){
 	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
 		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
 		
-		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
+		// PITCH - PA4
+		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int pitchADC = ADC1->DR;
@@ -1029,8 +1039,8 @@ void PID_execute(){
 		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
 		int pitchAngle = map(pitchBuffer, 1000, 2000, 0, 360);
 		
-	
-		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
+		//ROLL - PA5
+		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int rollADC = ADC1->DR;
@@ -1038,8 +1048,8 @@ void PID_execute(){
 		rollBuffer = constrain(rollBuffer, 1000, 2000);
 		int rollAngle = map(rollBuffer, 1000, 2000, 0, 360);
 		
-	
-		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
+		//YAW - PA3
+		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int yawADC = ADC1->DR;
