@@ -1,8 +1,5 @@
 #include "MPU6050.h"
 
-volatile float displaymovingAx = 0;
-volatile float displaymovingAy = 0;
-volatile float displaymovingAz = 0;
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
@@ -152,15 +149,15 @@ void ReadAccelData(volatile MPU6050_t *dataStruct)
 	xhigh = dataBuffer[0];
 	xlow = dataBuffer[1];
 	x_raw = (int16_t)(xhigh << 8 | xlow);
-	accel_x += (float)x_raw/ACC_LSB_SENS;
+	accel_x = (float)x_raw/ACC_LSB_SENS;
 	yhigh = dataBuffer[2];
 	ylow = dataBuffer[3];
 	y_raw = (int16_t)(yhigh << 8 | ylow);
-	accel_y += (float)y_raw/ACC_LSB_SENS;
+	accel_y = (float)y_raw/ACC_LSB_SENS;
 	zhigh = dataBuffer[4];
 	zlow = dataBuffer[5];
 	z_raw = (int16_t)(zhigh << 8 | zlow);
-	accel_z += (float)z_raw/ACC_LSB_SENS;
+	accel_z = (float)z_raw/ACC_LSB_SENS;
 	
 	dataStruct->Accel_X_RAW = x_raw;
 	dataStruct->Ax = accel_x;
@@ -175,12 +172,22 @@ void ReadAccelData(volatile MPU6050_t *dataStruct)
 
 float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ)
 {
-	return atan(AccelY/sqrt((AccelX*AccelX)+(AccelZ*AccelZ)))*1/(3.141592/180);
+	float stepvar = sqrt((AccelX*AccelX) + (AccelZ*AccelZ));
+	stepvar = AccelY / stepvar;
+	stepvar = atan(stepvar);
+	stepvar = stepvar / (3.141592/180);
+	return stepvar;
+	//return atan(AccelY/sqrt((AccelX*AccelX)+(AccelZ*AccelZ)))*1/(3.141592/180);
 }
 
 float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 {
-	return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AccelZ)))*1/(3.141592/180);
+	float stepvar = sqrt((AccelY*AccelY) + (AccelZ*AccelZ));
+	stepvar = AccelX / stepvar;
+	stepvar = -atan(stepvar);
+	stepvar = stepvar / (3.141592/180);
+	return stepvar;
+	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AccelZ)))*1/(3.141592/180);
 }
 
 void ReadMagData(volatile MPU6050_t *dataStruct)
@@ -210,17 +217,26 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	ReadGyroData(dataStruct);
 	PrepAccel(dataStruct);
 	ReadAccelData(dataStruct);
-	displaymovingAx = dataStruct->Ax;
-	displaymovingAy = dataStruct->Ay;
-	displaymovingAz = dataStruct->Az;
+
 	// Not using Magnetometer right now!
 	//ReadMagData(dataStruct);
-	//my try
-	//Pitch Kalman Calculation:
+
+
+
 	
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004*dataStruct->RateRoll);
+	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (double)(0.002 * 0.002 * 4 * 4);
+	float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
+	dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
 	
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004*dataStruct->RatePitch);
+	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (double)(0.002 * 0.002 * 4 * 4);
+	float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
+	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
 	
-	
+	/*
 	// ROLL KALMAN:
 	// State Prediction: predicting new angle by integrating rate of change using RateRoll and time step of 0.004
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + dataStruct->RateRoll*0.004;
@@ -266,7 +282,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	
 	// Uncertainty Update:
 	//dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
-	
+	*/
 	
 	//USART_Transmit_String("AxelY: ");
 	//USART_Transmit_Float(dataStruct->Ay, 3);
@@ -285,7 +301,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	//USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
 	//USART_Transmit_Newline();
 	
-	USART_Transmit_Newline();
-	
-	
+	//USART_Transmit_Newline();
 }
+
+

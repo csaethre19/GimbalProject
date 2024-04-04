@@ -174,10 +174,10 @@ int main(void)
 	*/
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
+		//GPIOC->ODR ^= GPIO_ODR_6;
 		KalmanFilter(&mpu_moving);
 		
-		HAL_Delay(100);
+		HAL_Delay(4);
 
 		
 		/*//PWM TESTING CODE
