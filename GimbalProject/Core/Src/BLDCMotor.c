@@ -40,7 +40,7 @@ volatile int16_t roll_error = 0;             // Roll error signal
 volatile uint8_t Kp_Roll = 1;                // Proportional gain
 volatile uint8_t Ki_Roll = 1;                // Integral gain
 volatile uint8_t Kd_Roll = 1;                // Derivative gain
-volatile uint8_t Kp_Pitch = 10;                // Proportional gain
+volatile uint8_t Kp_Pitch = 1;                // Proportional gain
 volatile uint8_t Ki_Pitch = 10;                // Integral gain
 volatile uint8_t Kd_Pitch = 10;                // Derivative gain
 //PID TRACKER ROLL
@@ -70,18 +70,19 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	//No consideration of mechanical limits of system
 	//ONLY ONE MPU6050 INPUT IS CONSIDERED ie. the motor will rip the gimbal to shreds if instructed
 	//
-	
-	pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
+	GPIOC->ODR ^= GPIO_ODR_6;
+	pitch_error = targetOrientation->KalmanAnglePitch - target_pitch ;
+	//pitch_error /= 4;
 	
 	int pitch_motor_Offset = (int)(pitch_error * Kp_Pitch);
 	
-	if(pitch_motor_Offset > 50) pitch_motor_Offset = 50;
-	if(pitch_motor_Offset < -50) pitch_motor_Offset = -50;
-	
+	if(pitch_motor_Offset > 5) pitch_motor_Offset = 5;
+	if(pitch_motor_Offset < -5) pitch_motor_Offset = -5;
+
 	current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
 	
-	if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
-	if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+	if(current_pitch_instruction >= 360) current_pitch_instruction = 0;
+	if(current_pitch_instruction < 0) current_pitch_instruction = 360;
 	BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
 }
 
