@@ -143,7 +143,7 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 	
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -159,8 +159,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-	init_PWMinput();
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	//init_PWMinput();
 	
 	/*MOTOR TESTING CODE
 	init_YawMotor();
@@ -174,10 +174,11 @@ int main(void)
 	*/
   while (1)
   {
+		GPIOC->ODR ^= GPIO_ODR_6;
 		KalmanFilter(&mpu_moving);
 		
 		HAL_Delay(100);
-    /* USER CODE END WHILE */
+
 		
 		/*//PWM TESTING CODE
 		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
@@ -760,22 +761,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_Indicator_GPIO_Port, LED_Indicator_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, Roll_Enable_Pin|Pitch_Enable_Pin, GPIO_PIN_RESET);
-
   /*Configure GPIO pin : LED_Indicator_Pin */
   GPIO_InitStruct.Pin = LED_Indicator_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_Indicator_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : Roll_Enable_Pin Pitch_Enable_Pin */
-  GPIO_InitStruct.Pin = Roll_Enable_Pin|Pitch_Enable_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

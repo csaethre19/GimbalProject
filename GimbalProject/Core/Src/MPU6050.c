@@ -1,5 +1,8 @@
 #include "MPU6050.h"
 
+volatile float displaymovingAx = 0;
+volatile float displaymovingAy = 0;
+volatile float displaymovingAz = 0;
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
@@ -90,68 +93,81 @@ void PrepGyro(volatile MPU6050_t *dataStruct)
 
 void ReadGyroData(volatile MPU6050_t *dataStruct)
 {
-	
+	uint8_t xhigh;
+	uint8_t xlow;
+	uint8_t yhigh;
+	uint8_t ylow;
+	uint8_t zhigh;
+	uint8_t zlow;
 	int8_t dataBuffer[6]; // reading X, Y, and Z 
 	
 	I2C_ReadBurst(dataStruct->deviceAddr, GYRO_XOUT_HIGH, dataBuffer, 6); 
 	
-	int8_t xhigh = dataBuffer[0];
-	int8_t xlow = dataBuffer[1];
+	xhigh = dataBuffer[0];
+	xlow = dataBuffer[1];
 	float x_raw = (int16_t)(xhigh << 8 | xlow);
 	float gyro_x = x_raw/GYRO_LSB_SENS;
-	dataStruct->Gyro_X_RAW = x_raw;
-	dataStruct->Gx = gyro_x;
-	dataStruct->RateRoll = gyro_x;
 	
-	
-	int8_t yhigh = dataBuffer[2];
-	int8_t ylow = dataBuffer[3];
+	yhigh = dataBuffer[2];
+	ylow = dataBuffer[3];
 	float y_raw = (int16_t)(yhigh << 8 | ylow);
 	float gyro_y = y_raw/GYRO_LSB_SENS;
-	dataStruct->Gyro_Y_RAW = y_raw;
-	dataStruct->Gy = gyro_y;
-	dataStruct->RatePitch = gyro_y;
 	
-	int8_t zhigh = dataBuffer[4];
-	int8_t zlow = dataBuffer[5];
+	
+	zhigh = dataBuffer[4];
+	zlow = dataBuffer[5];
 	float z_raw = (int16_t)(zhigh << 8 | zlow);
 	float gyro_z = z_raw/GYRO_LSB_SENS;
-	dataStruct->Gyro_Z_RAW = z_raw;
-	dataStruct->Gz = gyro_z;
-	dataStruct->RateYaw = gyro_z;
 
 	
+	dataStruct->Gyro_X_RAW = x_raw;
+	dataStruct->Gx = gyro_x;
+	dataStruct->Gyro_Y_RAW = y_raw;
+	dataStruct->Gy = gyro_y;
+	dataStruct->Gyro_Z_RAW = z_raw;
+	dataStruct->Gz = gyro_z;
+	
+	dataStruct->RateRoll = gyro_x;
+	dataStruct->RatePitch = gyro_y;
+	dataStruct->RateYaw = gyro_z;
 }
 
 void ReadAccelData(volatile MPU6050_t *dataStruct)
 {
-	
+	float accel_x = 0;
+	float accel_y = 0;
+	float accel_z = 0;
+	uint8_t xhigh;
+	uint8_t xlow;
+	uint8_t yhigh;
+	uint8_t ylow;
+	uint8_t zhigh;
+	uint8_t zlow;
+	int16_t x_raw;
+	int16_t y_raw;
+	int16_t z_raw;
 	int8_t dataBuffer[6];
 	
 	I2C_ReadBurst(dataStruct->deviceAddr, ACC_XOUT_HIGH, dataBuffer, 6); 
+	xhigh = dataBuffer[0];
+	xlow = dataBuffer[1];
+	x_raw = (int16_t)(xhigh << 8 | xlow);
+	accel_x += (float)x_raw/ACC_LSB_SENS;
+	yhigh = dataBuffer[2];
+	ylow = dataBuffer[3];
+	y_raw = (int16_t)(yhigh << 8 | ylow);
+	accel_y += (float)y_raw/ACC_LSB_SENS;
+	zhigh = dataBuffer[4];
+	zlow = dataBuffer[5];
+	z_raw = (int16_t)(zhigh << 8 | zlow);
+	accel_z += (float)z_raw/ACC_LSB_SENS;
 	
-	int8_t xhigh = dataBuffer[0];
-	int8_t xlow = dataBuffer[1];
-	int16_t x_raw = (int16_t)(xhigh << 8 | xlow);
-	float accel_x = (float)x_raw/ACC_LSB_SENS;
 	dataStruct->Accel_X_RAW = x_raw;
 	dataStruct->Ax = accel_x;
-	
-	int8_t yhigh = dataBuffer[2];
-	int8_t ylow = dataBuffer[3];
-	int16_t y_raw = (int16_t)(yhigh << 8 | ylow);
-	float accel_y = (float)y_raw/ACC_LSB_SENS;
 	dataStruct->Accel_Y_RAW = y_raw;
 	dataStruct->Ay = accel_y;
-	
-	
-	int8_t zhigh = dataBuffer[4];
-	int8_t zlow = dataBuffer[5];
-	int16_t z_raw = (int16_t)(zhigh << 8 | zlow);
-	float accel_z = (float)z_raw/ACC_LSB_SENS;
 	dataStruct->Accel_Z_RAW = z_raw;
 	dataStruct->Az = accel_z;
-
 	
 	dataStruct->AngleRoll = CalculateAngleRoll(accel_x, accel_y, accel_z);
 	dataStruct->AnglePitch = CalculateAnglePitch(accel_x, accel_y, accel_z);
@@ -189,10 +205,14 @@ void ReadMagData(volatile MPU6050_t *dataStruct)
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
+	GPIOC->ODR ^= GPIO_ODR_7;
 	PrepGyro(dataStruct);
 	ReadGyroData(dataStruct);
 	PrepAccel(dataStruct);
 	ReadAccelData(dataStruct);
+	displaymovingAx = dataStruct->Ax;
+	displaymovingAy = dataStruct->Ay;
+	displaymovingAz = dataStruct->Az;
 	// Not using Magnetometer right now!
 	//ReadMagData(dataStruct);
 	//my try
@@ -200,7 +220,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	
 	
 	
-	/*
+	
 	// ROLL KALMAN:
 	// State Prediction: predicting new angle by integrating rate of change using RateRoll and time step of 0.004
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + dataStruct->RateRoll*0.004;
@@ -246,23 +266,23 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	
 	// Uncertainty Update:
 	//dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
-	*/
 	
-	USART_Transmit_String("AxelY: ");
-	USART_Transmit_Float(dataStruct->Ay, 3);
-	USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
+	
+	//USART_Transmit_String("AxelY: ");
+	//USART_Transmit_Float(dataStruct->Ay, 3);
+	//USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
 	//USART_Transmit_Newline();
 	
-	USART_Transmit_String("  AxelX: ");
-	USART_Transmit_Float(dataStruct->Ax, 3);
+	//USART_Transmit_String("  AxelX: ");
+	//USART_Transmit_Float(dataStruct->Ax, 3);
 	//USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
 	//USART_Transmit_Newline();
 	
-	USART_Transmit_String("  AxelZ: ");
-	USART_Transmit_Float(dataStruct->Az, 3);
+	//USART_Transmit_String("  AxelZ: ");
+	//USART_Transmit_Float(dataStruct->Az, 3);
 	
 	//USART_Transmit_String("Yaw: ");
-	USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
+	//USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
 	//USART_Transmit_Newline();
 	
 	USART_Transmit_Newline();
