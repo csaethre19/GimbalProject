@@ -67,25 +67,14 @@ if (pwr_mgmt == 0)
 	// Setting initial values for Kalman Filter parameters
 	dataStruct->KalmanAnglePitch = 0.0;
 	dataStruct->KalmanAngleRoll = 0.0;
-	dataStruct->KalmanAngleUncertaintyPitch = 2*2;
-	dataStruct->KalmanAngleUncertaintyRoll = 2*2;
+	dataStruct->KalmanAngleUncertaintyPitch = 9;
+	dataStruct->KalmanAngleUncertaintyRoll = 9;
 }
 
 void QMC_Init(void)
 {
 		I2C_WriteRegister(QMC_ADDR, 0x0B, 0x01);
 		I2C_WriteRegister(QMC_ADDR, 0x09, 0x1D);
-}
-
-void PrepAccel(volatile MPU6050_t *dataStruct)
-{
-	I2C_WriteRegister(dataStruct->deviceAddr, 0x1A, 0x05);
-	I2C_WriteRegister(dataStruct->deviceAddr, 0x1C, 0x10);
-}
-
-void PrepGyro(volatile MPU6050_t *dataStruct)
-{
-	I2C_WriteRegister(dataStruct->deviceAddr, 0x1B, 0x8);
 }
 
 void ReadGyroData(volatile MPU6050_t *dataStruct)
@@ -98,19 +87,17 @@ void ReadGyroData(volatile MPU6050_t *dataStruct)
 	uint8_t zlow;
 	int8_t dataBuffer[6]; // reading X, Y, and Z 
 	
-	I2C_ReadBurst(dataStruct->deviceAddr, GYRO_XOUT_HIGH, dataBuffer, 6); 
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1B, 0x8);
 	
+	I2C_ReadBurst(dataStruct->deviceAddr, GYRO_XOUT_HIGH, dataBuffer, 6); 
 	xhigh = dataBuffer[0];
 	xlow = dataBuffer[1];
 	float x_raw = (int16_t)(xhigh << 8 | xlow);
 	float gyro_x = x_raw/GYRO_LSB_SENS;
-	
 	yhigh = dataBuffer[2];
 	ylow = dataBuffer[3];
 	float y_raw = (int16_t)(yhigh << 8 | ylow);
 	float gyro_y = y_raw/GYRO_LSB_SENS;
-	
-	
 	zhigh = dataBuffer[4];
 	zlow = dataBuffer[5];
 	float z_raw = (int16_t)(zhigh << 8 | zlow);
@@ -145,6 +132,8 @@ void ReadAccelData(volatile MPU6050_t *dataStruct)
 	int16_t z_raw;
 	int8_t dataBuffer[6];
 	
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1A, 0x05);
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1C, 0x10);
 	I2C_ReadBurst(dataStruct->deviceAddr, ACC_XOUT_HIGH, dataBuffer, 6); 
 	xhigh = dataBuffer[0];
 	xlow = dataBuffer[1];
@@ -213,9 +202,9 @@ void ReadMagData(volatile MPU6050_t *dataStruct)
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
 	GPIOC->ODR ^= GPIO_ODR_7;
-	PrepGyro(dataStruct);
+	
 	ReadGyroData(dataStruct);
-	PrepAccel(dataStruct);
+	
 	ReadAccelData(dataStruct);
 
 	// Not using Magnetometer right now!
@@ -224,14 +213,14 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 
 
 	
-	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004*dataStruct->RateRoll);
-	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (double)(0.002 * 0.002 * 4 * 4);
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.001 * dataStruct->RateRoll);
+	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 4 * 4);
 	float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
 	dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
 	
-	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004*dataStruct->RatePitch);
-	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (double)(0.002 * 0.002 * 4 * 4);
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.001 * dataStruct->RatePitch);
+	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 4 * 4);
 	float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
 	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;

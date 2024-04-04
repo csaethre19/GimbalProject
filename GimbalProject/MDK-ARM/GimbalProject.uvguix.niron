@@ -3606,9 +3606,9 @@
       <ActiveTab>3</ActiveTab>
       <Doc>
         <Name>../Core/Src/main.c</Name>
-        <ColumnNumber>0</ColumnNumber>
+        <ColumnNumber>2</ColumnNumber>
         <TopLine>163</TopLine>
-        <CurrentLine>181</CurrentLine>
+        <CurrentLine>173</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders>208,213,245,251,339,345,387,393,466,472,533,539,600,606,663,669,709,715,744,750,789</ContractedFolders>
         <PaneID>0</PaneID>
@@ -3633,9 +3633,9 @@
       </Doc>
       <Doc>
         <Name>..\Core\Src\MPU6050.c</Name>
-        <ColumnNumber>100</ColumnNumber>
-        <TopLine>213</TopLine>
-        <CurrentLine>234</CurrentLine>
+        <ColumnNumber>73</ColumnNumber>
+        <TopLine>196</TopLine>
+        <CurrentLine>220</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -3643,7 +3643,7 @@
       <Doc>
         <Name>..\Core\Inc\MPU6050.h</Name>
         <ColumnNumber>25</ColumnNumber>
-        <TopLine>111</TopLine>
+        <TopLine>113</TopLine>
         <CurrentLine>31</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
