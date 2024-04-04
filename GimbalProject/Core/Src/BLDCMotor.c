@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "BLDCMotor.h"
-#include "MPU6050.h"
+
 
 #define PI 3.1415926535897932;
 
@@ -61,7 +61,7 @@ volatile uint8_t Kd_Pitch = 1;                // Derivative gain
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
 
-//void BLDC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation){}
+void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){}
 
 void BLDC_Output(double Angle1, int MotorNum)
 {
@@ -128,7 +128,6 @@ void initBLDCOutput(int MotorNum)
 void BLDCEnable(int MotorNum){
 	if(MotorNum == 1)GPIOA->ODR |= GPIO_ODR_15;
 	if(MotorNum == 2)GPIOA->ODR |= GPIO_ODR_14;
-		
 }
 
 void BLDCDisable(int MotorNum){

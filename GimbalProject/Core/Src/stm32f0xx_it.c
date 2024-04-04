@@ -155,10 +155,10 @@ void SysTick_Handler(void)
 /**
   * @brief This function handles TIM1 break, update, trigger and commutation interrupts.
   */
-void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
+void TIM1_BRK_UP_TRG_COM_IRQHandler(void)//PID FREQUENCY INTERRUPT
 {
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 0 */
-	
+	PID_execute();
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */

@@ -1,3 +1,5 @@
+#ifndef MPU6050_H
+#define MPU6050_H
 /*
 * 	MPU6050 IMU reading and filtering functionality.
 *
@@ -143,3 +145,4 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ);
 void KalmanFilter(volatile MPU6050_t *dataStruct);
 
 
+#endif /* MPU6050_H */

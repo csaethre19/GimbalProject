@@ -140,9 +140,10 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 	
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
-	MPU_Init(&mpu6050, 0x68);
+	//MPU_Init(&mpu6050, 0x68);
+	
 	// Uncomment to use Magnetometer
 	//QMC_Init();
 			
@@ -153,7 +154,7 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCDisable(1);
+	BLDCDisable(2);
 	BLDCEnable(2);
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	init_PWMinput();
@@ -162,9 +163,9 @@ int main(void)
 	double BLDCtracker = 0;
   while (1)
   {
-		KalmanFilter(&mpu6050);
+		//KalmanFilter(&mpu6050);
 		
-		HAL_Delay(1000);
+		//HAL_Delay(1000);
     /* USER CODE END WHILE */
 		
 		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
@@ -172,17 +173,17 @@ int main(void)
 		if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
 		if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
 		
-		
+		GPIOC->ODR |= GPIO_ODR_9;
 		
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
 		
 		DCtracker += DC_Direction;
-		BLDCtracker += 50;
+		BLDCtracker += 100;
 		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(10);
+		HAL_Delay(1);
 		
     /* USER CODE END WHILE */
 
@@ -985,12 +986,16 @@ void init_PWMinput()
 
 void PID_execute(){
 	//Sample new IMU data
+	//GET MPU_stationary data
+	//Get MPU_moving data
 	
 	//Yaw PID
 	
 	//Pitch PID
 	
 	//Roll PID
+	
+	
 	
 	
 }
