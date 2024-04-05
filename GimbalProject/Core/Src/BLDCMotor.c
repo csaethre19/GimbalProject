@@ -157,3 +157,4 @@ void BLDCDisable(int MotorNum){
 	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;//disable pitch motor driver
 	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;//disable roll motor driver
 }
+
