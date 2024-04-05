@@ -145,7 +145,7 @@ int main(void)
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
-	//MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -159,7 +159,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//init_PWMinput();
 	
 	//MOTOR TESTING CODE
@@ -189,15 +189,15 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-		DCSetOutput(DCtracker, 1);
-		BLDC_Output(BLDCtracker, 1);
-		BLDC_Output(BLDCtracker, 2);
-		
-		DCtracker += DC_Direction;
-		BLDCtracker += 100;
-		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(100);
+//		DCSetOutput(DCtracker, 1);
+//		BLDC_Output(BLDCtracker, 1);
+//		BLDC_Output(BLDCtracker, 2);
+//		
+//		DCtracker += DC_Direction;
+//		BLDCtracker += 20;
+//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+//		if(BLDCtracker > 359.99) BLDCtracker = 0;
+//		HAL_Delay(100);
 		
 		
     /* USER CODE END WHILE */
