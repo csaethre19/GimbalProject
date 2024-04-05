@@ -1,6 +1,5 @@
 --cpu Cortex-M0
 "gimbalproject\startup_stm32f072xb.o"
-"gimbalproject\hmc5883.o"
 "gimbalproject\i2c.o"
 "gimbalproject\usart.o"
 "gimbalproject\mpu6050.o"

@@ -71,11 +71,7 @@ if (pwr_mgmt == 0)
 	dataStruct->KalmanAngleUncertaintyRoll = 9;
 }
 
-void QMC_Init(void)
-{
-		I2C_WriteRegister(QMC_ADDR, 0x0B, 0x01);
-		I2C_WriteRegister(QMC_ADDR, 0x09, 0x1D);
-}
+
 
 void ReadGyroData(volatile MPU6050_t *dataStruct)
 {
@@ -179,25 +175,7 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AccelZ)))*1/(3.141592/180);
 }
 
-void ReadMagData(volatile MPU6050_t *dataStruct)
-{
-	int8_t dataBuffer[4]; // reading X and Y
-	
-	I2C_ReadBurst(dataStruct->deviceAddr, 0x00, dataBuffer, 4); 
-	
-	int8_t xhigh = dataBuffer[0];
-	int8_t xlow = dataBuffer[1];
-	float x_raw = (int16_t)(xhigh << 8 | xlow);
-	float mag_x = x_raw/MAG_LSB_SENS; 
-	
-	int8_t yhigh = dataBuffer[2];
-	int8_t ylow = dataBuffer[3];
-	float y_raw = (int16_t)(yhigh << 8 | ylow);
-	float mag_y = y_raw/MAG_LSB_SENS; 
-	
-	// Calculating Yaw Angle
-	dataStruct->AngleYaw = atan2(-mag_y, mag_x);
-}
+
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {

@@ -144,15 +144,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
-	HMC5883_Init(&mag_moving);
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
-	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_moving, 0x68);
+	HMC5883_Init(&mag_moving);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
-	QMC_Init();
+	//QMC_Init();
 			
 	//INPUT MODE SETUP
 	usePWM = 0;
@@ -177,11 +177,14 @@ int main(void)
 	
   while (1)
   {
+		//HMC5883 test
+		HMC5883_ReadRawData(&mag_moving);
+		
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//KalmanFilter(&mpu_moving);
 		//KalmanFilter(&mpu_stationary);
 		
-		//HAL_Delay(1);
+		HAL_Delay(100);
 
 		
 		/*//PWM TESTING CODE
@@ -1018,20 +1021,19 @@ void PID_execute(){
 	if(useADC == 1){
 		
 	}
-	
+	GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
-	KalmanFilter(&mpu_moving);
+	//KalmanFilter(&mpu_moving);
 	//KalmanFilter(&mpu_stationary);
 	
 	//Yaw PID
-	HMC5883_ReadRawData(&mag_moving);
-	HMC5883_GetYaw(&mag_moving);
+	
 	
 	
 	//Pitch PID
-	BLDC_PID(&mpu_moving, &mpu_stationary);
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	//Roll PID
 	
 	

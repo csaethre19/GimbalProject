@@ -9,11 +9,15 @@
 #define Yaw1_Ch2 TIM1->CCR2;
 
 //Yaw PID variables
+volatile int16_t current_yaw_instruction = 0;
 volatile int16_t yaw_error_integral = 0;    // Integrated yaw error signal
 volatile int16_t yaw_error_derivative = 0;    // Derivated yaw error signal
 volatile int16_t target_yaw = 0;        // Desired yaw angle target
 volatile int16_t measured_yaw = 0;       // Measured yaw angle
 volatile int16_t yaw_error = 0;             // Yaw error signal
+volatile uint8_t Kp_Yaw = 20;                // Proportional gain
+volatile uint8_t Ki_Yaw = 10;                // Integral gain
+volatile uint8_t Kd_Yaw = 10;                // Derivative gain
 
 //	DC motor driver,
 //	Functions that drive the implementation of a single DC motor
@@ -21,7 +25,27 @@ volatile int16_t yaw_error = 0;             // Yaw error signal
 
 void set_desiredYaw(float desiredYaw){target_yaw = desiredYaw;}
 
-//void DC_PID(MPU6050_t *targetOrientation, MPU6050_t *stationaryOrientation){}
+void DC_PID(double current_yaw){
+	//CURRENT IMPLEMENTATION IS NON IDEAL : Known issues are as follows:
+	//Yaw is exclusively absolute, no consideration of front of aircraft
+	//clamping is done with untested conservative value
+	//
+	GPIOC->ODR ^= GPIO_ODR_9;
+	yaw_error = target_yaw - current_yaw;
+
+	double pitch_motor_Offset = (double)(yaw_error * Kp_Yaw);
+	
+	if(pitch_motor_Offset > 100) pitch_motor_Offset = 100;
+	if(pitch_motor_Offset < -100) pitch_motor_Offset = -100;
+
+	int calculated_output = pitch_motor_Offset * (999 / 100);
+	current_yaw_instruction = calculated_output;
+	
+	DCSetOutput(current_yaw_instruction, 1);//write new instructed angle to pitch BLDC motor;
+	
+	
+}
+
 
 //	DCSetOutput takes in a value from -1000 to 1000
 //	Based on this, the DC motor is set to rotate CW or CCW from 0% to 100% power
