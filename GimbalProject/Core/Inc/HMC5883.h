@@ -1,6 +1,9 @@
-#include "main.h"
-#include <math.h>
+#ifndef HMC5883_H
+#define HMC5883_H
 
+#include "I2C.h"
+#include <math.h>
+#include "stm32f0xx_hal.h"
 
 
 #define HMC5883_ADDR        0x1E  // HMC5883 chip address
@@ -22,6 +25,9 @@ typedef struct {
 } HMC5883_t;
 
 void HMC5883_Init(volatile HMC5883_t *dataStruct);	
+
 void HMC5883_ReadRawData(volatile HMC5883_t *dataStruct);
 	
 void HMC5883_GetYaw(volatile HMC5883_t *dataStruct);
+
+#endif /* HMC5883_H */

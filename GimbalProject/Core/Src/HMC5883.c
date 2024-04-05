@@ -1,10 +1,7 @@
-#include "I2C.h"
+
 #include "HMC5883.h"
 
-#include "stm32f0xx_hal.h"
 
-
-I2C_HandleTypeDef hi2c;
 
 void HMC5883_Init(volatile HMC5883_t *dataStruct) {
 		dataStruct->deviceAddr = HMC5883_ADDR;
@@ -12,13 +9,14 @@ void HMC5883_Init(volatile HMC5883_t *dataStruct) {
     uint8_t modeReg_data = 0x00;    // Continuous measurement mode
 
     // Configure Configuration Register A
-		I2C_WriteRegister(dataStruct->deviceAddr, 0x02, 0x00);
+		I2C_WriteRegister(dataStruct->deviceAddr, 0x00, 0x70);
     // Configure Mode Register
-    HAL_I2C_Mem_Write(&hi2c, HMC5883_ADDR, HMC5883_MODE_REG, 1, &modeReg_data, 1, HAL_MAX_DELAY);
+    //HAL_I2C_Mem_Write(&hi2c, HMC5883_ADDR, HMC5883_MODE_REG, 1, &modeReg_data, 1, HAL_MAX_DELAY);
+		I2C_WriteRegister(dataStruct->deviceAddr, 0x02, 0x00);
 }
 
 void HMC5883_ReadRawData(volatile HMC5883_t *dataStruct) {
-    uint8_t buffer[6];
+    int8_t buffer[6];
 		double tempholderx = 0;
 		double tempholdery = 0;
 		double tempholderz = 0;
