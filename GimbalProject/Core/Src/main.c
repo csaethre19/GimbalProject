@@ -145,7 +145,7 @@ int main(void)
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
-	//MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -159,7 +159,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//init_PWMinput();
 	
 	//MOTOR TESTING CODE
@@ -189,15 +189,15 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-		DCSetOutput(DCtracker, 1);
-		BLDC_Output(BLDCtracker, 1);
-		BLDC_Output(BLDCtracker, 2);
-		
-		DCtracker += DC_Direction;
-		BLDCtracker += 100;
-		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(100);
+//		DCSetOutput(DCtracker, 1);
+//		BLDC_Output(BLDCtracker, 1);
+//		BLDC_Output(BLDCtracker, 2);
+//		
+//		DCtracker += DC_Direction;
+//		BLDCtracker += 20;
+//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+//		if(BLDCtracker > 359.99) BLDCtracker = 0;
+//		HAL_Delay(100);
 		
 		
     /* USER CODE END WHILE */
@@ -409,7 +409,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 7;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 4000;
+  htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

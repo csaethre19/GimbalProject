@@ -76,8 +76,8 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	
 	int pitch_motor_Offset = (int)(pitch_error * Kp_Pitch);
 	
-	if(pitch_motor_Offset > 5) pitch_motor_Offset = 5;
-	if(pitch_motor_Offset < -5) pitch_motor_Offset = -5;
+	if(pitch_motor_Offset > 25) pitch_motor_Offset = 25;
+	if(pitch_motor_Offset < -25) pitch_motor_Offset = -25;
 
 	current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
 	
