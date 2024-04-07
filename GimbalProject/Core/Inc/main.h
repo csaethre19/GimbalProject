@@ -93,6 +93,10 @@ void PID_execute();
 #define DC_Ch1_GPIO_Port GPIOA
 #define DC_Ch2_Pin GPIO_PIN_9
 #define DC_Ch2_GPIO_Port GPIOA
+#define EN_BLDC2_Pin GPIO_PIN_5
+#define EN_BLDC2_GPIO_Port GPIOB
+#define EN_BLDC1_Pin GPIO_PIN_6
+#define EN_BLDC1_GPIO_Port GPIOB
 #define Roll_PWMIN_Pin GPIO_PIN_9
 #define Roll_PWMIN_GPIO_Port GPIOB
 
