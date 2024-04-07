@@ -1,5 +1,19 @@
 #include "MPU6050.h"
 
+#define RAD_TO_DEG 57.295779513082320876798154814105
+#define dt 0.001 //dt represents Duration of each iteration of KalmanFilter 0.001 = 1KHz
+
+Kalman_t KalmanPitch = {//KalmanX
+        .Q_angle = 0.001f,
+        .Q_bias = 0.003f,
+        .R_measure = 0.03f
+};
+
+Kalman_t KalmanRoll = {//KalmanY
+        .Q_angle = 0.001f,
+        .Q_bias = 0.003f,
+        .R_measure = 0.03f,
+};
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
@@ -71,11 +85,6 @@ if (pwr_mgmt == 0)
 	dataStruct->KalmanAngleUncertaintyRoll = 9;
 }
 
-void QMC_Init(void)
-{
-		I2C_WriteRegister(QMC_ADDR, 0x0B, 0x01);
-		I2C_WriteRegister(QMC_ADDR, 0x09, 0x1D);
-}
 
 void ReadGyroData(volatile MPU6050_t *dataStruct)
 {
@@ -176,28 +185,9 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 	stepvar = -atan(stepvar);
 	stepvar = stepvar / (3.141592/180);
 	return stepvar;
-	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AccelZ)))*1/(3.141592/180);
+	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AvccelZ)))*1/(3.141592/180);
 }
 
-void ReadMagData(volatile MPU6050_t *dataStruct)
-{
-	int8_t dataBuffer[4]; // reading X and Y
-	
-	I2C_ReadBurst(dataStruct->deviceAddr, 0x00, dataBuffer, 4); 
-	
-	int8_t xhigh = dataBuffer[0];
-	int8_t xlow = dataBuffer[1];
-	float x_raw = (int16_t)(xhigh << 8 | xlow);
-	float mag_x = x_raw/MAG_LSB_SENS; 
-	
-	int8_t yhigh = dataBuffer[2];
-	int8_t ylow = dataBuffer[3];
-	float y_raw = (int16_t)(yhigh << 8 | ylow);
-	float mag_y = y_raw/MAG_LSB_SENS; 
-	
-	// Calculating Yaw Angle
-	dataStruct->AngleYaw = atan2(-mag_y, mag_x);
-}
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
@@ -260,4 +250,76 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	//USART_Transmit_Newline();
 }
 
+void KFilter_2(volatile MPU6050_t *DataStruct){
+	GPIOC->ODR ^= GPIO_ODR_7;
+	
+	ReadGyroData(DataStruct);
+	ReadAccelData(DataStruct);
+	
+	/* Roll inaccurate
+		double roll;
+    double roll_sqrt = sqrt(
+            dataStruct->Accel_X_RAW * dataStruct->Accel_X_RAW + dataStruct->Accel_Z_RAW * dataStruct->Accel_Z_RAW);
+    if (roll_sqrt != 0.0) {
+        roll = atan(dataStruct->Accel_Y_RAW / roll_sqrt) * RAD_TO_DEG;
+    } else {
+        roll = 0.0;
+    }
+    double pitch = atan2(-dataStruct->Accel_X_RAW, dataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+    if ((pitch < -90 && dataStruct->KalmanAnglePitch > 90) || (pitch > 90 && dataStruct->KalmanAnglePitch < -90)) {
+        KalmanPitch.angle = pitch;
+        dataStruct->KalmanAnglePitch = pitch;
+    } else {
+        dataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, dataStruct->Gy);
+    }
+    if (fabs(dataStruct->KalmanAngleRoll) > 90)
+        dataStruct->Gx = -dataStruct->Gx;
+    dataStruct->KalmanAngleRoll = Kalman_getAngle(&KalmanRoll, roll, dataStruct->Gx);
+		*/
+		double pitch = atan2(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+    if ((pitch < -90 && DataStruct->KalmanAnglePitch > 90) || (pitch > 90 && DataStruct->KalmanAnglePitch < -90)) {
+        KalmanPitch.angle = pitch;
+        DataStruct->KalmanAnglePitch = pitch;
+    } else {
+        DataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, DataStruct->Gy);
+    }
+		
+		double roll = DataStruct->AngleRoll;
+   if((roll < -90 && DataStruct->KalmanAngleRoll > 90) || (roll > 90 && DataStruct->KalmanAngleRoll < -90)) {
+		 KalmanRoll.angle = roll;
+		 DataStruct->KalmanAngleRoll = roll;
+	 } else {
+		 DataStruct->KalmanAngleRoll = Kalman_getAngle(&KalmanRoll, roll, DataStruct->Gx);
+	 }
+
+}
+
+double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate) {
+    double rate = newRate - Kalman->bias;
+    Kalman->angle += dt * rate;
+
+    Kalman->P[0][0] += dt * (dt * Kalman->P[1][1] - Kalman->P[0][1] - Kalman->P[1][0] + Kalman->Q_angle);
+    Kalman->P[0][1] -= dt * Kalman->P[1][1];
+    Kalman->P[1][0] -= dt * Kalman->P[1][1];
+    Kalman->P[1][1] += Kalman->Q_bias * dt;
+
+    double S = Kalman->P[0][0] + Kalman->R_measure;
+    double K[2];
+    K[0] = Kalman->P[0][0] / S;
+    K[1] = Kalman->P[1][0] / S;
+
+    double y = newAngle - Kalman->angle;
+    Kalman->angle += K[0] * y;
+    Kalman->bias += K[1] * y;
+
+    double P00_temp = Kalman->P[0][0];
+    double P01_temp = Kalman->P[0][1];
+
+    Kalman->P[0][0] -= K[0] * P00_temp;
+    Kalman->P[0][1] -= K[0] * P01_temp;
+    Kalman->P[1][0] -= K[1] * P00_temp;
+    Kalman->P[1][1] -= K[1] * P01_temp;
+
+    return Kalman->angle;
+};
 

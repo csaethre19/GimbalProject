@@ -146,7 +146,7 @@ int main(void)
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
 	MPU_Init(&mpu_moving, 0x68);
-	MPU_Init(&mpu_stationary, 0x69);
+	//MPU_Init(&mpu_stationary, 0x69);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -160,7 +160,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//init_PWMinput();
 	
 	/*MOTOR TESTING CODE
@@ -175,11 +175,11 @@ int main(void)
 	*/
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
-		KalmanFilter(&mpu_moving);
-		KalmanFilter(&mpu_stationary);
+		//GPIOC->ODR ^= GPIO_ODR_6;
+		//KFilter_2(&mpu_moving);
+		//KFilter_2(&mpu_stationary);
 		
-		HAL_Delay(1);
+		//HAL_Delay(1);
 
 		
 		/*//PWM TESTING CODE
@@ -763,12 +763,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_Indicator_GPIO_Port, LED_Indicator_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, EN_BLDC2_Pin|EN_BLDC1_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : LED_Indicator_Pin */
   GPIO_InitStruct.Pin = LED_Indicator_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_Indicator_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : EN_BLDC2_Pin EN_BLDC1_Pin */
+  GPIO_InitStruct.Pin = EN_BLDC2_Pin|EN_BLDC1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -1020,8 +1030,8 @@ void PID_execute(){
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
-	//KalmanFilter(&mpu_moving);
-	//KalmanFilter(&mpu_stationary);
+	KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_stationary);
 	
 	//Yaw PID
 	
