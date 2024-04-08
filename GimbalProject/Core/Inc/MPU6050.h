@@ -16,6 +16,8 @@
  *  -------------------------------------------------------------------------------------------------------------
  */
  
+#define RAD_TO_DEG 57.295779513082320876798154814105
+
 
 #define MPU6050_ADDR   0x68
 #define WHO_AM_I       0x75
@@ -85,6 +87,9 @@ typedef struct {
 	float KalmanAngleUncertaintyPitch;
 	float KalmanAngleUncertaintyYaw;
 	
+	double dt;//Time since last KalmanFilter Execution
+	double timer;//Time of last KalmanFilter Execution
+	
 } MPU6050_t;
 
 
@@ -152,6 +157,6 @@ void KalmanFilter(volatile MPU6050_t *dataStruct);
 
 void KFilter_2(volatile MPU6050_t *dataStruct);
 
-double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate);
+double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
 
 #endif /* MPU6050_H */

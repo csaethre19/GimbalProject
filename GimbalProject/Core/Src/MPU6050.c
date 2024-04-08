@@ -1,7 +1,5 @@
 #include "MPU6050.h"
 
-#define RAD_TO_DEG 57.295779513082320876798154814105
-#define dt 0.001 //dt represents Duration of each iteration of KalmanFilter 0.001 = 1KHz
 
 Kalman_t KalmanPitch = {//KalmanX
         .Q_angle = 0.001f,
@@ -213,22 +211,6 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
 	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
 	
-
-	// YAW KALMAN:
-	// State Prediction: predicting new angle by integrating rate of change using RatePitch and time step of 0.004
-	//dataStruct->KalmanAngleYaw = dataStruct->KalmanAngleYaw+ dataStruct->RateYaw*0.004;
-	// Uncertainty Prediction: updating uncertainty of angle estimate by fixed amount (0.004 * 0.004 * 4 * 4 is arbitrary)
-	//dataStruct->KalmanAngleUncertaintyYaw = dataStruct->KalmanAngleUncertaintyYaw + 0.004 * 0.004 * 4 * 4;
-	
-	// Kalman Gain Calculation: balancing the estimated state's uncertainty with the measurement's uncertainty (3*3 is used as measurement noise variance)
-	//float kalmanGainYaw = dataStruct->KalmanAngleUncertaintyYaw * 1/(1*dataStruct->KalmanAngleUncertaintyYaw + 3 * 3);
-	
-	// State Update: correcting the predicted state with the new information which incorporates AnglePitch accelerometer-based angle
-	//dataStruct->KalmanAngleYaw = dataStruct->KalmanAngleYaw + kalmanGainPitch * (dataStruct->AngleYaw-dataStruct->KalmanAngleYaw);
-	
-	// Uncertainty Update:
-	//dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
-	
 	
 	//USART_Transmit_String("AxelY: ");
 	//USART_Transmit_Float(dataStruct->Ay, 3);
@@ -253,48 +235,35 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 void KFilter_2(volatile MPU6050_t *DataStruct){
 	GPIOC->ODR ^= GPIO_ODR_7;
 	
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
+  DataStruct->timer = HAL_GetTick();
+	
 	ReadGyroData(DataStruct);
 	ReadAccelData(DataStruct);
 	
-	/* Roll inaccurate
-		double roll;
-    double roll_sqrt = sqrt(
-            dataStruct->Accel_X_RAW * dataStruct->Accel_X_RAW + dataStruct->Accel_Z_RAW * dataStruct->Accel_Z_RAW);
-    if (roll_sqrt != 0.0) {
-        roll = atan(dataStruct->Accel_Y_RAW / roll_sqrt) * RAD_TO_DEG;
-    } else {
-        roll = 0.0;
-    }
-    double pitch = atan2(-dataStruct->Accel_X_RAW, dataStruct->Accel_Z_RAW) * RAD_TO_DEG;
-    if ((pitch < -90 && dataStruct->KalmanAnglePitch > 90) || (pitch > 90 && dataStruct->KalmanAnglePitch < -90)) {
-        KalmanPitch.angle = pitch;
-        dataStruct->KalmanAnglePitch = pitch;
-    } else {
-        dataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, dataStruct->Gy);
-    }
-    if (fabs(dataStruct->KalmanAngleRoll) > 90)
-        dataStruct->Gx = -dataStruct->Gx;
-    dataStruct->KalmanAngleRoll = Kalman_getAngle(&KalmanRoll, roll, dataStruct->Gx);
-		*/
 		double pitch = atan2(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+		
     if ((pitch < -90 && DataStruct->KalmanAnglePitch > 90) || (pitch > 90 && DataStruct->KalmanAnglePitch < -90)) {
         KalmanPitch.angle = pitch;
         DataStruct->KalmanAnglePitch = pitch;
     } else {
-        DataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, DataStruct->Gy);
+        DataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, DataStruct->Gy, DataStruct->dt);
     }
 		
-		double roll = DataStruct->AngleRoll;
-   if((roll < -90 && DataStruct->KalmanAngleRoll > 90) || (roll > 90 && DataStruct->KalmanAngleRoll < -90)) {
+		double roll = atan2(DataStruct->Accel_Y_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+		if (fabs(DataStruct->KalmanAngleRoll) > 90)
+        DataStruct->Gx = -DataStruct->Gx;
+    if((roll < -90 && DataStruct->KalmanAngleRoll > 90) || (roll > 90 && DataStruct->KalmanAngleRoll < -90)) {
 		 KalmanRoll.angle = roll;
 		 DataStruct->KalmanAngleRoll = roll;
-	 } else {
-		 DataStruct->KalmanAngleRoll = Kalman_getAngle(&KalmanRoll, roll, DataStruct->Gx);
-	 }
-
+			
+	  } else {
+		 DataStruct->KalmanAngleRoll = Kalman_getAngle(&KalmanRoll, roll, DataStruct->Gx, DataStruct->dt);
+	  }
+		
 }
 
-double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate) {
+double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt) {
     double rate = newRate - Kalman->bias;
     Kalman->angle += dt * rate;
 
@@ -320,6 +289,9 @@ double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate) {
     Kalman->P[1][0] -= K[1] * P00_temp;
     Kalman->P[1][1] -= K[1] * P01_temp;
 
+		//ensure reported values range from -180 <-> 180
+		if (Kalman->angle > 180) {Kalman->angle = Kalman->angle  - 360;}
+		if (Kalman->angle < 180) {Kalman->angle = Kalman->angle  + 360;}
     return Kalman->angle;
 };
 
