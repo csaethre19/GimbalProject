@@ -92,6 +92,10 @@ void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
 void init_PWMinput();
+void enablePWM();
+void disablePWM();
+void enableADC();
+void disableADC();
 
 /* USER CODE END PFP */
 
@@ -153,8 +157,8 @@ int main(void)
 	//QMC_Init();
 			
 	//INPUT MODE SETUP
-	usePWM = 0;
-	useADC = 0;
+	disablePWM();
+	disableADC();
 	
   /* USER CODE END 2 */
 
@@ -972,8 +976,7 @@ void init_RollMotor()
 		return;
 }
 
-void init_YawMotor()
-	{
+void init_YawMotor(){
 		int value = 1000;
 
     TIM_OC_InitTypeDef sConfigOC;
@@ -991,14 +994,6 @@ void init_YawMotor()
 		return;
 }
 	
-void init_PWMinput()
-{
-	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
-	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
-	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
-	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
-	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
-}
 
 void PID_execute(){
 	//Update Desired Angles
@@ -1036,11 +1031,40 @@ void PID_execute(){
 	//Yaw PID
 	
 	//Pitch PID
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 	//Roll PID
 	
 	
 	
+	
+}
+
+void enablePWM(){
+	usePWM = 1;
+	init_PWMinput();
+	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
+	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
+	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
+	
+}
+
+void disablePWM(){
+	usePWM = 0;
+	HAL_TIM_Base_Stop(&htim15);
+	HAL_TIM_Base_Stop(&htim17);
+}
+
+void enableADCIN(){
+	useADC = 1;
+	//FILL IN HOW TO STARTUP AND ENABLE ADC
+	
+}
+
+void disableADCIN(){
+	useADC = 0;
+	//FILL IN HOW TO STOP AND DISABLE ADC
 	
 }
 

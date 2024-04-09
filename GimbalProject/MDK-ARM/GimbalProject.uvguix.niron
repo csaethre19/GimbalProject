@@ -3615,18 +3615,18 @@
       </Doc>
       <Doc>
         <Name>../Core/Src/main.c</Name>
-        <ColumnNumber>6</ColumnNumber>
-        <TopLine>173</TopLine>
-        <CurrentLine>178</CurrentLine>
+        <ColumnNumber>24</ColumnNumber>
+        <TopLine>170</TopLine>
+        <CurrentLine>185</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders>210,215,247,253,341,347,389,395,468,474,535,541,602,608,665,671,711,717,746,752,791</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
       <Doc>
         <Name>..\Core\Src\MPU6050.c</Name>
-        <ColumnNumber>52</ColumnNumber>
-        <TopLine>257</TopLine>
-        <CurrentLine>292</CurrentLine>
+        <ColumnNumber>19</ColumnNumber>
+        <TopLine>232</TopLine>
+        <CurrentLine>253</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>

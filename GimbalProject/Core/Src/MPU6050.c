@@ -250,7 +250,7 @@ void KFilter_2(volatile MPU6050_t *DataStruct){
         DataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, DataStruct->Gy, DataStruct->dt);
     }
 		
-		double roll = atan2(DataStruct->Accel_Y_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+		double roll = -atan2(DataStruct->Accel_Y_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
 		if (fabs(DataStruct->KalmanAngleRoll) > 90)
         DataStruct->Gx = -DataStruct->Gx;
     if((roll < -90 && DataStruct->KalmanAngleRoll > 90) || (roll > 90 && DataStruct->KalmanAngleRoll < -90)) {
@@ -291,7 +291,7 @@ double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double
 
 		//ensure reported values range from -180 <-> 180
 		if (Kalman->angle > 180) {Kalman->angle = Kalman->angle  - 360;}
-		if (Kalman->angle < 180) {Kalman->angle = Kalman->angle  + 360;}
+		if (Kalman->angle < -180) {Kalman->angle = Kalman->angle  + 360;}
     return Kalman->angle;
 };
 
