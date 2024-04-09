@@ -150,9 +150,8 @@ int main(void)
 	Init_LEDs();
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-	
-	MPU_Init(&mpu_moving, 0x68);
-	//MPU_Init(&mpu_stationary, 0x69);
+	HMC5883_Init(&mag_moving);
+	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -166,7 +165,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 
 	
 	//MOTOR TESTING CODE
@@ -181,11 +180,9 @@ int main(void)
 	
   while (1)
   {
-		//GPIOC->ODR ^= GPIO_ODR_6;
-		//KFilter_2(&mpu_moving);
-		//KFilter_2(&mpu_stationary);
-		
-		//HAL_Delay(1);
+		GPIOC->ODR ^= GPIO_ODR_6;
+		HMC5883_ReadRawData(&mag_moving);
+		HAL_Delay(100);
 
 		
 		/*//PWM TESTING CODE
