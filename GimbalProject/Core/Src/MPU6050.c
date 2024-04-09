@@ -1,6 +1,18 @@
 #include "MPU6050.h"
 
 
+Kalman_t KalmanPitch = {//KalmanX
+        .Q_angle = 0.001f,
+        .Q_bias = 0.003f,
+        .R_measure = 0.03f
+};
+
+Kalman_t KalmanRoll = {//KalmanY
+        .Q_angle = 0.001f,
+        .Q_bias = 0.003f,
+        .R_measure = 0.03f,
+};
+
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
 	dataStruct->deviceAddr = deviceAddr;
@@ -31,8 +43,8 @@ if (pwr_mgmt == 0)
 		USART_Transmit_Newline();
 	}
 	
-	// Setting full-scale range to +-500 degress/sec
-	I2C_WriteRegister(deviceAddr, GYRO_CONFIG, 0x08);
+	// Setting full-scale range to +-1000 degress/sec
+	I2C_WriteRegister(deviceAddr, GYRO_CONFIG, 0x10);
 	I2C_SetRegAddress(deviceAddr, GYRO_CONFIG);
 	int8_t gyro_config = I2C_ReadRegister(deviceAddr);
 	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to +-500 deg/s");
@@ -71,11 +83,6 @@ if (pwr_mgmt == 0)
 	dataStruct->KalmanAngleUncertaintyRoll = 9;
 }
 
-void QMC_Init(void)
-{
-		I2C_WriteRegister(QMC_ADDR, 0x0B, 0x01);
-		I2C_WriteRegister(QMC_ADDR, 0x09, 0x1D);
-}
 
 void ReadGyroData(volatile MPU6050_t *dataStruct)
 {
@@ -176,28 +183,9 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 	stepvar = -atan(stepvar);
 	stepvar = stepvar / (3.141592/180);
 	return stepvar;
-	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AccelZ)))*1/(3.141592/180);
+	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AvccelZ)))*1/(3.141592/180);
 }
 
-void ReadMagData(volatile MPU6050_t *dataStruct)
-{
-	int8_t dataBuffer[4]; // reading X and Y
-	
-	I2C_ReadBurst(dataStruct->deviceAddr, 0x00, dataBuffer, 4); 
-	
-	int8_t xhigh = dataBuffer[0];
-	int8_t xlow = dataBuffer[1];
-	float x_raw = (int16_t)(xhigh << 8 | xlow);
-	float mag_x = x_raw/MAG_LSB_SENS; 
-	
-	int8_t yhigh = dataBuffer[2];
-	int8_t ylow = dataBuffer[3];
-	float y_raw = (int16_t)(yhigh << 8 | ylow);
-	float mag_y = y_raw/MAG_LSB_SENS; 
-	
-	// Calculating Yaw Angle
-	dataStruct->AngleYaw = atan2(-mag_y, mag_x);
-}
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
@@ -212,32 +200,16 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 
 	
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004 * dataStruct->RateRoll);
-	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 4 * 4);
+	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 3 * 3);
 	float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
 	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
 	dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
 	
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004 * dataStruct->RatePitch);
-	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 4 * 4);
+	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 3 * 3);
 	float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
 	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
-	
-
-	// YAW KALMAN:
-	// State Prediction: predicting new angle by integrating rate of change using RatePitch and time step of 0.004
-	//dataStruct->KalmanAngleYaw = dataStruct->KalmanAngleYaw+ dataStruct->RateYaw*0.004;
-	// Uncertainty Prediction: updating uncertainty of angle estimate by fixed amount (0.004 * 0.004 * 4 * 4 is arbitrary)
-	//dataStruct->KalmanAngleUncertaintyYaw = dataStruct->KalmanAngleUncertaintyYaw + 0.004 * 0.004 * 4 * 4;
-	
-	// Kalman Gain Calculation: balancing the estimated state's uncertainty with the measurement's uncertainty (3*3 is used as measurement noise variance)
-	//float kalmanGainYaw = dataStruct->KalmanAngleUncertaintyYaw * 1/(1*dataStruct->KalmanAngleUncertaintyYaw + 3 * 3);
-	
-	// State Update: correcting the predicted state with the new information which incorporates AnglePitch accelerometer-based angle
-	//dataStruct->KalmanAngleYaw = dataStruct->KalmanAngleYaw + kalmanGainPitch * (dataStruct->AngleYaw-dataStruct->KalmanAngleYaw);
-	
-	// Uncertainty Update:
-	//dataStruct->KalmanAngleUncertaintyYaw = (1-kalmanGainYaw) * dataStruct->KalmanAngleUncertaintyYaw;
 	
 	
 	//USART_Transmit_String("AxelY: ");
@@ -260,4 +232,66 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	//USART_Transmit_Newline();
 }
 
+void KFilter_2(volatile MPU6050_t *DataStruct){
+	GPIOC->ODR ^= GPIO_ODR_7;
+	
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
+  DataStruct->timer = HAL_GetTick();
+	
+	ReadGyroData(DataStruct);
+	ReadAccelData(DataStruct);
+	
+		double pitch = atan2(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+		
+    if ((pitch < -90 && DataStruct->KalmanAnglePitch > 90) || (pitch > 90 && DataStruct->KalmanAnglePitch < -90)) {
+        KalmanPitch.angle = pitch;
+        DataStruct->KalmanAnglePitch = pitch;
+    } else {
+        DataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, DataStruct->Gy, DataStruct->dt);
+    }
+		
+		double roll = -atan2(DataStruct->Accel_Y_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+		if (fabs(DataStruct->KalmanAngleRoll) > 90)
+        DataStruct->Gx = -DataStruct->Gx;
+    if((roll < -90 && DataStruct->KalmanAngleRoll > 90) || (roll > 90 && DataStruct->KalmanAngleRoll < -90)) {
+		 KalmanRoll.angle = roll;
+		 DataStruct->KalmanAngleRoll = roll;
+			
+	  } else {
+		 DataStruct->KalmanAngleRoll = Kalman_getAngle(&KalmanRoll, roll, DataStruct->Gx, DataStruct->dt);
+	  }
+		
+}
+
+double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt) {
+    double rate = newRate - Kalman->bias;
+    Kalman->angle += dt * rate;
+
+    Kalman->P[0][0] += dt * (dt * Kalman->P[1][1] - Kalman->P[0][1] - Kalman->P[1][0] + Kalman->Q_angle);
+    Kalman->P[0][1] -= dt * Kalman->P[1][1];
+    Kalman->P[1][0] -= dt * Kalman->P[1][1];
+    Kalman->P[1][1] += Kalman->Q_bias * dt;
+
+    double S = Kalman->P[0][0] + Kalman->R_measure;
+    double K[2];
+    K[0] = Kalman->P[0][0] / S;
+    K[1] = Kalman->P[1][0] / S;
+
+    double y = newAngle - Kalman->angle;
+    Kalman->angle += K[0] * y;
+    Kalman->bias += K[1] * y;
+
+    double P00_temp = Kalman->P[0][0];
+    double P01_temp = Kalman->P[0][1];
+
+    Kalman->P[0][0] -= K[0] * P00_temp;
+    Kalman->P[0][1] -= K[0] * P01_temp;
+    Kalman->P[1][0] -= K[1] * P00_temp;
+    Kalman->P[1][1] -= K[1] * P01_temp;
+
+		//ensure reported values range from -180 <-> 180
+		if (Kalman->angle > 180) {Kalman->angle = Kalman->angle  - 360;}
+		if (Kalman->angle < -180) {Kalman->angle = Kalman->angle  + 360;}
+    return Kalman->angle;
+};
 

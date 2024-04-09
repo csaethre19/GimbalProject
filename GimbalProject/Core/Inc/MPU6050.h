@@ -16,8 +16,9 @@
  *  -------------------------------------------------------------------------------------------------------------
  */
  
-#define QMC_ADDR       0x0D
-#define MAG_LSB_SENS   3000 // for +- 8 Gauss
+#define RAD_TO_DEG 57.295779513082320876798154814105
+
+
 #define MPU6050_ADDR   0x68
 #define WHO_AM_I       0x75
 
@@ -26,7 +27,7 @@
 #define CONFIG         0x1A
 
 #define GYRO_CONFIG    0x1B
-#define GYRO_LSB_SENS  65.5 // for +-500 deg/s
+#define GYRO_LSB_SENS  32.8 // for +-1000 deg/s
 #define GYRO_XOUT_HIGH 0x43
 #define GYRO_XOUT_LOW  0x44
 
@@ -86,7 +87,21 @@ typedef struct {
 	float KalmanAngleUncertaintyPitch;
 	float KalmanAngleUncertaintyYaw;
 	
+	double dt;//Time since last KalmanFilter Execution
+	double timer;//Time of last KalmanFilter Execution
+	
 } MPU6050_t;
+
+
+// Kalman structure
+typedef struct {
+    double Q_angle;
+    double Q_bias;
+    double R_measure;
+    double angle;
+    double bias;
+    double P[2][2];
+} Kalman_t;
 
 /*
 	Initializes an MPU6050 IMU given a MPU6050_t type and a device address, specified by deviceAddr parameter.
@@ -121,10 +136,6 @@ void ReadGyroData(volatile MPU6050_t *dataStruct);
 */
 void ReadAccelData(volatile MPU6050_t *dataStruct);
 
-/*
-	
-*/
-void ReadMagData(volatile MPU6050_t *dataStruct);
 
 /*
 	Given X, Y, and Z accelerometer data calculates the roll angle. 
@@ -144,5 +155,8 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ);
 */
 void KalmanFilter(volatile MPU6050_t *dataStruct);
 
+void KFilter_2(volatile MPU6050_t *dataStruct);
+
+double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
 
 #endif /* MPU6050_H */
