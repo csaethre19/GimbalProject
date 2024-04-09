@@ -211,7 +211,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
 	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
 	
-	
+
 	//USART_Transmit_String("AxelY: ");
 	//USART_Transmit_Float(dataStruct->Ay, 3);
 	//USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);

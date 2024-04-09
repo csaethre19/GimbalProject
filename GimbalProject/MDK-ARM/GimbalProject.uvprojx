@@ -445,6 +445,11 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f0xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>HMC5883.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\HMC5883.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

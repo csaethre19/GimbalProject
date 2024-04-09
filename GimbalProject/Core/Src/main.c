@@ -1,4 +1,4 @@
-/* USER CODE BEGIN Header */
+	/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -30,6 +30,7 @@
 #include "BLDCMotor.h"
 #include "DCMotor.h"
 #include "PWM_input.h"
+#include "HMC5883.h"
 #include <math.h>
 
 /* USER CODE END Includes */
@@ -71,6 +72,7 @@ char cmdBuffer[CMD_BUFFER_SIZE];
 uint32_t cmdBufferPos = 0;
 volatile MPU6050_t mpu_moving;
 volatile MPU6050_t mpu_stationary;
+volatile HMC5883_t mag_moving;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
 /* USER CODE END PV */
@@ -167,16 +169,16 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//init_PWMinput();
 	
-	/*MOTOR TESTING CODE
+	//MOTOR TESTING CODE
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
 	BLDCDisable(2);
-	BLDCEnable(2);
+	BLDCEnable(1);
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
-	*/
+	
   while (1)
   {
 		//GPIOC->ODR ^= GPIO_ODR_6;
@@ -193,17 +195,17 @@ int main(void)
 		if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
 		*/
 		
-		/*//MOTOR TESTING CODE
-		DCSetOutput(DCtracker, 1);
-		BLDC_Output(BLDCtracker, 1);
-		BLDC_Output(BLDCtracker, 2);
+		//MOTOR TESTING CODE
+//		DCSetOutput(DCtracker, 1);
+//		BLDC_Output(BLDCtracker, 1);
+//		BLDC_Output(BLDCtracker, 2);
+//		
+//		DCtracker += DC_Direction;
+//		BLDCtracker += 20;
+//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+//		if(BLDCtracker > 359.99) BLDCtracker = 0;
+//		HAL_Delay(100);
 		
-		DCtracker += DC_Direction;
-		BLDCtracker += 100;
-		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-		if(BLDCtracker > 359.99) BLDCtracker = 0;
-		HAL_Delay(1);
-		*/
 		
     /* USER CODE END WHILE */
 
@@ -490,7 +492,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7;
+  htim2.Init.Prescaler = 15;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1021,7 +1023,7 @@ void PID_execute(){
 	if(useADC == 1){
 		
 	}
-	
+	GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
@@ -1030,9 +1032,12 @@ void PID_execute(){
 	
 	//Yaw PID
 	
+	
+	
 	//Pitch PID
 	BLDC_PID(&mpu_moving, &mpu_stationary);
 	//Roll PID
+	
 	
 	
 	

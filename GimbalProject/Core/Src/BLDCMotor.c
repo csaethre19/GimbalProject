@@ -40,7 +40,7 @@ volatile int16_t roll_error = 0;             // Roll error signal
 volatile uint8_t Kp_Roll = 1;                // Proportional gain
 volatile uint8_t Ki_Roll = 1;                // Integral gain
 volatile uint8_t Kd_Roll = 1;                // Derivative gain
-volatile uint8_t Kp_Pitch = 10;                // Proportional gain
+volatile uint8_t Kp_Pitch = 1;                // Proportional gain
 volatile uint8_t Ki_Pitch = 10;                // Integral gain
 volatile uint8_t Kd_Pitch = 10;                // Derivative gain
 
@@ -177,3 +177,4 @@ void BLDCDisable(int MotorNum){
 	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;//disable pitch motor driver
 	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;//disable roll motor driver
 }
+
