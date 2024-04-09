@@ -93,6 +93,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		BLDC_Output(current_roll_instruction, 1);//write new instructed angle to pitch BLDC motor;
 	}
 	else{//Relative Position Mode Execute
+		//Not possible without relative yaw determination
 		pitch_error = target_pitch - relativePitch;
 		roll_error = target_roll - relativeRoll;
 		
