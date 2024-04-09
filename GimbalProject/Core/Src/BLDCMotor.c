@@ -43,6 +43,8 @@ volatile uint8_t Kd_Roll = 1;                // Derivative gain
 volatile uint8_t Kp_Pitch = 1;                // Proportional gain
 volatile uint8_t Ki_Pitch = 10;                // Integral gain
 volatile uint8_t Kd_Pitch = 10;                // Derivative gain
+
+volatile int16_t relative0_absolute1 = 1;
 //PID TRACKER ROLL
 
 
@@ -52,7 +54,7 @@ volatile uint8_t Kd_Pitch = 10;                // Derivative gain
 //	as well as defaults to some hopefully harmless power up values
 	
 //	PLANNED ADDITIONS:
-//	1. Handle the PID loop through simple function calls within this method
+//	1.
 //	2. Deal with the current measurement appropriately (Pitch/Roll Current ADC input)
 //	3.?
 
@@ -62,30 +64,48 @@ volatile uint8_t Kd_Pitch = 10;                // Derivative gain
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
-
+void set_operationMode(int16_t setMode){relative0_absolute1 = setMode;}
 void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){
 	//CURRENT IMPLEMENTATION IS NON IDEAL : Known issues are as follows:
 	//Proportional controller only
-	//clamping is done with untested conservative value
-	//No consideration of mechanical limits of system
-	//ONLY ONE MPU6050 INPUT IS CONSIDERED ie. the motor will rip the gimbal to shreds if instructed
-	//
-	GPIOC->ODR ^= GPIO_ODR_6;
-	pitch_error = targetOrientation->KalmanAnglePitch - target_pitch ;
-	//pitch_error /= 4;
+	//ADD CONSIDERATION OF MECHANICAL LIMITS TO BOTH OPERATION MODES
 	
-	int pitch_motor_Offset = (int)(pitch_error * Kp_Pitch);
+	float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
+	float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
+	if(relative0_absolute1){//Absolute Position Mode Execute
+		//PITCH MOTOR
+		pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
+		int pitch_motor_Offset = (int)pitch_error * Kp_Pitch;
+		if(pitch_motor_Offset > 50) pitch_motor_Offset = 50;
+		if(pitch_motor_Offset < -50) pitch_motor_Offset = -50;
+		current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
+		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
+		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		//ROLL MOTOR
+		roll_error = target_roll - targetOrientation->KalmanAngleRoll;
+		int roll_motor_Offset = (int)roll_error * Kp_Roll;
+		if(roll_motor_Offset > 50) roll_motor_Offset = 50;
+		if(roll_motor_Offset < -50) roll_motor_Offset = -50;
+		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
+		if(current_roll_instruction > 360) current_roll_instruction -= 360;
+		if(current_roll_instruction < 0) current_roll_instruction += 360;
+		BLDC_Output(current_roll_instruction, 1);//write new instructed angle to pitch BLDC motor;
+	}
+	else{//Relative Position Mode Execute
+		//Not possible without relative yaw determination
+		pitch_error = target_pitch - relativePitch;
+		roll_error = target_roll - relativeRoll;
+		
+	}
 	
-	if(pitch_motor_Offset > 25) pitch_motor_Offset = 25;
-	if(pitch_motor_Offset < -25) pitch_motor_Offset = -25;
-
-	current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
 	
-	if(current_pitch_instruction >= 360) current_pitch_instruction = 0;
-	if(current_pitch_instruction < 0) current_pitch_instruction = 360;
-	BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
+	
 }
 
+/*Send a signal from 0-360 to instruct an output angle of the BLDC motor
+MotorNum -> 1 == PITCH(BLDC1),  2 == ROLL(BLDC2)
+*/
 void BLDC_Output(double Angle1, int MotorNum)
 {
 	if((Angle1 < 0) || (Angle1 > 360)) return;
