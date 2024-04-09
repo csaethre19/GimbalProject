@@ -94,6 +94,10 @@ void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
 void init_PWMinput();
+void enablePWM();
+void disablePWM();
+void enableADC();
+void disableADC();
 
 /* USER CODE END PFP */
 
@@ -147,16 +151,16 @@ int main(void)
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	
-	//MPU_Init(&mpu_moving, 0x68);
-	HMC5883_Init(&mag_moving);
+	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_stationary, 0x69);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
 	//QMC_Init();
 			
 	//INPUT MODE SETUP
-	usePWM = 0;
-	useADC = 0;
+	disablePWM();
+	disableADC();
 	
   /* USER CODE END 2 */
 
@@ -177,14 +181,11 @@ int main(void)
 	
   while (1)
   {
-		//HMC5883 test
-		HMC5883_ReadRawData(&mag_moving);
-		
 		//GPIOC->ODR ^= GPIO_ODR_6;
-		//KalmanFilter(&mpu_moving);
-		//KalmanFilter(&mpu_stationary);
+		//KFilter_2(&mpu_moving);
+		//KFilter_2(&mpu_stationary);
 		
-		HAL_Delay(100);
+		//HAL_Delay(1);
 
 		
 		/*//PWM TESTING CODE
@@ -768,12 +769,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_Indicator_GPIO_Port, LED_Indicator_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, EN_BLDC2_Pin|EN_BLDC1_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : LED_Indicator_Pin */
   GPIO_InitStruct.Pin = LED_Indicator_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_Indicator_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : EN_BLDC2_Pin EN_BLDC1_Pin */
+  GPIO_InitStruct.Pin = EN_BLDC2_Pin|EN_BLDC1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -784,7 +795,7 @@ static void MX_GPIO_Init(void)
   * @brief This function handles USART3 and USART4 global interrupts.
   */
 void USART3_4_IRQHandler(void)
-{
+{ew
   /* USER CODE BEGIN USART3_4_IRQn 0 */
 	double value = 0;
 	char* endPtr;
@@ -967,8 +978,7 @@ void init_RollMotor()
 		return;
 }
 
-void init_YawMotor()
-	{
+void init_YawMotor(){
 		int value = 1000;
 
     TIM_OC_InitTypeDef sConfigOC;
@@ -986,14 +996,6 @@ void init_YawMotor()
 		return;
 }
 	
-void init_PWMinput()
-{
-	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
-	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
-	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
-	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
-	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
-}
 
 void PID_execute(){
 	//Update Desired Angles
@@ -1025,20 +1027,49 @@ void PID_execute(){
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
-	//KalmanFilter(&mpu_moving);
-	//KalmanFilter(&mpu_stationary);
+	KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_stationary);
 	
 	//Yaw PID
 	
 	
 	
 	//Pitch PID
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 	//Roll PID
 	
 	
 	
 	
+	
+}
+
+void enablePWM(){
+	usePWM = 1;
+	init_PWMinput();
+	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
+	HAL_TIM_Base_Start_IT(&htim17);//enable timer 17 interrupt (pwm rise/fall edge -> Roll PWM input)
+	HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
+	
+}
+
+void disablePWM(){
+	usePWM = 0;
+	HAL_TIM_Base_Stop(&htim15);
+	HAL_TIM_Base_Stop(&htim17);
+}
+
+void enableADCIN(){
+	useADC = 1;
+	//FILL IN HOW TO STARTUP AND ENABLE ADC
+	
+}
+
+void disableADCIN(){
+	useADC = 0;
+	//FILL IN HOW TO STOP AND DISABLE ADC
 	
 }
 
