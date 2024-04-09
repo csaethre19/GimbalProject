@@ -93,11 +93,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
-void init_PWMinput();
-void enablePWM();
-void disablePWM();
-void enableADC();
-void disableADC();
+
+void enablePWMIN();
+void disablePWMIN();
+void enableADCIN();
+void disableADCIN();
 
 /* USER CODE END PFP */
 
@@ -156,18 +156,18 @@ int main(void)
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
-	//QMC_Init();
+	//
 			
 	//INPUT MODE SETUP
-	disablePWM();
-	disableADC();
+	disablePWMIN();
+	disableADCIN();
 	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-	//init_PWMinput();
+
 	
 	//MOTOR TESTING CODE
 	init_YawMotor();
@@ -795,7 +795,7 @@ static void MX_GPIO_Init(void)
   * @brief This function handles USART3 and USART4 global interrupts.
   */
 void USART3_4_IRQHandler(void)
-{ew
+{
   /* USER CODE BEGIN USART3_4_IRQn 0 */
 	double value = 0;
 	char* endPtr;
@@ -1044,9 +1044,9 @@ void PID_execute(){
 	
 }
 
-void enablePWM(){
+void enablePWMIN(){
 	usePWM = 1;
-	init_PWMinput();
+
 	HAL_TIM_Base_Start_IT(&htim15);//enable timer 15 interrupt (pwm rise/fall edge -> Yaw&Pitch PWM input)
 	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_1);
 	HAL_TIM_IC_Start_IT(&htim15, TIM_CHANNEL_2);
@@ -1055,7 +1055,7 @@ void enablePWM(){
 	
 }
 
-void disablePWM(){
+void disablePWMIN(){
 	usePWM = 0;
 	HAL_TIM_Base_Stop(&htim15);
 	HAL_TIM_Base_Stop(&htim17);
