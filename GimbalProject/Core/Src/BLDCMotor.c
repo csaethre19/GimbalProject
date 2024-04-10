@@ -73,6 +73,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
 	float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
 	if(relative0_absolute1){//Absolute Position Mode Execute
+		
 		//PITCH MOTOR
 		pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
 		int pitch_motor_Offset = (int)pitch_error * Kp_Pitch;
@@ -82,15 +83,28 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
 		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
 		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		
 		//ROLL MOTOR
-		roll_error = target_roll - targetOrientation->KalmanAngleRoll;
+		int current_roll = targetOrientation->KalmanAngleRoll;
+		
+		//check that the goal isn't within the collision zone and that the motor won't move through
+		//the collision zone to get there
+		int collision_threshold = 50;
+		if (target_roll < collision_threshold && target_roll >= 0) target_roll = 50;
+		if (target_roll > -collision_threshold && target_roll < 0) target_roll = -50; 
+		
+		if ((target_roll < 90 && target_roll > 0) && (current_roll > -90 && current_roll < 0) || 
+			  (current_roll < 90 && current_roll > 0) && (target_roll > -90 && target_roll < 0))
+				 roll_error = current_roll - target_roll;
+		else roll_error = target_roll - current_roll;
+		
 		int roll_motor_Offset = (int)roll_error * Kp_Roll;
 		if(roll_motor_Offset > 50) roll_motor_Offset = 50;
 		if(roll_motor_Offset < -50) roll_motor_Offset = -50;
 		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
-		BLDC_Output(current_roll_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		BLDC_Output(current_roll_instruction, 1);//write new instructed angle to roll BLDC motor;
 	}
 	else{//Relative Position Mode Execute
 		//Not possible without relative yaw determination
