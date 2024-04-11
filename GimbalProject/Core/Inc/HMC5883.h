@@ -4,9 +4,9 @@
 #include "I2C.h"
 #include <math.h>
 #include "stm32f0xx_hal.h"
+#include "USART.h"
 
-
-#define QMC_ADDR       0x0D
+#define QMC_ADDR 0x0D
 
 #define MAG_LSB_SENS 420
 
