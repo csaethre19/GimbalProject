@@ -60,7 +60,7 @@ volatile int16_t relative0_absolute1 = 1;
 
 
 
-	//Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
+	//Takes in a double Angle and a motor number and modifies the PWM outputs to the respective BLDC motor
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
