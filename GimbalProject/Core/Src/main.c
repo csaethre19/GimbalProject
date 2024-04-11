@@ -98,6 +98,8 @@ void enablePWMIN();
 void disablePWMIN();
 void enableADCIN();
 void disableADCIN();
+int map(int value, int fromLow, int fromHigh, int toLow, int toHigh);
+int constrain(int value, int minVal, int maxVal);
 
 /* USER CODE END PFP */
 
@@ -151,7 +153,7 @@ int main(void)
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	HMC5883_Init(&mag_moving);
-	//MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
 	// Uncomment to use Magnetometer
@@ -184,6 +186,7 @@ int main(void)
 		HMC5883_ReadRawData(&mag_moving);
 		HAL_Delay(100);
 
+		
 		
 		/*//PWM TESTING CODE
 		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
@@ -1026,7 +1029,41 @@ void PID_execute(){
 		set_desiredRoll(rollbuffer);
 		set_desiredYaw(yawbuffer);
 	}
-	if(useADC == 1){
+	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
+		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
+		
+		// PITCH - PA4
+		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int pitchADC = ADC1->DR;
+		int pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
+		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
+		int pitchAngle = map(pitchBuffer, 1000, 2000, 0, 360);
+		
+		//ROLL - PA5
+		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int rollADC = ADC1->DR;
+		int rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
+		rollBuffer = constrain(rollBuffer, 1000, 2000);
+		int rollAngle = map(rollBuffer, 1000, 2000, 0, 360);
+		
+		//YAW - PA3
+		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int yawADC = ADC1->DR;
+		int yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
+		yawBuffer = constrain(yawBuffer, 1000, 2000);
+		int yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
+    
+
+    // Set desired angles
+    set_desiredPitch(pitchAngle);
+    set_desiredRoll(rollAngle);
+    set_desiredYaw(yawAngle);	
 		
 	}
 	GPIOC->ODR ^= GPIO_ODR_6;
@@ -1039,15 +1076,28 @@ void PID_execute(){
 	//Yaw PID
 	
 	
-	
 	//Pitch PID
 	BLDC_PID(&mpu_moving, &mpu_stationary);
 	//Roll PID
 	
-	
-	
-	
-	
+}
+
+
+// Map function implementation used in PID_execute()
+int map(int value, int fromLow, int fromHigh, int toLow, int toHigh) {
+    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+
+// Constrain function implementation used in PID_execute()
+int constrain(int value, int minVal, int maxVal) {
+    if (value < minVal) {
+        return minVal;
+    } else if (value > maxVal) {
+        return maxVal;
+    } else {
+        return value;
+    }
 }
 
 void enablePWMIN(){
