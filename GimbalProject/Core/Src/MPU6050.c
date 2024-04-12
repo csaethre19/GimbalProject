@@ -19,7 +19,6 @@ void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 	USART_Transmit_String("MPU6050 Address: ");
 	USART_Transmit_Number(deviceAddr);
 	USART_Transmit_Newline();
-	
 	// Check WHO_AM_I register
 	I2C_SetRegAddress(deviceAddr, WHO_AM_I);
 	int8_t whoAmI = I2C_ReadRegister(MPU6050_ADDR);
