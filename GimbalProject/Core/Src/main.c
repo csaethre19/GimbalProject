@@ -157,10 +157,20 @@ int main(void)
 	//MPU_Init(&mpu_stationary, 0x69);
 	// Uncomment to use Magnetometer
 	//
-			
+	
 	//INPUT MODE SETUP
-	disablePWMIN();
-	disableADCIN();
+	USART_Transmit_String("Select Input Mode: PWM or ADC");
+	USART_Transmit_Newline();
+	char* extractedString = &cmdBuffer[3];
+	if(strcmp(extractedString, "PWM") | strcmp(extractedString, "pwm")){
+		enablePWMIN();
+		disableADCIN();
+	}
+	if(strcmp(extractedString, "ADC") | strcmp(extractedString, "adc")){
+		enableADCIN();
+		disablePWMIN();
+	}
+
 	
   /* USER CODE END 2 */
 
@@ -170,7 +180,6 @@ int main(void)
 
 	
 	//MOTOR TESTING CODE
-	
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
