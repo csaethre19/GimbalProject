@@ -150,12 +150,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
-	
-	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-	HMC5883_Init(&mag_moving);
+
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
-	
 	// Uncomment to use Magnetometer
 	//
 			
@@ -171,6 +170,7 @@ int main(void)
 
 	
 	//MOTOR TESTING CODE
+	
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
@@ -179,11 +179,12 @@ int main(void)
 	int DCtracker = 0;
 	int DC_Direction = 1;
 	double BLDCtracker = 0;
-	
+
   while (1)
   {
 		GPIOC->ODR ^= GPIO_ODR_6;
-		HMC5883_ReadRawData(&mag_moving);
+		//HMC5883_ReadRawData(&mag_moving);
+		KFilter_2(&mpu_moving);
 		HAL_Delay(100);
 
 		
@@ -213,6 +214,27 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
+
+
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	
+  if (huart->Instance == USART3)
+  {
+    rx_index++; // Move to the next position in the buffer
+    if (rx_index >= RX_BUFFER_SIZE)
+    {
+      // Buffer overflow handling
+      // Reset index to start overwriting data
+      rx_index = 0;
+    }
+    HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1); // Restart UART reception with interrupt
+  }
+}
+
+
+
 
 /**
   * @brief System Clock Configuration
@@ -812,7 +834,7 @@ void USART3_4_IRQHandler(void)
 				{
 
 					USART_Transmit_String("Angle pitch = ");
-					USART_Transmit_Float(mpu_stationary.KalmanAnglePitch, 2);
+					USART_Transmit_Float(mpu_moving.KalmanAnglePitch, 2);
 					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "rdroll") == 0){

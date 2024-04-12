@@ -26,8 +26,8 @@ volatile int16_t roll_error_integral = 0;    // Integrated roll error signal
 volatile int16_t pitch_error_derivative = 0;    // Derivated pitch error signal
 volatile int16_t roll_error_derivative = 0;    // Derivated roll error signal
 
-volatile int16_t target_pitch = 0;        // Desired pitch angle target
-volatile int16_t target_roll = 0;        // Desired roll angle target
+volatile float target_pitch = 0;        // Desired pitch angle target
+volatile float target_roll = 0;        // Desired roll angle target
 
 volatile int16_t measured_roll = 0;       // Measured roll angle
 volatile int16_t measured_pitch = 0;       // Measured pitch angle
