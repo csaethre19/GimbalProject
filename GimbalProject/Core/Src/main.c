@@ -159,6 +159,8 @@ int main(void)
 	//
 	
 	//INPUT MODE SETUP
+	/*SETUP OF MODE SHOULD NOT BE A ONE TIME THING, INTERPRET A SPECIFIC STRING DURING NORMAL OPERATION TO DO THIS
+	//-----------------------------------------------------------------------------------------------------------
 	USART_Transmit_String("Select Input Mode: PWM or ADC");
 	USART_Transmit_Newline();
 	char* extractedString = &cmdBuffer[3];
@@ -170,6 +172,7 @@ int main(void)
 		enableADCIN();
 		disablePWMIN();
 	}
+	*/
 
 	
   /* USER CODE END 2 */
@@ -184,17 +187,19 @@ int main(void)
 	init_PitchMotor();
 	init_RollMotor();
 	BLDCDisable(2);
-	BLDCEnable(1);
+	BLDCDisable(1);
 	int DCtracker = 0;
 	int DC_Direction = 1;
-	double BLDCtracker = 0;
+	double BLDCtracker = 100;
+	int BLDC_Direction = 5;
 
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
+		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
 		KFilter_2(&mpu_moving);
-		HAL_Delay(100);
+		//KFilter_2(&mpu_stationary);
+		//HAL_Delay(100);
 
 		
 		
@@ -207,14 +212,15 @@ int main(void)
 		
 		//MOTOR TESTING CODE
 //		DCSetOutput(DCtracker, 1);
-//		BLDC_Output(BLDCtracker, 1);
-//		BLDC_Output(BLDCtracker, 2);
-//		
-//		DCtracker += DC_Direction;
-//		BLDCtracker += 20;
-//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-//		if(BLDCtracker > 359.99) BLDCtracker = 0;
-//		HAL_Delay(100);
+		BLDC_Output(BLDCtracker, 1);
+		BLDC_Output(BLDCtracker, 2);
+		
+		DCtracker += DC_Direction;
+		BLDCtracker += BLDC_Direction;
+		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+		if(BLDCtracker > 350) BLDC_Direction = -5;
+		if(BLDCtracker < 10)  BLDC_Direction = 5;
+		HAL_Delay(10);
 		
 		
     /* USER CODE END WHILE */
