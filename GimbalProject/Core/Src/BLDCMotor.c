@@ -26,8 +26,8 @@ volatile int16_t roll_error_integral = 0;    // Integrated roll error signal
 volatile int16_t pitch_error_derivative = 0;    // Derivated pitch error signal
 volatile int16_t roll_error_derivative = 0;    // Derivated roll error signal
 
-volatile int16_t target_pitch = 0;        // Desired pitch angle target
-volatile int16_t target_roll = 0;        // Desired roll angle target
+volatile float target_pitch = 0;        // Desired pitch angle target
+volatile float target_roll = 0;        // Desired roll angle target
 
 volatile int16_t measured_roll = 0;       // Measured roll angle
 volatile int16_t measured_pitch = 0;       // Measured pitch angle
@@ -60,7 +60,7 @@ volatile int16_t relative0_absolute1 = 1;
 
 
 
-	//Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
+	//Takes in a double Angle and a motor number and modifies the PWM outputs to the respective BLDC motor
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}

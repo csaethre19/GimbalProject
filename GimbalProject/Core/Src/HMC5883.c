@@ -6,13 +6,12 @@
 
 
 void HMC5883_Init(volatile HMC5883_t *dataStruct) {
-		I2C_WriteRegister(0x0D, 0x0B, 0x01);
-		I2C_WriteRegister(0x0D, 0x09, 0x1D);
-	USART_Transmit_String("HMC Init Complete"); 
+	I2C_WriteRegister(0x0D, 0x0B, 0x01);
+	I2C_WriteRegister(0x0D, 0x09, 0x1D);
+	USART_Transmit_String("HMC Init Complete");	
 }
 
 void HMC5883_ReadRawData(volatile HMC5883_t *dataStruct) {
-	GPIOC->ODR ^= GPIO_ODR_7;
   int8_t dataBuffer[4]; // reading X and Y
 	
 	I2C_ReadBurst(0x0D, 0x00, dataBuffer, 4); 
