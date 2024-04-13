@@ -169,12 +169,12 @@ void initBLDCOutput(int MotorNum)
 }
 
 void BLDCEnable(int MotorNum){
-	if(MotorNum == 1)GPIOA->ODR |= GPIO_ODR_15;//enable pitch motor driver
-	if(MotorNum == 2)GPIOA->ODR |= GPIO_ODR_14;//enable roll motor driver
+	if(MotorNum == 1)GPIOB->ODR |= GPIO_ODR_6;//enable pitch motor driver
+	if(MotorNum == 2)GPIOB->ODR |= GPIO_ODR_5;//enable roll motor driver
 }
 
 void BLDCDisable(int MotorNum){
-	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;//disable pitch motor driver
-	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;//disable roll motor driver
+	if(MotorNum == 1)GPIOB->ODR &= ~GPIO_ODR_6;//disable pitch motor driver
+	if(MotorNum == 2)GPIOB->ODR &= ~GPIO_ODR_5;//disable roll motor driver
 }
 

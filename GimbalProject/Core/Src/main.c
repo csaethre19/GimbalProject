@@ -150,7 +150,7 @@ int main(void)
 	Init_LEDs();
 	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-	HMC5883_Init(&mag_moving);
+	//HMC5883_Init(&mag_moving);
 	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 	
@@ -172,17 +172,18 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCDisable(2);
+	BLDCEnable(2);
 	BLDCEnable(1);
 	int DCtracker = 0;
 	int DC_Direction = 1;
-	double BLDCtracker = 0;
+	int BLDCtracker = 0;
+	int BLDC_Direction = 1;
 	
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
-		HMC5883_ReadRawData(&mag_moving);
-		HAL_Delay(100);
+//		GPIOC->ODR ^= GPIO_ODR_6;
+//		HMC5883_ReadRawData(&mag_moving);
+//		HAL_Delay(100);
 
 		
 		/*//PWM TESTING CODE
@@ -193,15 +194,16 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-//		DCSetOutput(DCtracker, 1);
-//		BLDC_Output(BLDCtracker, 1);
-//		BLDC_Output(BLDCtracker, 2);
+		DCSetOutput(DCtracker, 1);
+		BLDC_Output(BLDCtracker, 1);
+		BLDC_Output(BLDCtracker, 2);
 //		
-//		DCtracker += DC_Direction;
-//		BLDCtracker += 20;
-//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-//		if(BLDCtracker > 359.99) BLDCtracker = 0;
-//		HAL_Delay(100);
+		DCtracker += DC_Direction;
+		BLDCtracker += BLDC_Direction;
+		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+		if(BLDCtracker > 350) BLDC_Direction  = -5;
+		if(BLDCtracker < 10) BLDC_Direction = 5;
+		HAL_Delay(10);
 		
 		
     /* USER CODE END WHILE */
