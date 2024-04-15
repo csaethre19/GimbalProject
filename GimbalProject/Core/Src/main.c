@@ -150,12 +150,11 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
-	// Uncomment to use Magnetometer
-	//
+
 	
 	//INPUT MODE SETUP
 	/*SETUP OF MODE SHOULD NOT BE A ONE TIME THING, INTERPRET A SPECIFIC STRING DURING NORMAL OPERATION TO DO THIS
@@ -178,7 +177,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	disablePWMIN();
 	disableADCIN();
 	
@@ -186,9 +185,9 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCEnable(2);
+	//BLDCEnable(2);
 	//BLDCEnable(1);
-	//BLDCDisable(2);
+	BLDCDisable(2);
 	BLDCDisable(1);
 	set_operationMode(1);
 	
@@ -203,9 +202,9 @@ int main(void)
   {
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
-		//KFilter_2(&mpu_moving);
+		KFilter_2(&mpu_moving);
 		//KFilter_2(&mpu_stationary);
-		//HAL_Delay(100);
+		HAL_Delay(100);
 
 		
 		
@@ -1099,7 +1098,7 @@ void PID_execute(){
 	
 	
 	//Pitch & Roll PID
-	BLDC_PID(&mpu_moving, &mpu_stationary);
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
 
 	
 }
