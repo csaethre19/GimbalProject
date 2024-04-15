@@ -182,18 +182,23 @@ int main(void)
 	disablePWMIN();
 	disableADCIN();
 	
-	//MOTOR TESTING CODE
+	//MOTOR Setup
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
 	BLDCEnable(2);
-	BLDCEnable(1);
+	//BLDCEnable(1);
+	//BLDCDisable(2);
+	BLDCDisable(1);
 	set_operationMode(1);
+	
+	/*
+	//MOTOR TESTING CODE
 	int DCtracker = 0;
 	int DC_Direction = 5;
 	double BLDCtracker = 100;
 	int BLDC_Direction = 5;
-
+	*/
   while (1)
   {
 		//GPIOC->ODR ^= GPIO_ODR_6;
@@ -212,6 +217,7 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
+		/*
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
@@ -222,7 +228,7 @@ int main(void)
 		if(BLDCtracker > 350) BLDC_Direction = -5;
 		if(BLDCtracker < 10)  BLDC_Direction = 5;
 		HAL_Delay(2);
-		
+		*/
 		
     /* USER CODE END WHILE */
 
@@ -1085,8 +1091,7 @@ void PID_execute(){
 	}
 	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
-	//GET MPU_stationary data
-	//Get MPU_moving data
+
 	KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
 	
@@ -1094,7 +1099,7 @@ void PID_execute(){
 	
 	
 	//Pitch & Roll PID
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 
 	
 }

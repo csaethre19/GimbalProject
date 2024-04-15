@@ -188,7 +188,7 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
-	GPIOC->ODR ^= GPIO_ODR_7;
+	
 	
 	ReadGyroData(dataStruct);
 	
@@ -232,7 +232,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 }
 
 void KFilter_2(volatile MPU6050_t *DataStruct){
-	GPIOC->ODR ^= GPIO_ODR_7;
+
 	
 	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
   DataStruct->timer = HAL_GetTick();
