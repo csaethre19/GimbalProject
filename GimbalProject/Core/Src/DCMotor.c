@@ -53,7 +53,7 @@ void DC_PID(double current_yaw){
 void DCSetOutput(int Output, int MotorNum)
 {
 	if((Output < -1000) || (Output > 1000)) return;
-	
+	current_yaw_instruction = Output;
 	if(MotorNum == 1){
 		if(Output > 0){//CW? Direction instructed, Ch2 not 100% duty cycle
 			TIM1->CCR1 = Yaw1_TimARR;

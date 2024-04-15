@@ -138,6 +138,7 @@ void BLDC_Output(double Angle1, int MotorNum)
 		Angle3 = Angle3 * half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
+		
 		TIM2->CCR1 = Angle1 * 0.7;
 		TIM2->CCR2 = Angle2 * 0.7;
 		TIM2->CCR3 = Angle3 * 0.7;
@@ -151,6 +152,7 @@ void BLDC_Output(double Angle1, int MotorNum)
 		Angle3 = Angle3 * half_Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + half_Roll_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
+		
 		TIM3->CCR1 = Angle1 * 0.7;
 		TIM3->CCR2 = Angle2 * 0.7;
 		TIM3->CCR3 = Angle3 * 0.7;

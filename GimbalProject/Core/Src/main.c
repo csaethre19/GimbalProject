@@ -1,4 +1,4 @@
-	/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -116,7 +116,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	// Work on inputs for ADC and PWM
 	
 	
   /* USER CODE END 1 */
@@ -179,17 +178,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	disablePWMIN();
+	disableADCIN();
 	
 	//MOTOR TESTING CODE
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCDisable(2);
-	BLDCDisable(1);
+	BLDCEnable(2);
+	BLDCEnable(1);
+	set_operationMode(1);
 	int DCtracker = 0;
-	int DC_Direction = 1;
+	int DC_Direction = 5;
 	double BLDCtracker = 100;
 	int BLDC_Direction = 5;
 
@@ -197,7 +198,7 @@ int main(void)
   {
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
-		KFilter_2(&mpu_moving);
+		//KFilter_2(&mpu_moving);
 		//KFilter_2(&mpu_stationary);
 		//HAL_Delay(100);
 
@@ -211,7 +212,7 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-//		DCSetOutput(DCtracker, 1);
+		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
 		
@@ -220,7 +221,7 @@ int main(void)
 		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		if(BLDCtracker > 350) BLDC_Direction = -5;
 		if(BLDCtracker < 10)  BLDC_Direction = 5;
-		HAL_Delay(10);
+		HAL_Delay(2);
 		
 		
     /* USER CODE END WHILE */
@@ -229,27 +230,6 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
-
-
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	
-  if (huart->Instance == USART3)
-  {
-    rx_index++; // Move to the next position in the buffer
-    if (rx_index >= RX_BUFFER_SIZE)
-    {
-      // Buffer overflow handling
-      // Reset index to start overwriting data
-      rx_index = 0;
-    }
-    HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1); // Restart UART reception with interrupt
-  }
-}
-
-
-
 
 /**
   * @brief System Clock Configuration
@@ -529,7 +509,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 15;
+  htim2.Init.Prescaler = 7;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1103,7 +1083,7 @@ void PID_execute(){
     set_desiredYaw(yawAngle);	
 		
 	}
-	GPIOC->ODR ^= GPIO_ODR_6;
+	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 	//GET MPU_stationary data
 	//Get MPU_moving data
@@ -1113,9 +1093,9 @@ void PID_execute(){
 	//Yaw PID
 	
 	
-	//Pitch PID
-	BLDC_PID(&mpu_moving, &mpu_stationary);
-	//Roll PID
+	//Pitch & Roll PID
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
+
 	
 }
 
