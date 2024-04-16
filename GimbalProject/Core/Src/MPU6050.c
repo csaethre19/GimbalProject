@@ -2,15 +2,15 @@
 
 
 Kalman_t KalmanPitch = {//KalmanX
-        .Q_angle = 0.001f,
+        .Q_angle = 0.005f,
         .Q_bias = 0.003f,
-        .R_measure = 0.03f
+        .R_measure = 0.0001f
 };
 
 Kalman_t KalmanRoll = {//KalmanY
-        .Q_angle = 0.001f,
+        .Q_angle = 0.005f,
         .Q_bias = 0.003f,
-        .R_measure = 0.03f,
+        .R_measure = 0.0001f,
 };
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
@@ -198,17 +198,17 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 	//ReadMagData(dataStruct);
 
 	
-	//dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004 * dataStruct->RateRoll);
-	//dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 3 * 3);
-	//float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
-	//dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
-	//dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004 * dataStruct->RateRoll);
+	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 3 * 3);
+	float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
+	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
+	dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
 	
-	//dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004 * dataStruct->RatePitch);
-	//dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 3 * 3);
-	//float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
-	//dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
-	//dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004 * dataStruct->RatePitch);
+	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 3 * 3);
+	float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
+	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
+	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
 	
 
 	//USART_Transmit_String("AxelY: ");
@@ -234,9 +234,10 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 void KFilter_2(volatile MPU6050_t *DataStruct){
 
 	
-		DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 500;
   DataStruct->timer = HAL_GetTick();
 	
+	//DataStruct->dt = 1;
 	ReadGyroData(DataStruct);
 	ReadAccelData(DataStruct);
 	

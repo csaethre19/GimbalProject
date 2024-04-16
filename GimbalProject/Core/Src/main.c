@@ -177,18 +177,18 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	disablePWMIN();
-	disableADCIN();
+	enableADCIN();
 	
 	//MOTOR Setup
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	//BLDCEnable(2);
-	//BLDCEnable(1);
-	BLDCDisable(2);
-	BLDCDisable(1);
+	BLDCEnable(2);
+	BLDCEnable(1);
+	//BLDCDisable(2);
+	//BLDCDisable(1);
 	set_operationMode(1);
 	
 	/*
@@ -202,9 +202,9 @@ int main(void)
   {
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
-		KFilter_2(&mpu_moving);
+		//KFilter_2(&mpu_moving);
 		//KFilter_2(&mpu_stationary);
-		HAL_Delay(100);
+		//HAL_Delay(100);
 
 		
 		
@@ -1055,37 +1055,39 @@ void PID_execute(){
 		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
 		
 		// PITCH - PA4
-		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
+		ADC1->CHSELR = ADC_CHSELR_CHSEL12;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int pitchADC = ADC1->DR;
-		int pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
+		double pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
 		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
-		int pitchAngle = map(pitchBuffer, 1000, 2000, 0, 360);
+		float pitchAngle = map(pitchBuffer, 1000, 2000, -180, 180);
 		
 		//ROLL - PA5
-		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
+		ADC1->CHSELR = ADC_CHSELR_CHSEL13;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int rollADC = ADC1->DR;
-		int rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
+		double rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
 		rollBuffer = constrain(rollBuffer, 1000, 2000);
-		int rollAngle = map(rollBuffer, 1000, 2000, 0, 360);
+		float rollAngle = map(rollBuffer, 1000, 2000, -180, 180);
 		
 		//YAW - PA3
-		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
+		ADC1->CHSELR = ADC_CHSELR_CHSEL11;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int yawADC = ADC1->DR;
-		int yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
+		double yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
 		yawBuffer = constrain(yawBuffer, 1000, 2000);
-		int yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
+		float yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
     
 
     // Set desired angles
     set_desiredPitch(pitchAngle);
     set_desiredRoll(rollAngle);
     set_desiredYaw(yawAngle);	
+		//set_desiredPitch(60);
+		//set_desiredRoll(60);
 		
 	}
 	//GPIOC->ODR ^= GPIO_ODR_6;
@@ -1098,7 +1100,7 @@ void PID_execute(){
 	
 	
 	//Pitch & Roll PID
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 
 	
 }
