@@ -180,13 +180,13 @@ int main(void)
 	BLDCDisable(1);
 	set_operationMode(1);
 	
-	/*
+	
 	//MOTOR TESTING CODE
 	int DCtracker = 0;
 	int DC_Direction = 5;
 	double BLDCtracker = 100;
 	int BLDC_Direction = 5;
-	*/
+	
   while (1)
   {
 		//GPIOC->ODR ^= GPIO_ODR_6;
@@ -205,7 +205,7 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-		/*
+		
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
@@ -216,9 +216,9 @@ int main(void)
 		if(BLDCtracker > 350) BLDC_Direction = -5;
 		if(BLDCtracker < 10)  BLDC_Direction = 5;
 		HAL_Delay(2);
-		*/
 		
-    /* USER CODE END WHILE */
+		
+		/* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }

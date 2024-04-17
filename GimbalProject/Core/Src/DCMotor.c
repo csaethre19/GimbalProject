@@ -18,14 +18,14 @@ volatile int16_t yaw_error = 0;             // Yaw error signal
 volatile uint8_t Kp_Yaw = 20;                // Proportional gain
 volatile uint8_t Ki_Yaw = 10;                // Integral gain
 volatile uint8_t Kd_Yaw = 10;                // Derivative gain
-volatile int16_t relative0_absolute1 = 1;
+volatile int16_t relative0_absolute1_DC = 1;
 
 //	DC motor driver,
 //	Functions that drive the implementation of a single DC motor
 //	Two PWM outputs
 
 void set_desiredYaw(float desiredYaw){target_yaw = desiredYaw;}
-void set_operationMode(int16_t setMode){relative0_absolute1 = setMode;}
+void set_operationModeDC(int16_t setMode){relative0_absolute1_DC = setMode;}
 void DC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){
 	//CURRENT IMPLEMENTATION IS NON IDEAL : Known issues are as follows:
 	//Yaw is exclusively absolute, no consideration of front of aircraft
@@ -35,7 +35,7 @@ void DC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationar
 	float relativeYaw = targetOrientation->AngleYaw - stationaryOrientation->KalmanAngleYaw;
 	
 	
-	if(relative0_absolute1){//Absolute Position Mode Execute
+	if(relative0_absolute1_DC){//Absolute Position Mode Execute
 
 		yaw_error = target_yaw - targetOrientation->KalmanAngleYaw;
 		double pitch_motor_Offset = (double)(yaw_error * Kp_Yaw);
