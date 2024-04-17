@@ -157,20 +157,9 @@ int main(void)
 
 	
 	//INPUT MODE SETUP
-	/*SETUP OF MODE SHOULD NOT BE A ONE TIME THING, INTERPRET A SPECIFIC STRING DURING NORMAL OPERATION TO DO THIS
-	//-----------------------------------------------------------------------------------------------------------
-	USART_Transmit_String("Select Input Mode: PWM or ADC");
-	USART_Transmit_Newline();
-	char* extractedString = &cmdBuffer[3];
-	if(strcmp(extractedString, "PWM") | strcmp(extractedString, "pwm")){
 		enablePWMIN();
 		disableADCIN();
-	}
-	if(strcmp(extractedString, "ADC") | strcmp(extractedString, "adc")){
-		enableADCIN();
-		disablePWMIN();
-	}
-	*/
+
 
 	
   /* USER CODE END 2 */
@@ -887,8 +876,29 @@ void USART3_4_IRQHandler(void)
 					}else{
 						USART_Transmit_String("ERROR: Parsing failed!\n");						
 					}
-				}
-				else
+				} else if((strcmp(cmdBuffer, "PWM") == 0) | (strcmp(cmdBuffer, "pwm") == 0)){
+					
+						USART_Transmit_String("Input set to PWM");
+						USART_Transmit_Newline();
+						enablePWMIN();
+						disableADCIN();
+					
+				} else if((strcmp(cmdBuffer, "ADC") == 0) | (strcmp(cmdBuffer, "adc") == 0)){
+					
+						USART_Transmit_String("Input set to ADC");
+						USART_Transmit_Newline();
+					
+						enableADCIN();
+						disablePWMIN();
+					
+			}else if((strcmp(cmdBuffer, "PWM/ADC off") == 0) | (strcmp(cmdBuffer, "pwm/adc off") == 0)){
+				
+						USART_Transmit_String("PWM and ADC off!");
+						USART_Transmit_Newline();
+						disablePWMIN();
+						disableADCIN();
+				
+			} else
 				{
 					// Command not recognized
 					USART_Transmit_String("ERROR: Command not recognized\n");
