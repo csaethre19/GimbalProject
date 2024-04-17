@@ -152,7 +152,7 @@ int main(void)
 
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 
 	
@@ -178,17 +178,17 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-	disablePWMIN();
-	enableADCIN();
+	enablePWMIN();
+	disableADCIN();
 	
 	//MOTOR Setup
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCEnable(2);
-	BLDCEnable(1);
-	//BLDCDisable(2);
-	//BLDCDisable(1);
+	//BLDCEnable(2);
+	//BLDCEnable(1);
+	BLDCDisable(2);
+	BLDCDisable(1);
 	set_operationMode(1);
 	
 	/*
@@ -1032,21 +1032,18 @@ void PID_execute(){
 	//Update Desired Angles
 	//USART CAN ALWAYS UPDATE DESIRED VALUES
 	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
-		int pitchbuffer = provide_channel(1);
-		int rollbuffer  = provide_channel(2);
-		int yawbuffer   = provide_channel(3);
+		int yawbuffer = provide_channel(1);
+		int pitchbuffer  = provide_channel(2);
+		int rollbuffer   = provide_channel(3);
 		if(pitchbuffer < 1000) pitchbuffer = 1000;
 		if(rollbuffer  < 1000)  rollbuffer = 1000;
 		if(yawbuffer   < 1000)   yawbuffer = 1000;
 		if(pitchbuffer > 2000) pitchbuffer = 2000;
 		if(rollbuffer  > 2000)  rollbuffer = 2000;
 		if(yawbuffer   > 2000)   yawbuffer = 2000;
-		pitchbuffer = pitchbuffer - 1000;
-		pitchbuffer = pitchbuffer * 360 / 1000;
-		rollbuffer  = rollbuffer  - 1000;
-		rollbuffer  = rollbuffer  * 360 / 1000;
-		yawbuffer   = yawbuffer   - 1000;
-		yawbuffer   = yawbuffer   * 360 / 1000;
+		pitchbuffer = map(pitchbuffer, 1000,2000,-80,80);
+		rollbuffer = map(rollbuffer, 1000,2000,-80,80);
+		yawbuffer = map(yawbuffer, 1000,2000,-80,80);
 		set_desiredPitch(pitchbuffer);
 		set_desiredRoll(rollbuffer);
 		set_desiredYaw(yawbuffer);
@@ -1055,25 +1052,25 @@ void PID_execute(){
 		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
 		
 		// PITCH - PA4
-		ADC1->CHSELR = ADC_CHSELR_CHSEL12;
+		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int pitchADC = ADC1->DR;
 		double pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
 		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
-		float pitchAngle = map(pitchBuffer, 1000, 2000, -180, 180);
+		float pitchAngle = map(pitchBuffer, 1000, 2000, -80, 80);
 		
 		//ROLL - PA5
-		ADC1->CHSELR = ADC_CHSELR_CHSEL13;
+		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int rollADC = ADC1->DR;
 		double rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
 		rollBuffer = constrain(rollBuffer, 1000, 2000);
-		float rollAngle = map(rollBuffer, 1000, 2000, -180, 180);
+		float rollAngle = map(rollBuffer, 1000, 2000, -80, 80);
 		
 		//YAW - PA3
-		ADC1->CHSELR = ADC_CHSELR_CHSEL11;
+		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int yawADC = ADC1->DR;
@@ -1093,14 +1090,14 @@ void PID_execute(){
 	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 
-	KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
 	
 	//Yaw PID
 	
 	
 	//Pitch & Roll PID
-	BLDC_PID(&mpu_moving, &mpu_stationary);
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
 
 	
 }
