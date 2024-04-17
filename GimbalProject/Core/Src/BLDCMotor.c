@@ -73,6 +73,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
 	float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
 	if(relative0_absolute1){//Absolute Position Mode Execute
+		// Need to add collision checking
 		//PITCH MOTOR
 		pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
 		int pitch_motor_Offset = (int)pitch_error * Kp_Pitch;
@@ -93,9 +94,23 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to pitch BLDC motor;
 	}
 	else{//Relative Position Mode Execute
-		//Not possible without relative yaw determination
+		//PITCH MOTOR
 		pitch_error = target_pitch - relativePitch;
+		int pitch_motor_Offset = (int)pitch_error * Kp_Pitch;
+		if(pitch_motor_Offset > 50) pitch_motor_Offset = 50;
+		if(pitch_motor_Offset < -50) pitch_motor_Offset = -50;
+		current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
+		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
+		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		//ROLL MOTOR
 		roll_error = target_roll - relativeRoll;
+		int roll_motor_Offset = (int)roll_error * Kp_Roll;
+		if(roll_motor_Offset > 50) roll_motor_Offset = 50;
+		if(roll_motor_Offset < -50) roll_motor_Offset = -50;
+		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
+		if(current_roll_instruction > 360) current_roll_instruction -= 360;
+		if(current_roll_instruction < 0) current_roll_instruction += 360;
 		
 	}
 	
