@@ -1,4 +1,4 @@
-	/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -116,7 +116,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	// Work on inputs for ADC and PWM
 	
 	
   /* USER CODE END 1 */
@@ -151,41 +150,50 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
-	// Uncomment to use Magnetometer
-	//
+
 	
 	//INPUT MODE SETUP
 		enablePWMIN();
 		disableADCIN();
+
 
 	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	enablePWMIN();
+	disableADCIN();
 	
-	//MOTOR TESTING CODE
+	//MOTOR Setup
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
+	//BLDCEnable(2);
+	//BLDCEnable(1);
 	BLDCDisable(2);
-	BLDCEnable(1);
+	BLDCDisable(1);
+	set_operationMode(1);
+	
+	/*
+	//MOTOR TESTING CODE
 	int DCtracker = 0;
-	int DC_Direction = 1;
-	double BLDCtracker = 0;
-
+	int DC_Direction = 5;
+	double BLDCtracker = 100;
+	int BLDC_Direction = 5;
+	*/
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
+		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
-		KFilter_2(&mpu_moving);
-		HAL_Delay(100);
+		//KFilter_2(&mpu_moving);
+		//KFilter_2(&mpu_stationary);
+		//HAL_Delay(100);
 
 		
 		
@@ -197,16 +205,18 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-//		DCSetOutput(DCtracker, 1);
-//		BLDC_Output(BLDCtracker, 1);
-//		BLDC_Output(BLDCtracker, 2);
-//		
-//		DCtracker += DC_Direction;
-//		BLDCtracker += 20;
-//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-//		if(BLDCtracker > 359.99) BLDCtracker = 0;
-//		HAL_Delay(100);
+		/*
+		DCSetOutput(DCtracker, 1);
+		BLDC_Output(BLDCtracker, 1);
+		BLDC_Output(BLDCtracker, 2);
 		
+		DCtracker += DC_Direction;
+		BLDCtracker += BLDC_Direction;
+		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+		if(BLDCtracker > 350) BLDC_Direction = -5;
+		if(BLDCtracker < 10)  BLDC_Direction = 5;
+		HAL_Delay(2);
+		*/
 		
     /* USER CODE END WHILE */
 
@@ -214,27 +224,6 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
-
-
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	
-  if (huart->Instance == USART3)
-  {
-    rx_index++; // Move to the next position in the buffer
-    if (rx_index >= RX_BUFFER_SIZE)
-    {
-      // Buffer overflow handling
-      // Reset index to start overwriting data
-      rx_index = 0;
-    }
-    HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1); // Restart UART reception with interrupt
-  }
-}
-
-
-
 
 /**
   * @brief System Clock Configuration
@@ -514,7 +503,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 15;
+  htim2.Init.Prescaler = 7;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1053,21 +1042,18 @@ void PID_execute(){
 	//Update Desired Angles
 	//USART CAN ALWAYS UPDATE DESIRED VALUES
 	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
-		int pitchbuffer = provide_channel(1);
-		int rollbuffer  = provide_channel(2);
-		int yawbuffer   = provide_channel(3);
+		int yawbuffer = provide_channel(1);
+		int pitchbuffer  = provide_channel(2);
+		int rollbuffer   = provide_channel(3);
 		if(pitchbuffer < 1000) pitchbuffer = 1000;
 		if(rollbuffer  < 1000)  rollbuffer = 1000;
 		if(yawbuffer   < 1000)   yawbuffer = 1000;
 		if(pitchbuffer > 2000) pitchbuffer = 2000;
 		if(rollbuffer  > 2000)  rollbuffer = 2000;
 		if(yawbuffer   > 2000)   yawbuffer = 2000;
-		pitchbuffer = pitchbuffer - 1000;
-		pitchbuffer = pitchbuffer * 360 / 1000;
-		rollbuffer  = rollbuffer  - 1000;
-		rollbuffer  = rollbuffer  * 360 / 1000;
-		yawbuffer   = yawbuffer   - 1000;
-		yawbuffer   = yawbuffer   * 360 / 1000;
+		pitchbuffer = map(pitchbuffer, 1000,2000,-80,80);
+		rollbuffer = map(rollbuffer, 1000,2000,-80,80);
+		yawbuffer = map(yawbuffer, 1000,2000,-80,80);
 		set_desiredPitch(pitchbuffer);
 		set_desiredRoll(rollbuffer);
 		set_desiredYaw(yawbuffer);
@@ -1080,48 +1066,49 @@ void PID_execute(){
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int pitchADC = ADC1->DR;
-		int pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
+		double pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
 		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
-		int pitchAngle = map(pitchBuffer, 1000, 2000, 0, 360);
+		float pitchAngle = map(pitchBuffer, 1000, 2000, -80, 80);
 		
 		//ROLL - PA5
 		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int rollADC = ADC1->DR;
-		int rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
+		double rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
 		rollBuffer = constrain(rollBuffer, 1000, 2000);
-		int rollAngle = map(rollBuffer, 1000, 2000, 0, 360);
+		float rollAngle = map(rollBuffer, 1000, 2000, -80, 80);
 		
 		//YAW - PA3
 		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
 		ADC1->CR |= ADC_CR_ADSTART;
 		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
 		int yawADC = ADC1->DR;
-		int yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
+		double yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
 		yawBuffer = constrain(yawBuffer, 1000, 2000);
-		int yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
+		float yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
     
 
     // Set desired angles
     set_desiredPitch(pitchAngle);
     set_desiredRoll(rollAngle);
     set_desiredYaw(yawAngle);	
+		//set_desiredPitch(60);
+		//set_desiredRoll(60);
 		
 	}
-	GPIOC->ODR ^= GPIO_ODR_6;
+	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
-	//GET MPU_stationary data
-	//Get MPU_moving data
-	KFilter_2(&mpu_moving);
+
+	//KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
 	
 	//Yaw PID
 	
 	
-	//Pitch PID
-	BLDC_PID(&mpu_moving, &mpu_stationary);
-	//Roll PID
+	//Pitch & Roll PID
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
+
 	
 }
 

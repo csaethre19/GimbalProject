@@ -2,15 +2,15 @@
 
 
 Kalman_t KalmanPitch = {//KalmanX
-        .Q_angle = 0.001f,
+        .Q_angle = 0.005f,
         .Q_bias = 0.003f,
-        .R_measure = 0.03f
+        .R_measure = 0.0001f
 };
 
 Kalman_t KalmanRoll = {//KalmanY
-        .Q_angle = 0.001f,
+        .Q_angle = 0.005f,
         .Q_bias = 0.003f,
-        .R_measure = 0.03f,
+        .R_measure = 0.0001f,
 };
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
@@ -188,7 +188,7 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
-	GPIOC->ODR ^= GPIO_ODR_7;
+	
 	
 	ReadGyroData(dataStruct);
 	
@@ -232,11 +232,12 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 }
 
 void KFilter_2(volatile MPU6050_t *DataStruct){
-	GPIOC->ODR ^= GPIO_ODR_7;
+
 	
-	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 500;
   DataStruct->timer = HAL_GetTick();
 	
+	//DataStruct->dt = 1;
 	ReadGyroData(DataStruct);
 	ReadAccelData(DataStruct);
 	
