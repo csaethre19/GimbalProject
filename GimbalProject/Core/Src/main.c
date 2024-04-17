@@ -167,8 +167,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-	enablePWMIN();
-	disableADCIN();
+
 	
 	//MOTOR Setup
 	init_YawMotor();
