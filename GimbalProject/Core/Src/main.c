@@ -75,6 +75,7 @@ volatile MPU6050_t mpu_stationary;
 volatile HMC5883_t mag_moving;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
+volatile int doPID = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -139,7 +140,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
-  MX_ADC_Init();
+  //MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
@@ -152,7 +153,7 @@ int main(void)
 
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	//MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 
 	
@@ -173,10 +174,10 @@ int main(void)
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	//BLDCEnable(2);
-	//BLDCEnable(1);
-	BLDCDisable(2);
-	BLDCDisable(1);
+	BLDCEnable(2);
+	BLDCEnable(1);
+	//BLDCDisable(2);
+	//BLDCDisable(1);
 	set_operationMode(1);
 	
 	
@@ -188,6 +189,12 @@ int main(void)
 	
   while (1)
   {
+		if(doPID == 1){
+			KFilter_2(&mpu_moving);
+			//KFilter_2(&mpu_stationary);
+			BLDC_PID(&mpu_moving, &mpu_stationary);
+			doPID = 0;
+		}
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
 		//KFilter_2(&mpu_moving);
@@ -204,7 +211,7 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-		
+		/*
 		DCSetOutput(DCtracker, 1);
 		BLDC_Output(BLDCtracker, 1);
 		BLDC_Output(BLDCtracker, 2);
@@ -215,7 +222,7 @@ int main(void)
 		if(BLDCtracker > 350) BLDC_Direction = -5;
 		if(BLDCtracker < 10)  BLDC_Direction = 5;
 		HAL_Delay(2);
-		
+		*/
 		
 		/* USER CODE END WHILE */
 
@@ -476,7 +483,7 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM1_Init 2 */
-
+	//HAL_NVIC_SetPriority(TIM1_IRQn, 2,2);
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
 
@@ -720,7 +727,7 @@ static void MX_TIM17_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM17_Init 2 */
-
+	HAL_NVIC_SetPriority(TIM17_IRQn, 0,0);
   /* USER CODE END TIM17_Init 2 */
 
 }
@@ -1085,7 +1092,7 @@ void PID_execute(){
 		int yawADC = ADC1->DR;
 		double yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
 		yawBuffer = constrain(yawBuffer, 1000, 2000);
-		float yawAngle = map(yawBuffer, 1000, 2000, 0, 360);
+		float yawAngle = map(yawBuffer, 1000, 2000, -1000, 1000);
     
 
     // Set desired angles
@@ -1094,7 +1101,7 @@ void PID_execute(){
     set_desiredYaw(yawAngle);	
 		//set_desiredPitch(60);
 		//set_desiredRoll(60);
-		
+		DCSetOutput(yawAngle,1);
 	}
 	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
@@ -1106,6 +1113,7 @@ void PID_execute(){
 	
 	
 	//Pitch & Roll PID
+	doPID = 1;
 	//BLDC_PID(&mpu_moving, &mpu_stationary);
 
 	

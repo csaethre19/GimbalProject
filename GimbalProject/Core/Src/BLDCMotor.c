@@ -91,7 +91,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
-		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to pitch BLDC motor;
+		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;
 	}
 	else{//Relative Position Mode Execute
 		//PITCH MOTOR
@@ -111,7 +111,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
-		
+		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;
 	}
 	
 	
