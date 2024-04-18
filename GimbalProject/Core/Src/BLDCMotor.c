@@ -26,8 +26,8 @@ volatile int16_t roll_error_integral = 0;    // Integrated roll error signal
 volatile int16_t pitch_error_derivative = 0;    // Derivated pitch error signal
 volatile int16_t roll_error_derivative = 0;    // Derivated roll error signal
 
-volatile int16_t target_pitch = 0;        // Desired pitch angle target
-volatile int16_t target_roll = 0;        // Desired roll angle target
+volatile float target_pitch = 0;        // Desired pitch angle target
+volatile float target_roll = 0;        // Desired roll angle target
 
 volatile int16_t measured_roll = 0;       // Measured roll angle
 volatile int16_t measured_pitch = 0;       // Measured pitch angle
@@ -60,7 +60,7 @@ volatile int16_t relative0_absolute1 = 1;
 
 
 
-	//Takes in a double Angle1 and a motor number and modifies the PWM outputs to the respective BLDC motor
+	//Takes in a double Angle and a motor number and modifies the PWM outputs to the respective BLDC motor
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
@@ -73,6 +73,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
 	float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
 	if(relative0_absolute1){//Absolute Position Mode Execute
+		// Need to add collision checking
 		//PITCH MOTOR
 		pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
 		int pitch_motor_Offset = (int)pitch_error * Kp_Pitch;
@@ -90,13 +91,27 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
-		BLDC_Output(current_roll_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;
 	}
 	else{//Relative Position Mode Execute
-		//Not possible without relative yaw determination
+		//PITCH MOTOR
 		pitch_error = target_pitch - relativePitch;
+		int pitch_motor_Offset = (int)pitch_error * Kp_Pitch;
+		if(pitch_motor_Offset > 50) pitch_motor_Offset = 50;
+		if(pitch_motor_Offset < -50) pitch_motor_Offset = -50;
+		current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
+		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
+		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		//ROLL MOTOR
 		roll_error = target_roll - relativeRoll;
-		
+		int roll_motor_Offset = (int)roll_error * Kp_Roll;
+		if(roll_motor_Offset > 50) roll_motor_Offset = 50;
+		if(roll_motor_Offset < -50) roll_motor_Offset = -50;
+		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
+		if(current_roll_instruction > 360) current_roll_instruction -= 360;
+		if(current_roll_instruction < 0) current_roll_instruction += 360;
+		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;
 	}
 	
 	
@@ -138,6 +153,7 @@ void BLDC_Output(double Angle1, int MotorNum)
 		Angle3 = Angle3 * half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
+		
 		TIM2->CCR1 = Angle1 * 0.7;
 		TIM2->CCR2 = Angle2 * 0.7;
 		TIM2->CCR3 = Angle3 * 0.7;
@@ -151,6 +167,7 @@ void BLDC_Output(double Angle1, int MotorNum)
 		Angle3 = Angle3 * half_Roll_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle3 = Angle3 + half_Roll_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
+		
 		TIM3->CCR1 = Angle1 * 0.7;
 		TIM3->CCR2 = Angle2 * 0.7;
 		TIM3->CCR3 = Angle3 * 0.7;
@@ -169,12 +186,12 @@ void initBLDCOutput(int MotorNum)
 }
 
 void BLDCEnable(int MotorNum){
-	if(MotorNum == 1)GPIOA->ODR |= GPIO_ODR_15;//enable pitch motor driver
-	if(MotorNum == 2)GPIOA->ODR |= GPIO_ODR_14;//enable roll motor driver
+	if(MotorNum == 1)GPIOB->ODR |= GPIO_ODR_6;//enable pitch motor driver
+	if(MotorNum == 2)GPIOB->ODR |= GPIO_ODR_5;//enable roll motor driver
 }
 
 void BLDCDisable(int MotorNum){
-	if(MotorNum == 1)GPIOA->ODR &= ~GPIO_ODR_15;//disable pitch motor driver
-	if(MotorNum == 2)GPIOA->ODR &= ~GPIO_ODR_14;//disable roll motor driver
+	if(MotorNum == 1)GPIOB->ODR &= ~GPIO_ODR_6;//disable pitch motor driver
+	if(MotorNum == 2)GPIOB->ODR &= ~GPIO_ODR_5;//disable roll motor driver
 }
 

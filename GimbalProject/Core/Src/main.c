@@ -1,4 +1,4 @@
-	/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -75,6 +75,7 @@ volatile MPU6050_t mpu_stationary;
 volatile HMC5883_t mag_moving;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
+volatile int doPID = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,6 +99,8 @@ void enablePWMIN();
 void disablePWMIN();
 void enableADCIN();
 void disableADCIN();
+int map(int value, int fromLow, int fromHigh, int toLow, int toHigh);
+int constrain(int value, int minVal, int maxVal);
 
 /* USER CODE END PFP */
 
@@ -114,7 +117,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	
-	// Work on inputs for ADC and PWM
 	
 	
   /* USER CODE END 1 */
@@ -138,7 +140,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
-  MX_ADC_Init();
+  //MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
@@ -148,42 +150,58 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
-	
+
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-	HMC5883_Init(&mag_moving);
-	//MPU_Init(&mpu_moving, 0x68);
+	//HMC5883_Init(&mag_moving);
+	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
+
 	
-	// Uncomment to use Magnetometer
-	//
-			
 	//INPUT MODE SETUP
-	disablePWMIN();
-	disableADCIN();
+		enablePWMIN();
+		disableADCIN();
+
+
 	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 
 	
-	//MOTOR TESTING CODE
+	//MOTOR Setup
 	init_YawMotor();
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCDisable(2);
+	BLDCEnable(2);
 	BLDCEnable(1);
+	//BLDCDisable(2);
+	//BLDCDisable(1);
+	set_operationMode(1);
+	
+	
+	//MOTOR TESTING CODE
 	int DCtracker = 0;
-	int DC_Direction = 1;
-	double BLDCtracker = 0;
+	int DC_Direction = 5;
+	double BLDCtracker = 100;
+	int BLDC_Direction = 5;
 	
   while (1)
   {
-		GPIOC->ODR ^= GPIO_ODR_6;
-		HMC5883_ReadRawData(&mag_moving);
-		HAL_Delay(100);
+		if(doPID == 1){
+			KFilter_2(&mpu_moving);
+			//KFilter_2(&mpu_stationary);
+			BLDC_PID(&mpu_moving, &mpu_stationary);
+			doPID = 0;
+		}
+		//GPIOC->ODR ^= GPIO_ODR_6;
+		//HMC5883_ReadRawData(&mag_moving);
+		//KFilter_2(&mpu_moving);
+		//KFilter_2(&mpu_stationary);
+		//HAL_Delay(100);
 
+		
 		
 		/*//PWM TESTING CODE
 		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
@@ -193,18 +211,20 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-//		DCSetOutput(DCtracker, 1);
-//		BLDC_Output(BLDCtracker, 1);
-//		BLDC_Output(BLDCtracker, 2);
-//		
-//		DCtracker += DC_Direction;
-//		BLDCtracker += 20;
-//		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-//		if(BLDCtracker > 359.99) BLDCtracker = 0;
-//		HAL_Delay(100);
+		/*
+		DCSetOutput(DCtracker, 1);
+		BLDC_Output(BLDCtracker, 1);
+		BLDC_Output(BLDCtracker, 2);
 		
+		DCtracker += DC_Direction;
+		BLDCtracker += BLDC_Direction;
+		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+		if(BLDCtracker > 350) BLDC_Direction = -5;
+		if(BLDCtracker < 10)  BLDC_Direction = 5;
+		HAL_Delay(2);
+		*/
 		
-    /* USER CODE END WHILE */
+		/* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
@@ -463,7 +483,7 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM1_Init 2 */
-
+	//HAL_NVIC_SetPriority(TIM1_IRQn, 2,2);
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
 
@@ -489,7 +509,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 15;
+  htim2.Init.Prescaler = 7;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -707,7 +727,7 @@ static void MX_TIM17_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM17_Init 2 */
-
+	HAL_NVIC_SetPriority(TIM17_IRQn, 0,0);
   /* USER CODE END TIM17_Init 2 */
 
 }
@@ -801,24 +821,27 @@ void USART3_4_IRQHandler(void)
 		char ch = USART3->RDR;
 		USART_Transmit_Byte(ch);
 		
-		if (ch == '\r') // Command delimiter or buffer full
+		if (ch == '\r') // Command delimiter
     {
 				cmdBuffer[cmdBufferPos] = '\0'; // Null-terminate the string
 					//processCommand(cmdBuffer); // Process the buffered command
 				if (strcmp(cmdBuffer, "rdpitch") == 0)
 				{
 
-					USART_Transmit_String("Angle pitch = 901");
+					USART_Transmit_String("Angle pitch = ");
+					USART_Transmit_Float(mpu_moving.KalmanAnglePitch, 2);
 					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "rdroll") == 0){
 
-					USART_Transmit_String("Angle roll = 9000");
+					USART_Transmit_String("Angle roll = ");
+					USART_Transmit_Float(mpu_moving.KalmanAngleRoll, 2);				
 					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "rdyaw") == 0){
 
-					USART_Transmit_String("Angle roll = 420");
+					USART_Transmit_String("Angle roll = ");
+					USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
 					USART_Transmit_Newline();
 				}
 				else if(strncmp(cmdBuffer, "wrpitch", 7) == 0){
@@ -827,7 +850,8 @@ void USART3_4_IRQHandler(void)
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
 						USART_Transmit_String("wrpitch: Set pitch to ");
-						USART_Transmit_Float(value, 3);
+						USART_Transmit_Float(value, 2);
+						set_desiredPitch(value); 
 						USART_Transmit_Newline();						
 					}else{
 					USART_Transmit_String("ERROR: Parsing failed!\n");						
@@ -839,7 +863,8 @@ void USART3_4_IRQHandler(void)
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
 						USART_Transmit_String("wrroll: Set roll to ");
-						USART_Transmit_Float(value, 3);
+						USART_Transmit_Float(value, 2);
+						set_desiredRoll(value);
 						USART_Transmit_Newline();						
 					}else{
 						USART_Transmit_String("ERROR: Parsing failed!\n");						
@@ -851,7 +876,8 @@ void USART3_4_IRQHandler(void)
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
 						USART_Transmit_String("wryaw: Set yaw to ");
-						USART_Transmit_Float(value, 3);
+						USART_Transmit_Float(value, 2);
+						set_desiredYaw(value);
 						USART_Transmit_Newline();						
 					}else{
 						USART_Transmit_String("ERROR: Parsing failed!\n");						
@@ -867,6 +893,7 @@ void USART3_4_IRQHandler(void)
 					
 						USART_Transmit_String("Input set to ADC");
 						USART_Transmit_Newline();
+					
 						enableADCIN();
 						disablePWMIN();
 					
@@ -877,7 +904,7 @@ void USART3_4_IRQHandler(void)
 						disablePWMIN();
 						disableADCIN();
 				
-			}else
+			} else
 				{
 					// Command not recognized
 					USART_Transmit_String("ERROR: Command not recognized\n");
@@ -899,6 +926,9 @@ void USART3_4_IRQHandler(void)
 
   /* USER CODE END USART3_4_IRQn 1 */
 }
+
+
+
 void init_PitchMotor()
 {
   double PI = 3.1415926535897932;
@@ -1018,47 +1048,93 @@ void PID_execute(){
 	//Update Desired Angles
 	//USART CAN ALWAYS UPDATE DESIRED VALUES
 	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
-		int pitchbuffer = provide_channel(1);
-		int rollbuffer  = provide_channel(2);
-		int yawbuffer   = provide_channel(3);
+		int yawbuffer = provide_channel(1);
+		int pitchbuffer  = provide_channel(2);
+		int rollbuffer   = provide_channel(3);
 		if(pitchbuffer < 1000) pitchbuffer = 1000;
 		if(rollbuffer  < 1000)  rollbuffer = 1000;
 		if(yawbuffer   < 1000)   yawbuffer = 1000;
 		if(pitchbuffer > 2000) pitchbuffer = 2000;
 		if(rollbuffer  > 2000)  rollbuffer = 2000;
 		if(yawbuffer   > 2000)   yawbuffer = 2000;
-		pitchbuffer = pitchbuffer - 1000;
-		pitchbuffer = pitchbuffer * 360 / 1000;
-		rollbuffer  = rollbuffer  - 1000;
-		rollbuffer  = rollbuffer  * 360 / 1000;
-		yawbuffer   = yawbuffer   - 1000;
-		yawbuffer   = yawbuffer   * 360 / 1000;
+		pitchbuffer = map(pitchbuffer, 1000,2000,-80,80);
+		rollbuffer = map(rollbuffer, 1000,2000,-80,80);
+		yawbuffer = map(yawbuffer, 1000,2000,-80,80);
 		set_desiredPitch(pitchbuffer);
 		set_desiredRoll(rollbuffer);
 		set_desiredYaw(yawbuffer);
 	}
-	if(useADC == 1){
+	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
+		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
 		
+		// PITCH - PA4
+		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int pitchADC = ADC1->DR;
+		double pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
+		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
+		float pitchAngle = map(pitchBuffer, 1000, 2000, -80, 80);
+		
+		//ROLL - PA5
+		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int rollADC = ADC1->DR;
+		double rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
+		rollBuffer = constrain(rollBuffer, 1000, 2000);
+		float rollAngle = map(rollBuffer, 1000, 2000, -80, 80);
+		
+		//YAW - PA3
+		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
+		ADC1->CR |= ADC_CR_ADSTART;
+		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
+		int yawADC = ADC1->DR;
+		double yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
+		yawBuffer = constrain(yawBuffer, 1000, 2000);
+		float yawAngle = map(yawBuffer, 1000, 2000, -1000, 1000);
+    
+
+    // Set desired angles
+    set_desiredPitch(pitchAngle);
+    set_desiredRoll(rollAngle);
+    set_desiredYaw(yawAngle);	
+		//set_desiredPitch(60);
+		//set_desiredRoll(60);
+		DCSetOutput(yawAngle,1);
 	}
-	GPIOC->ODR ^= GPIO_ODR_6;
+	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
-	//GET MPU_stationary data
-	//Get MPU_moving data
-	KFilter_2(&mpu_moving);
+
+	//KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
 	
 	//Yaw PID
 	
 	
+	//Pitch & Roll PID
+	doPID = 1;
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
+
 	
-	//Pitch PID
-	BLDC_PID(&mpu_moving, &mpu_stationary);
-	//Roll PID
-	
-	
-	
-	
-	
+}
+
+
+// Map function implementation used in PID_execute()
+int map(int value, int fromLow, int fromHigh, int toLow, int toHigh) {
+    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+}
+
+
+// Constrain function implementation used in PID_execute()
+int constrain(int value, int minVal, int maxVal) {
+    if (value < minVal) {
+        return minVal;
+    } else if (value > maxVal) {
+        return maxVal;
+    } else {
+        return value;
+    }
 }
 
 void enablePWMIN(){
