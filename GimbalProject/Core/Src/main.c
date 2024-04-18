@@ -158,7 +158,7 @@ int main(void)
 
 	
 	//INPUT MODE SETUP
-		enablePWMIN();
+		disablePWMIN();
 		disableADCIN();
 
 
@@ -178,6 +178,8 @@ int main(void)
 	BLDCEnable(1);
 	//BLDCDisable(2);
 	//BLDCDisable(1);
+	set_desiredRoll(0.0f);
+	set_desiredPitch(0.0f);
 	set_operationMode(1);
 	
 	
@@ -190,9 +192,9 @@ int main(void)
   while (1)
   {
 		if(doPID == 1){
-			KFilter_2(&mpu_moving);
+			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
-			BLDC_PID(&mpu_moving, &mpu_stationary);
+			//BLDC_PID(&mpu_moving, &mpu_stationary);
 			doPID = 0;
 		}
 		//GPIOC->ODR ^= GPIO_ODR_6;
@@ -1111,6 +1113,9 @@ void PID_execute(){
 	
 	//Yaw PID
 	
+	KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;

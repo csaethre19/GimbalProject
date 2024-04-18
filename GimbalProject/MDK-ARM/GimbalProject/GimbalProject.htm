@@ -3,11 +3,11 @@
 <title>Static Call Graph - [GimbalProject\GimbalProject.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image GimbalProject\GimbalProject.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Wed Apr 17 17:20:23 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Thu Apr 18 13:27:35 2024
 <BR><P>
-<H3>Maximum Stack Usage =        416 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        376 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
-__rt_entry_main &rArr; main &rArr; BLDC_PID &rArr; BLDC_Output &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
+_scanf_really_real &rArr; _fp_value &rArr; _btod_etento &rArr; _btod_emul &rArr; btod_internal_mul &rArr; __ARM_common_ll_muluu
 <P>
 <H3>
 Functions with no stack information
@@ -233,8 +233,8 @@ Global Symbols
 <P><STRONG><a name="[152]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[45]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 416 + Unknown Stack Size
-<LI>Call Chain = __rt_entry_main &rArr; main &rArr; BLDC_PID &rArr; BLDC_Output &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
+<BR><BR>[Stack]<UL><LI>Max Depth = 248 + Unknown Stack Size
+<LI>Call Chain = __rt_entry_main &rArr; main &rArr; HAL_I2C_Init &rArr; HAL_I2C_MspInit &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;exit
@@ -951,7 +951,7 @@ Global Symbols
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fadd
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 </UL>
-<BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<BR>[Called By]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_execute
 </UL>
 
 <P><STRONG><a name="[9a]"></a>DCSetOutput</STRONG> (Thumb, 128 bytes, Stack size 16 bytes, dcmotor.o(.text.DCSetOutput))
@@ -1209,6 +1209,7 @@ Global Symbols
 
 <P><STRONG><a name="[fc]"></a>HAL_TIM_Base_Stop</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, stm32f0xx_hal_tim.o(.text.HAL_TIM_Base_Stop))
 <BR><BR>[Called By]<UL><LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disablePWMIN
+<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[103]"></a>HAL_TIM_ConfigClockSource</STRONG> (Thumb, 344 bytes, Stack size 20 bytes, stm32f0xx_hal_tim.o(.text.HAL_TIM_ConfigClockSource))
@@ -1243,7 +1244,6 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = HAL_TIM_IC_Start_IT
 </UL>
 <BR>[Called By]<UL><LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enablePWMIN
-<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[b0]"></a>HAL_TIM_IRQHandler</STRONG> (Thumb, 328 bytes, Stack size 16 bytes, stm32f0xx_hal_tim.o(.text.HAL_TIM_IRQHandler))
@@ -1435,7 +1435,7 @@ Global Symbols
 <LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
 <LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
-<BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<BR>[Called By]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_execute
 </UL>
 
 <P><STRONG><a name="[de]"></a>Kalman_getAngle</STRONG> (Thumb, 604 bytes, Stack size 88 bytes, mpu6050.o(.text.Kalman_getAngle))
@@ -1473,13 +1473,15 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f072xb.o(RESET)
 </UL>
 <P><STRONG><a name="[e6]"></a>PID_execute</STRONG> (Thumb, 440 bytes, Stack size 32 bytes, main.o(.text.PID_execute))
-<BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = PID_execute &rArr; DCSetOutput &rArr; __aeabi_ddiv
+<BR><BR>[Stack]<UL><LI>Max Depth = 320<LI>Call Chain = PID_execute &rArr; BLDC_PID &rArr; BLDC_Output &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;provide_channel
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
 <LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredPitch
 <LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredRoll
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DCSetOutput
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredYaw
+<LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KFilter_2
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2f
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2iz
 <LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_idiv
@@ -1556,7 +1558,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f072xb.o(RESET)
 </UL>
 <P><STRONG><a name="[13]"></a>TIM1_BRK_UP_TRG_COM_IRQHandler</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, stm32f0xx_it.o(.text.TIM1_BRK_UP_TRG_COM_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = TIM1_BRK_UP_TRG_COM_IRQHandler &rArr; PID_execute &rArr; DCSetOutput &rArr; __aeabi_ddiv
+<BR><BR>[Stack]<UL><LI>Max Depth = 328<LI>Call Chain = TIM1_BRK_UP_TRG_COM_IRQHandler &rArr; PID_execute &rArr; BLDC_PID &rArr; BLDC_Output &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IRQHandler
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_execute
@@ -1665,12 +1667,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
 </UL>
 
-<P><STRONG><a name="[46]"></a>main</STRONG> (Thumb, 1612 bytes, Stack size 128 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 416<LI>Call Chain = main &rArr; BLDC_PID &rArr; BLDC_Output &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
+<P><STRONG><a name="[46]"></a>main</STRONG> (Thumb, 1624 bytes, Stack size 128 bytes, main.o(.text.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = main &rArr; HAL_I2C_Init &rArr; HAL_I2C_MspInit &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_Start
-<LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IC_Start_IT
 <LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
+<LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Stop
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
 <LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IC_ConfigChannel
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IC_Init
@@ -1691,9 +1693,9 @@ Global Symbols
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDCEnable
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
 <LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_operationMode
-<LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KFilter_2
+<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredPitch
+<LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredRoll
 <LI><a href="#[e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
 <LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Init_LEDs
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
@@ -1713,11 +1715,13 @@ Global Symbols
 <P><STRONG><a name="[e8]"></a>set_desiredPitch</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, bldcmotor.o(.text.set_desiredPitch))
 <BR><BR>[Called By]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_execute
 <LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
+<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[e9]"></a>set_desiredRoll</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, bldcmotor.o(.text.set_desiredRoll))
 <BR><BR>[Called By]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_execute
 <LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
+<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[ea]"></a>set_desiredYaw</STRONG> (Thumb, 12 bytes, Stack size 8 bytes, dcmotor.o(.text.set_desiredYaw))
