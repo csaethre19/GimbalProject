@@ -77,6 +77,7 @@ The ADC input is initialized with:
 - Sampling Time -> 1.5 cycles
 
 Three channels are utilized for the Gimbal, mapping to the three orientations: Roll, Pitch, and Yaw.
+
 Roll:
 - Pin # -> PA5
 - Channel # -> Channel 5
