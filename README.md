@@ -46,6 +46,12 @@ DETAILS OF KEY ELEMETNS BELOW:
 2-----PWM input for gimbal instruction:
 
    The PWM inputs are mapped to a range of -80 <-> 80. This range is mapped to a square wave HIGH duration ranging from 1ms to 2ms, with a 1.5ms high time representing a middle point and a desired angle of 0 deg.
+   Timer 15 Ch1, Ch2 and Timer 17 Ch1 are utlized in capture/compare mode to determine the time that the rising/falling edge of incoming square waves arrive. If a falling edge arrives, the time elapsed since the most recent rising edge is determined and this determined value is stored into a global variable within PWM_input.c. Note that timer 15 & timer 17 are configured identically, so the same functions can be utlized to interpret the data from both
+
+   The PWM_input.c file implements the following functions:
+
+    a. process_eventTime: Interrupt service routines for the Timer 15, Timer 17 capture compare events call process_eventTime function after they have determined the channel source and whether a rising/falling edge arrived. If a falling edge has arrived, use the currently stored rising edge time to determine the pulse width of the square wave.
+    b. provide_channel: This function returns the druation high of the requested PWm channel (1 = Yaw, 2 = Pitch, 3 = Roll) with the provided time high in units of uS.
    
 3-----ADC input for gimbal instruction:
 
@@ -76,12 +82,12 @@ It is important to note that the range of 0-360 does not represent the full rota
     a. set_desiredRoll   - Set the targeted roll angle of the system.
     b. set_desiredPitch  - Set the targeted pitch angle of the system.
     c. set_operationMode - A boolean flag is set representing if the provided target angle should be interpreted as an angle relative to the base of the gimbal, or an absolute angle.
-    d. BLDC_PID - Compare the target (pitch/roll) angle to the current (pitch/roll) angle. Adjust the output FOC angle to reduce the error in the measured angle. Restriction of mechanical limits is not yet implemented, planned.
+    d. BLDC_PID - Compare the target (pitch/roll) angle to the current (pitch/roll) angle. Adjust the output FOC angle to reduce the error in the measured angle. Restriction to mechanical limits is not yet implemented, planned.
     e. BLDC_Output - Provided an Angle and a MotorNumber, set the FOC angle output to the Motor. Currently hardcoded for MotorNum = 1 = Tim2 Ch1,Ch2,Ch3. MotorNum = 2 = Tim3 Ch1, Ch2, Ch3
     f. BLDCEnable        - Provided a motor number, set the GPIO output of the corresponding enable output HIGH
     g. BLDCdisable       - Provided a motor number, set the GPIO output of the corresponding enable output LOW
     
-NOTE: The P controller (called PID for some reason) for the position of the BLDC motors attempts to incrementally move the BLDC motor from the current angle towards the desired angle as fast as possible. During the period of each control loop iteration, a maximum reliable instructed change in angle was determined. This caps what is effectively the maximum "rotation rate" of the BLDC motor. Provided the previous angle delivered to the motor, cap the maximum change in angle to within a region that the motor can achieve within the provided period of the control loop. 
+NOTE: The P controller (called PID for some reason) for the position of the BLDC motors attempts to incrementally move the BLDC motor from the current angle towards the desired angle as fast as possible. During the period of each control loop iteration, a maximum reliable instructed change in angle was determined. This limits what is effectively the maximum "rotation rate" of the BLDC motor. Provided the previous angle delivered to the motor, limit the maximum change in angle to within a region that the motor can achieve within the period of the control loop. 
 The frequency of the control loop is determined by the TIMER 1 interrupt generated at a rate of 1KHz.
 This code was written without the use of any notable reference material.
 
