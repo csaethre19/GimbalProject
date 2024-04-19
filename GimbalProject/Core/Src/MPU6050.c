@@ -48,7 +48,7 @@ if (pwr_mgmt == 0)
 	I2C_WriteRegister(deviceAddr, GYRO_CONFIG, 0x10);
 	I2C_SetRegAddress(deviceAddr, GYRO_CONFIG);
 	int8_t gyro_config = I2C_ReadRegister(deviceAddr);
-	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to +-500 deg/s");
+	if (gyro_config == 0x08) USART_Transmit_String("Successfully configured GYRO to +-1000 deg/s");
 	USART_Transmit_Newline();
 	
 	// Setting accelerometer to +-8g
