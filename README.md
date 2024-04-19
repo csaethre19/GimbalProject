@@ -88,8 +88,11 @@ It is important to note that the range of 0-360 does not represent the full rota
     g. BLDCdisable       - Provided a motor number, set the GPIO output of the corresponding enable output LOW
     
 NOTE: The P controller (called PID for some reason) for the position of the BLDC motors attempts to incrementally move the BLDC motor from the current angle towards the desired angle as fast as possible. During the period of each control loop iteration, a maximum reliable instructed change in angle was determined. This limits what is effectively the maximum "rotation rate" of the BLDC motor. Provided the previous angle delivered to the motor, limit the maximum change in angle to within a region that the motor can achieve within the period of the control loop. 
-The frequency of the control loop is determined by the TIMER 1 interrupt generated at a rate of 1KHz.
-This code was written without the use of any notable reference material.
+The frequency of the control loop is determined by the TIMER 1 interrupt (currently) generated at a rate of 1KHz.
+
+ Reference Sources for BLDC control: 
+ 
+   FOC control using L6234: https://electronoobs.com/eng_arduino_tut176.php
 
 5-----1 x DC Motor Control Signals:
 
