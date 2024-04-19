@@ -82,6 +82,7 @@ These signals are output as follows:
 For FOC, the orientation of the motor is controlled by providing a desired angle on a range from 0-360. Each channel's DutyCycle is mapped to the amplitude of a sin wave with a offset of 1/3 (120 deg) of the period of the sin wave. 
 
 Ex. Provided Angle = 20 deg. Ch1 Duty Cycle (where -1 = 0%, 1 = 100%) = sin(RADIAN(20)); Ch2 Duty Cycle = sin(RADIAN(20+120)); Ch3 Duty Cycle = sin(RADIAN(20+120+120));
+
 It is important to note that the range of 0-360 does not represent the full rotation of the BLDC motor. Instead, the BLDC motor has 12-16 identical motor poles, where incrementally moving from 0->360 rotates the BLDC motor 1/#motorpoles through its range.
 
   The BLDCMotor.c file implements the following functions:
