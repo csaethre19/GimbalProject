@@ -1,4 +1,4 @@
-### ECE5780 Mini Project - 2-Axis Gimbal
+### ECE5780 Mini Project - 3-Axis Gimbal
 
 Group members:
 
