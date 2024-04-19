@@ -1,4 +1,4 @@
-### ECE5780 Mini Project - 3-Axis Gimbal
+### ECE5780 Mini Project: 3-Axis Gimbal
 
 ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/d43bef98-7a9f-40f5-9aa6-5e0a1bd2dede)
 
@@ -43,7 +43,7 @@ The following are key elements of the STM32 code, additional details are provide
 PCB Schematic of STM32F072: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/33eb72a9-7e3a-4762-b990-faef41e200b4)
 
 
-DETAILS OF KEY ELEMETNS BELOW: 
+DETAILS OF KEY ELEMENTS BELOW: 
 
 1-----UART interface for gimbal control: <br>
   The following list of commands define the UART protocol used to read information from the system and set desired orientation and input types:
