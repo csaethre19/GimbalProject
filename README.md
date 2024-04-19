@@ -80,9 +80,11 @@ Three channels are utilized for the Gimbal, mapping to the three orientations: R
 Roll:
 - Pin # -> PA5
 - Channel # -> Channel 5
+  
 Pitch:
 - Pin # -> PA4
 - Channel # -> Channel 4
+  
 Yaw:
 - Pin # -> PA3
 - Channel # -> Channel 3
