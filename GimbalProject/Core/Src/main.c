@@ -177,12 +177,13 @@ int main(void)
 	init_RollMotor();
 	BLDCEnable(2);
 	BLDCEnable(1);
+	
 	//BLDCDisable(2);
 	//BLDCDisable(1);
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_operationMode(1);
-	
+
 	
 	//MOTOR TESTING CODE
 	int DCtracker = 0;

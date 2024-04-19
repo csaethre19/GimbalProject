@@ -236,7 +236,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 void KFilter_2(volatile MPU6050_t *DataStruct){
 
 	
-	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 500;
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
   DataStruct->timer = HAL_GetTick();
 	
 	//DataStruct->dt = 1;
