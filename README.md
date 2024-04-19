@@ -1,5 +1,8 @@
 ### ECE5780 Mini Project - 3-Axis Gimbal
 
+![image](https://github.com/csaethre19/GimbalProject/assets/45043278/d43bef98-7a9f-40f5-9aa6-5e0a1bd2dede)
+
+
 Group members:
 
 - Charlotte Saethre
@@ -94,7 +97,9 @@ It is important to note that the range of 0-360 does not represent the full rota
 NOTE: The P controller (called PID for some reason) for the position of the BLDC motors attempts to incrementally move the BLDC motor from the current angle towards the desired angle as fast as possible. During the period of each control loop iteration, a maximum reliable instructed change in angle was determined. This limits what is effectively the maximum "rotation rate" of the BLDC motor. Provided the previous angle delivered to the motor, limit the maximum change in angle to within a region that the motor can achieve within the period of the control loop. 
 The frequency of the control loop is determined by the TIMER 1 interrupt (currently) generated at a rate of 1KHz.
 
-PCB schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/0fef9ef2-f92b-4922-b066-2a6690adbd33)
+PCB schematic of BLDC driver:
+
+![image](https://github.com/csaethre19/GimbalProject/assets/45043278/0fef9ef2-f92b-4922-b066-2a6690adbd33)
 
 
  Reference Sources for BLDC control: 
@@ -116,7 +121,9 @@ PCB schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043
     d. DCSetOutput           - Provided an int in the range of -1000 <-> 1000, a duty cycle and direction for the DC motor is set within the CCR1/CCR2 registers of Timer 1.
     e. initDCOutput          - Initializes the Duty cycle of both CCR1/CCR2 channels in order to instruct the DC motor to not spin.
 
-PCB schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/e378212f-7061-4e44-a8d6-ae8ad9dacaf7)
+PCB schematic of DC Motor Driver:
+
+![image](https://github.com/csaethre19/GimbalProject/assets/45043278/e378212f-7061-4e44-a8d6-ae8ad9dacaf7)
 
 
     NOTE: While architecture for multiple DC motors is implemented, only one DC motor is utlized (MotorNum = 1).
@@ -140,7 +147,8 @@ PCB schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043
      g. KFilter_2           - Currently used function in order to retrieve most recent MPU6050 data, perform updated Kalman Filter, store a calculated KalmanFilterRoll, KalmanFilterPitch into MPU6050 struct
      h. Kalman_getAngle     - Called within KFilter_2 in order to perform Kalman Filter on provided data for Pitch/Roll data.
 
-PCB Schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/02d3a804-32c1-4fb0-bdc5-8a644b377340)
+PCB Schematic:
+![image](https://github.com/csaethre19/GimbalProject/assets/45043278/02d3a804-32c1-4fb0-bdc5-8a644b377340)
 
      
    Reference Sources for MPU6050 interface: 
