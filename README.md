@@ -45,8 +45,17 @@ PCB Schematic of STM32F072: ![image](https://github.com/csaethre19/GimbalProject
 
 DETAILS OF KEY ELEMETNS BELOW: 
 
-1-----UART interface for gimbal control:
-
+1-----UART interface for gimbal control: <br>
+  The following list of commands define the UART protocol used to read information from the system and set desired orientation and input types:
+  - rdpitch         - prints the currently calculated Kalman angle pitch to console
+  - rdroll          - prints the currently calculated Kalman angle roll to console
+  - rdyaw           - prints the currently calculated Kalman angle yaw to console
+  - wrpitch <value> - sets the desired pitch value to <value> specified via command
+  - wrroll <value>  - sets the desired roll value to <value> specified via command
+  - wryaw <value>   - sets the desired yaw value to <value> specified via command
+  - pwm             - sets type of input to pwm, disabling the currently set type
+  - adc             - sets type of input to adc, disabling the currently set type
+  - pwm/adc off     - disables pwm and adc
 
 2-----PWM input for gimbal instruction:
 
