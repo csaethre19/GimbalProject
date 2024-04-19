@@ -71,20 +71,22 @@ DETAILS OF KEY ELEMENTS BELOW:
    
 3-----ADC input for gimbal instruction:
 The ADC input is initialized with:
-* Clock Prescaler - Asynchronous Clock Mode
-* Data Resolution - 12-bit resolution
-* Data Alignment - right alignment
-* Sampling Time - 1.5 cycles
+- Clock Prescaler -> Asynchronous Clock Mode
+- Data Resolution -> 12-bit resolution
+- Data Alignment -> right alignment
+- Sampling Time -> 1.5 cycles
+
 Three channels are utilized for the Gimbal, mapping to the three orientations: Roll, Pitch, and Yaw.
 Roll:
-* Pin # - PA5
-* Channel # - Channel 5
+- Pin # -> PA5
+- Channel # -> Channel 5
 Pitch:
-* Pin # - PA4
-* Channel # - Channel 4
+- Pin # -> PA4
+- Channel # -> Channel 4
 Yaw:
-* Pin # - PA3
-* Channel # - Channel 3
+- Pin # -> PA3
+- Channel # -> Channel 3
+
 In order to select ADC for input, type either "ADC" or "adc" into the uart terminal. ADC will be enabled and PWM disabled.
 
 4-----2 x Brushless Motor Control Signals:
