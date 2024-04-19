@@ -37,6 +37,8 @@ The following are key elements of the STM32 code, additional details are provide
 
 7- Current Monitoring
 
+PCB Schematic of STM32F072: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/33eb72a9-7e3a-4762-b990-faef41e200b4)
+
 
 DETAILS OF KEY ELEMETNS BELOW: 
 
@@ -52,6 +54,8 @@ DETAILS OF KEY ELEMETNS BELOW:
 
     a. process_eventTime: Interrupt service routines for the Timer 15, Timer 17 capture compare events call process_eventTime function after they have determined the channel source and whether a rising/falling edge arrived. If a falling edge has arrived, use the currently stored rising edge time to determine the pulse width of the square wave.
     b. provide_channel: This function returns the druation high of the requested PWm channel (1 = Yaw, 2 = Pitch, 3 = Roll) with the provided time high in units of uS.
+
+  STM32F072 Datasheet referred to for creation of PWM input.
    
 3-----ADC input for gimbal instruction:
 
@@ -90,6 +94,9 @@ It is important to note that the range of 0-360 does not represent the full rota
 NOTE: The P controller (called PID for some reason) for the position of the BLDC motors attempts to incrementally move the BLDC motor from the current angle towards the desired angle as fast as possible. During the period of each control loop iteration, a maximum reliable instructed change in angle was determined. This limits what is effectively the maximum "rotation rate" of the BLDC motor. Provided the previous angle delivered to the motor, limit the maximum change in angle to within a region that the motor can achieve within the period of the control loop. 
 The frequency of the control loop is determined by the TIMER 1 interrupt (currently) generated at a rate of 1KHz.
 
+PCB schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/0fef9ef2-f92b-4922-b066-2a6690adbd33)
+
+
  Reference Sources for BLDC control: 
  
    FOC control using L6234: https://electronoobs.com/eng_arduino_tut176.php
@@ -109,12 +116,18 @@ The frequency of the control loop is determined by the TIMER 1 interrupt (curren
     d. DCSetOutput           - Provided an int in the range of -1000 <-> 1000, a duty cycle and direction for the DC motor is set within the CCR1/CCR2 registers of Timer 1.
     e. initDCOutput          - Initializes the Duty cycle of both CCR1/CCR2 channels in order to instruct the DC motor to not spin.
 
+PCB schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/e378212f-7061-4e44-a8d6-ae8ad9dacaf7)
+
+
     NOTE: While architecture for multiple DC motors is implemented, only one DC motor is utlized (MotorNum = 1).
 
 6-----I2C interface - 2 x MPU6050, 1 x QMC5883L:
    A single I2C (i2c2 = PB10(SCL) & PB11(SDA) is used to interface with three total slave devices sharing the same 400KHz I2C line.
    
-   MPU6050: 2 Struct objects are created to encompass all data relevant to both the stationary and actuated (moving) MPU6050 sensors.
+   MPU6050: 
+   
+   2 Struct objects are created to encompass all data relevant to both the stationary and actuated (moving) MPU6050 sensors.
+   
    The MPU6050.c file implements the following functions:
    
      a. MPU_init            - Provided with address of an MPU6050, this function confirms connection with the target device, retrieving/confirming the WHO AM I information.
@@ -126,6 +139,9 @@ The frequency of the control loop is determined by the TIMER 1 interrupt (curren
      f. KalmanFilter        - First attempt at Kalman filter, saved for history.
      g. KFilter_2           - Currently used function in order to retrieve most recent MPU6050 data, perform updated Kalman Filter, store a calculated KalmanFilterRoll, KalmanFilterPitch into MPU6050 struct
      h. Kalman_getAngle     - Called within KFilter_2 in order to perform Kalman Filter on provided data for Pitch/Roll data.
+
+PCB Schematic: ![image](https://github.com/csaethre19/GimbalProject/assets/45043278/02d3a804-32c1-4fb0-bdc5-8a644b377340)
+
      
    Reference Sources for MPU6050 interface: 
      
@@ -134,6 +150,7 @@ KalmanFilter / ReadAccelData / ReadGyroData - https://github.com/CarbonAeronauti
 KFilter_2 - https://github.com/ibrahimcahit/STM32_MPU6050_KalmanFilter
 
 Datasheet: https://cdn.sparkfun.com/datasheets/Sensors/Accelerometers/RM-MPU-6000A.pdf
+
 
    QMC5883L: 
    
