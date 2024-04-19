@@ -390,6 +390,11 @@
               <FileType>2</FileType>
               <FilePath>startup_stm32f072xb.s</FilePath>
             </File>
+            <File>
+              <FileName>dspfns.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>C:\Keil_v5\Backup.002\ARM\ARMCLANG\include\dspfns.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -778,6 +783,12 @@
     <components>
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.6.0" condition="ARMv6_7_8-M Device">
         <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
+        <targetInfos>
+          <targetInfo name="GimbalProject"/>
+        </targetInfos>
+      </component>
+      <component Cclass="CMSIS" Cgroup="DSP" Cvariant="Source" Cvendor="ARM" Cversion="1.15.0" condition="CMSISCORE">
+        <package name="CMSIS-DSP" schemaVersion="1.7.7" url="https://www.keil.com/pack/" vendor="ARM" version="1.15.0"/>
         <targetInfos>
           <targetInfo name="GimbalProject"/>
         </targetInfos>

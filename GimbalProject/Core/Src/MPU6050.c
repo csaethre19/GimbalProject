@@ -1,16 +1,18 @@
 #include "MPU6050.h"
 
-
+/*.Q_angle = 0.005f,
+        .Q_bias = 0.003f,
+        .R_measure = 0.0001f,*/
 Kalman_t KalmanPitch = {//KalmanX
         .Q_angle = 0.005f,
-        .Q_bias = 0.003f,
-        .R_measure = 0.0001f
+        .Q_bias = 0.009f,
+        .R_measure = 0.0005f
 };
 
 Kalman_t KalmanRoll = {//KalmanY
         .Q_angle = 0.005f,
-        .Q_bias = 0.003f,
-        .R_measure = 0.0001f,
+        .Q_bias = 0.009f,
+        .R_measure = 0.0005f,
 };
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)

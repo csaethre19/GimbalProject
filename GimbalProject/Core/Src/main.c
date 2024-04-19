@@ -140,7 +140,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
-  //MX_ADC_Init();
+  MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
@@ -158,8 +158,8 @@ int main(void)
 
 	
 	//INPUT MODE SETUP
-		disablePWMIN();
-		disableADCIN();
+	disablePWMIN();
+	disableADCIN();
 
 
 	
@@ -172,6 +172,7 @@ int main(void)
 	
 	//MOTOR Setup
 	init_YawMotor();
+	initDCOutput(1);
 	init_PitchMotor();
 	init_RollMotor();
 	BLDCEnable(2);
@@ -186,16 +187,27 @@ int main(void)
 	//MOTOR TESTING CODE
 	int DCtracker = 0;
 	int DC_Direction = 5;
-	double BLDCtracker = 100;
+	double BLDCtracker = 1;
 	int BLDC_Direction = 5;
-	
+	//BLDC_Output(1,1);
   while (1)
   {
+		//BLDC_Output(BLDCtracker,1);
+		//BLDCtracker += 1;
+		//if(BLDCtracker > 360){ BLDCtracker = 1;};
+		//HAL_Delay(100);
 		if(doPID == 1){
 			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
-			//BLDC_PID(&mpu_moving, &mpu_stationary);
+			BLDC_PID(&mpu_moving, &mpu_stationary);
 			doPID = 0;
+			
+			//DCSetOutput(DCtracker, 1);
+
+		
+			//DCtracker += DC_Direction;
+			//BLDCtracker += BLDC_Direction;
+			//if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		}
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
@@ -213,20 +225,20 @@ int main(void)
 		*/
 		
 		//MOTOR TESTING CODE
-		/*
-		DCSetOutput(DCtracker, 1);
-		BLDC_Output(BLDCtracker, 1);
-		BLDC_Output(BLDCtracker, 2);
 		
-		DCtracker += DC_Direction;
-		BLDCtracker += BLDC_Direction;
-		if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-		if(BLDCtracker > 350) BLDC_Direction = -5;
-		if(BLDCtracker < 10)  BLDC_Direction = 5;
-		HAL_Delay(2);
-		*/
+		//DCSetOutput(DCtracker, 1);
+		//BLDC_Output(BLDCtracker, 1);
+		//BLDC_Output(BLDCtracker, 2);
 		
-		/* USER CODE END WHILE */
+		//DCtracker += DC_Direction;
+		//BLDCtracker += BLDC_Direction;
+		//if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
+		//if(BLDCtracker > 350) BLDC_Direction = -5;
+		//if(BLDCtracker < 10)  BLDC_Direction = 5;
+		//HAL_Delay(2);
+		
+		
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
@@ -511,7 +523,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7;
+  htim2.Init.Prescaler = 3;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -578,7 +590,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 7;
+  htim3.Init.Prescaler = 3;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 1000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1115,12 +1127,11 @@ void PID_execute(){
 	
 	KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
-	BLDC_PID(&mpu_moving, &mpu_stationary);
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;
 	//BLDC_PID(&mpu_moving, &mpu_stationary);
-
 	
 }
 
