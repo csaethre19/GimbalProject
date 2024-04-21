@@ -154,7 +154,7 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 
-	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -170,7 +170,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	
 
 	
 	//MOTOR Setup
@@ -187,7 +187,7 @@ int main(void)
 	set_desiredPitch(0.0f);
 	set_operationMode(1);
 
-	
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//MOTOR TESTING CODE
 	int DCtracker = 0;
 	int DC_Direction = 5;
@@ -945,7 +945,21 @@ void USART3_4_IRQHandler(void)
   /* USER CODE END USART3_4_IRQn 1 */
 }
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
 
+  if (huart->Instance == USART3)
+  {
+    rx_index++; // Move to the next position in the buffer
+    if (rx_index >= RX_BUFFER_SIZE)
+    {
+      // Buffer overflow handling
+      // Reset index to start overwriting data
+      rx_index = 0;
+    }
+    HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1); // Restart UART reception with interrupt
+  }
+}
 
 void init_PitchMotor()
 {
