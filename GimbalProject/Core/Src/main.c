@@ -203,7 +203,7 @@ int main(void)
 		if(doPID == 1){
 			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
-			//BLDC_PID(&mpu_moving, &mpu_stationary);
+			BLDC_PID(&mpu_moving, &mpu_stationary);
 			doPID = 0;
 			
 			//DCSetOutput(DCtracker, 1);
@@ -1147,7 +1147,7 @@ void PID_execute(){
 	
 	KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
-	BLDC_PID(&mpu_moving, &mpu_stationary);
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;
