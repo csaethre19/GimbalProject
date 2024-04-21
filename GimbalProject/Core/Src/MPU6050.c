@@ -1,4 +1,5 @@
 #include "MPU6050.h"
+#include "arm_math.h"
 
 /*.Q_angle = 0.005f,
         .Q_bias = 0.003f,
@@ -60,7 +61,7 @@ if (pwr_mgmt == 0)
 	
 	// Set SMPRT_DIV register to get 1kHz sample rate - when DLPF enabled Gyro Output Rate is 1kHz
 	// sample rate = Gyro Output Rate / (1 + SMPLRT_DIV)
-	I2C_WriteRegister(deviceAddr, SMPLRT_DIV, 0x00);
+	I2C_WriteRegister(deviceAddr, SMPLRT_DIV, 0x03);
 	I2C_SetRegAddress(deviceAddr, SMPLRT_DIV); 
 	int8_t sample_rate_div = I2C_ReadRegister(deviceAddr);
 	USART_Transmit_String("sample rate: ");
@@ -119,9 +120,9 @@ void ReadGyroData(volatile MPU6050_t *dataStruct)
 	dataStruct->Gyro_Z_RAW = z_raw;
 	dataStruct->Gz = gyro_z;
 	
-	dataStruct->RateRoll = gyro_x;
-	dataStruct->RatePitch = gyro_y;
-	dataStruct->RateYaw = gyro_z;
+	//dataStruct->RateRoll = gyro_x;
+	//dataStruct->RatePitch = gyro_y;
+	//dataStruct->RateYaw = gyro_z;
 }
 
 void ReadAccelData(volatile MPU6050_t *dataStruct)
@@ -163,8 +164,8 @@ void ReadAccelData(volatile MPU6050_t *dataStruct)
 	dataStruct->Accel_Z_RAW = z_raw;
 	dataStruct->Az = accel_z;
 	
-	dataStruct->AngleRoll = CalculateAngleRoll(accel_x, accel_y, accel_z);
-	dataStruct->AnglePitch = CalculateAnglePitch(accel_x, accel_y, accel_z);
+	//dataStruct->AngleRoll = CalculateAngleRoll(accel_x, accel_y, accel_z);
+	//dataStruct->AnglePitch = CalculateAnglePitch(accel_x, accel_y, accel_z);
 }
 
 float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ)
@@ -242,8 +243,10 @@ void KFilter_2(volatile MPU6050_t *DataStruct){
 	//DataStruct->dt = 1;
 	ReadGyroData(DataStruct);
 	ReadAccelData(DataStruct);
-	
-		double pitch = atan2(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+
+		float pitch;
+		arm_atan2_f32(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW, &pitch);
+		pitch = pitch * RAD_TO_DEG;
 		
     if ((pitch < -90 && DataStruct->KalmanAnglePitch > 90) || (pitch > 90 && DataStruct->KalmanAnglePitch < -90)) {
         KalmanPitch.angle = pitch;
@@ -252,7 +255,10 @@ void KFilter_2(volatile MPU6050_t *DataStruct){
         DataStruct->KalmanAnglePitch = Kalman_getAngle(&KalmanPitch, pitch, DataStruct->Gy, DataStruct->dt);
     }
 		
-		double roll = -atan2(DataStruct->Accel_Y_RAW, DataStruct->Accel_Z_RAW) * RAD_TO_DEG;
+		float roll;
+		arm_atan2_f32(DataStruct->Accel_Y_RAW, DataStruct->Accel_Z_RAW, &roll);
+		roll = -roll * RAD_TO_DEG;
+		
 		if (fabs(DataStruct->KalmanAngleRoll) > 90)
         DataStruct->Gx = -DataStruct->Gx;
     if((roll < -90 && DataStruct->KalmanAngleRoll > 90) || (roll > 90 && DataStruct->KalmanAngleRoll < -90)) {

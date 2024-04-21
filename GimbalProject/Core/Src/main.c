@@ -76,6 +76,9 @@ volatile HMC5883_t mag_moving;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
 volatile int doPID = 0;
+volatile int pitch_PWM;
+volatile int roll_PWM;
+volatile int yaw_PWM;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -200,12 +203,11 @@ int main(void)
 		if(doPID == 1){
 			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
-			BLDC_PID(&mpu_moving, &mpu_stationary);
+			//BLDC_PID(&mpu_moving, &mpu_stationary);
 			doPID = 0;
 			
 			//DCSetOutput(DCtracker, 1);
 
-		
 			//DCtracker += DC_Direction;
 			//BLDCtracker += BLDC_Direction;
 			//if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
@@ -434,7 +436,8 @@ static void MX_TIM1_Init(void)
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
-
+	//this line doesnt do shit
+	//HAL_NVIC_SetPriority(TIM1_BRK_UP_TRG_COM_IRQn, 3, 0);
   /* USER CODE END TIM1_Init 0 */
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
@@ -647,7 +650,7 @@ static void MX_TIM15_Init(void)
 {
 
   /* USER CODE BEGIN TIM15_Init 0 */
-
+	//HAL_NVIC_SetPriority(TIM15_IRQn, 2, 0);
   /* USER CODE END TIM15_Init 0 */
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
@@ -710,7 +713,7 @@ static void MX_TIM17_Init(void)
 {
 
   /* USER CODE BEGIN TIM17_Init 0 */
-
+	//HAL_NVIC_SetPriority(TIM17_IRQn, 2, 0);
   /* USER CODE END TIM17_Init 0 */
 
   TIM_IC_InitTypeDef sConfigIC = {0};
@@ -742,7 +745,7 @@ static void MX_TIM17_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM17_Init 2 */
-	HAL_NVIC_SetPriority(TIM17_IRQn, 0,0);
+
   /* USER CODE END TIM17_Init 2 */
 
 }
@@ -1066,18 +1069,34 @@ void PID_execute(){
 		int yawbuffer = provide_channel(1);
 		int pitchbuffer  = provide_channel(2);
 		int rollbuffer   = provide_channel(3);
-		if(pitchbuffer < 1000) pitchbuffer = 1000;
-		if(rollbuffer  < 1000)  rollbuffer = 1000;
-		if(yawbuffer   < 1000)   yawbuffer = 1000;
-		if(pitchbuffer > 2000) pitchbuffer = 2000;
-		if(rollbuffer  > 2000)  rollbuffer = 2000;
-		if(yawbuffer   > 2000)   yawbuffer = 2000;
-		pitchbuffer = map(pitchbuffer, 1000,2000,-80,80);
-		rollbuffer = map(rollbuffer, 1000,2000,-80,80);
-		yawbuffer = map(yawbuffer, 1000,2000,-80,80);
-		set_desiredPitch(pitchbuffer);
-		set_desiredRoll(rollbuffer);
-		set_desiredYaw(yawbuffer);
+		//filter out garbage values
+		if(pitchbuffer < 900){}
+		else if(pitchbuffer  > 2100){} 
+		else  {
+			pitchbuffer = map(pitchbuffer, 1000,2000,-70,70);
+			pitch_PWM = pitchbuffer;
+			//set_desiredPitch(pitchbuffer);
+		}
+		if(rollbuffer < 900){}
+		else if(rollbuffer  > 2100){} 
+		else  {
+			rollbuffer = map(rollbuffer, 1000,2000,-70,70);
+			roll_PWM = rollbuffer;
+			set_desiredRoll(rollbuffer);
+		}
+		if(yawbuffer < 900){}
+		else if(yawbuffer  > 2100){} 
+		else  {
+			yawbuffer = map(yawbuffer, 1000,2000,-70,70);
+			yaw_PWM = yawbuffer;
+			//set_desiredYaw(yawbuffer);
+		}
+		
+		//CURRENT IMPLEMENTATION ISSUE:
+		//PWM only read correctly like 1/50th of the attempts, we filter out the bad ones (hopefully), this needs to be resolved
+		//set_desiredPitch(pitchbuffer);
+		//set_desiredRoll(rollbuffer);
+		//set_desiredYaw(yawbuffer);
 	}
 	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
 		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
@@ -1128,7 +1147,7 @@ void PID_execute(){
 	
 	KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;
