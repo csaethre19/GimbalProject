@@ -37,10 +37,10 @@ volatile double current_roll_instruction = 0;
 
 volatile double pitch_error = 0;             // Pitch error signal
 volatile double roll_error = 0;             // Roll error signal
-volatile uint8_t Kp_Roll = 1;                // Proportional gain
+double Kp_Roll = 0.2;                // Proportional gain
 volatile uint8_t Ki_Roll = 1;                // Integral gain
 volatile uint8_t Kd_Roll = 1;                // Derivative gain
-volatile uint8_t Kp_Pitch = 1;                // Proportional gain
+double Kp_Pitch = 0.2;                // Proportional gain
 volatile uint8_t Ki_Pitch = 10;                // Integral gain
 volatile uint8_t Kd_Pitch = 10;                // Derivative gain
 
@@ -75,8 +75,8 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		//PITCH MOTOR
 		pitch_error = target_pitch - targetOrientation->KalmanAnglePitch;
 		double pitch_motor_Offset = (double)pitch_error * Kp_Pitch;
-		if(pitch_motor_Offset >20) pitch_motor_Offset = 20;
-		if(pitch_motor_Offset < -20) pitch_motor_Offset = -20;
+		if(pitch_motor_Offset > 1) pitch_motor_Offset = 1;
+		if(pitch_motor_Offset < -1) pitch_motor_Offset = -1;
 		current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
 		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
 		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
@@ -84,8 +84,8 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		//ROLL MOTOR
 		roll_error = target_roll - targetOrientation->KalmanAngleRoll;
 		int roll_motor_Offset = (int)roll_error * Kp_Roll;
-		if(roll_motor_Offset > 20) roll_motor_Offset = 20;
-		if(roll_motor_Offset < -20) roll_motor_Offset = -20;
+		if(roll_motor_Offset > 1) roll_motor_Offset = 1;
+		if(roll_motor_Offset < -1) roll_motor_Offset = -1;
 		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
@@ -95,8 +95,8 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		//PITCH MOTOR
 		pitch_error = target_pitch - relativePitch;
 		double pitch_motor_Offset = (double)pitch_error * Kp_Pitch;
-		if(pitch_motor_Offset > 20) pitch_motor_Offset = 20;
-		if(pitch_motor_Offset < -20) pitch_motor_Offset = -20;
+		if(pitch_motor_Offset > 1) pitch_motor_Offset = 1;
+		if(pitch_motor_Offset < -1) pitch_motor_Offset = -1;
 		current_pitch_instruction = current_pitch_instruction + pitch_motor_Offset;
 		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
 		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
@@ -104,8 +104,8 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		//ROLL MOTOR
 		roll_error = target_roll - relativeRoll;
 		int roll_motor_Offset = (int)roll_error * Kp_Roll;
-		if(roll_motor_Offset > 20) roll_motor_Offset = 20;
-		if(roll_motor_Offset < -20) roll_motor_Offset = -20;
+		if(roll_motor_Offset > 1) roll_motor_Offset = 1;
+		if(roll_motor_Offset < -1) roll_motor_Offset = -1;
 		current_roll_instruction = current_roll_instruction + roll_motor_Offset;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;

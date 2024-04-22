@@ -230,7 +230,7 @@ int main(void)
 		if(doPID == 1){
 			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
-			//BLDC_PID(&mpu_moving, &mpu_stationary);
+			BLDC_PID(&mpu_moving, &mpu_stationary);
 			maindoPIDcount += 1;
 			if(maindoPIDcount == 65000){maindoPIDcount = 0;}
 			doPID = 0;
@@ -481,7 +481,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 63;
+  htim1.Init.Prescaler = 7;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -559,7 +559,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7;
+  htim2.Init.Prescaler = 3;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -626,7 +626,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 7;
+  htim3.Init.Prescaler = 3;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 1000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1192,11 +1192,11 @@ void PID_execute(){
 	//KFilter_2(&mpu_stationary);
 	
 
-	BLDC_PID(&mpu_moving, &mpu_stationary);
+	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+
 	
 }
 

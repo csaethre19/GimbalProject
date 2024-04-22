@@ -5,15 +5,15 @@
         .Q_bias = 0.003f,
         .R_measure = 0.0001f,*/
 Kalman_t KalmanPitch = {//KalmanX
-        .Q_angle = 0.05f,
-        .Q_bias = 0.03f,
-        .R_measure = 0.00005f
+        .Q_angle = 0.0005f,
+        .Q_bias = 0.009f,
+        .R_measure = 0.005f
 };
 
 Kalman_t KalmanRoll = {//KalmanY
-        .Q_angle = 0.05f,
-        .Q_bias = 0.09f,
-        .R_measure = 0.00005f,
+        .Q_angle = 0.0005f,
+        .Q_bias = 0.009f,
+        .R_measure = 0.005f,
 };
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
@@ -61,7 +61,7 @@ if (pwr_mgmt == 0)
 	
 	// Set SMPRT_DIV register to get 1kHz sample rate - when DLPF enabled Gyro Output Rate is 1kHz
 	// sample rate = Gyro Output Rate / (1 + SMPLRT_DIV)
-	I2C_WriteRegister(deviceAddr, SMPLRT_DIV, 0x07);
+	I2C_WriteRegister(deviceAddr, SMPLRT_DIV, 0x00);
 	I2C_SetRegAddress(deviceAddr, SMPLRT_DIV); 
 	int8_t sample_rate_div = I2C_ReadRegister(deviceAddr);
 	USART_Transmit_String("sample rate: ");
@@ -70,11 +70,13 @@ if (pwr_mgmt == 0)
 	USART_Transmit_Newline();
 	
 	// Configure DLPF for balanced noise performance - setting to ~44Hz bandwidth
-	I2C_WriteRegister(deviceAddr, CONFIG, 0x00);
+	I2C_WriteRegister(deviceAddr, CONFIG, 0x03);
 	I2C_SetRegAddress(deviceAddr, CONFIG);
 	int8_t config = I2C_ReadRegister(deviceAddr);
 	if (config == 0x03) USART_Transmit_String("Enabled digital low pass filter");
 	USART_Transmit_Newline();
+	
+	//
 	
 	USART_Transmit_Newline();
 	
@@ -237,7 +239,7 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 void KFilter_2(volatile MPU6050_t *DataStruct){
 
 	
-	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer)/1000;
   DataStruct->timer = HAL_GetTick();
 	//DataStruct->dt = 0.0001;
 	//DataStruct->dt = 1;

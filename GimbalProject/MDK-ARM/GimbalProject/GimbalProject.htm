@@ -3,7 +3,7 @@
 <title>Static Call Graph - [GimbalProject\GimbalProject.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image GimbalProject\GimbalProject.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Sun Apr 21 19:45:02 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Sun Apr 21 22:09:43 2024
 <BR><P>
 <H3>Maximum Stack Usage =        376 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -505,8 +505,7 @@ Global Symbols
 <P><STRONG><a name="[5a]"></a>__aeabi_ui2d</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, dflti.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d_normalise
 </UL>
-<BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
-<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KFilter_2
+<BR>[Called By]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KFilter_2
 </UL>
 
 <P><STRONG><a name="[15a]"></a>_dfltu</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, dflti.o(.text), UNUSED)
@@ -886,14 +885,13 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
 </UL>
 
-<P><STRONG><a name="[95]"></a>BLDC_PID</STRONG> (Thumb, 732 bytes, Stack size 32 bytes, bldcmotor.o(.text.BLDC_PID))
-<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = BLDC_PID &rArr; BLDC_Output &rArr; __aeabi_dmul
+<P><STRONG><a name="[95]"></a>BLDC_PID</STRONG> (Thumb, 744 bytes, Stack size 24 bytes, bldcmotor.o(.text.BLDC_PID))
+<BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = BLDC_PID &rArr; BLDC_Output &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_Output
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fsub
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
-<LI><a href="#[5a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
 <LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2iz
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dcmplt
@@ -904,8 +902,7 @@ Global Symbols
 <LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 <LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
-<BR>[Called By]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PID_execute
-<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[9d]"></a>DCSetOutput</STRONG> (Thumb, 128 bytes, Stack size 16 bytes, dcmotor.o(.text.DCSetOutput))
@@ -1438,7 +1435,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;KFilter_2
 </UL>
 
-<P><STRONG><a name="[e3]"></a>MPU_Init</STRONG> (Thumb, 320 bytes, Stack size 24 bytes, mpu6050.o(.text.MPU_Init))
+<P><STRONG><a name="[e3]"></a>MPU_Init</STRONG> (Thumb, 316 bytes, Stack size 24 bytes, mpu6050.o(.text.MPU_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = MPU_Init &rArr; USART_Transmit_Number
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
@@ -1458,11 +1455,10 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f072xb.o(RESET)
 </UL>
-<P><STRONG><a name="[e8]"></a>PID_execute</STRONG> (Thumb, 448 bytes, Stack size 24 bytes, main.o(.text.PID_execute))
+<P><STRONG><a name="[e8]"></a>PID_execute</STRONG> (Thumb, 436 bytes, Stack size 24 bytes, main.o(.text.PID_execute))
 <BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = PID_execute &rArr; KFilter_2 &rArr; Kalman_getAngle &rArr; __aeabi_ddiv
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;provide_channel
-<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
 <LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredPitch
 <LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredRoll
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DCSetOutput
@@ -1678,7 +1674,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[46]"></a>main</STRONG> (Thumb, 2000 bytes, Stack size 144 bytes, main.o(.text.main))
+<P><STRONG><a name="[46]"></a>main</STRONG> (Thumb, 2008 bytes, Stack size 144 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 344<LI>Call Chain = main &rArr; KFilter_2 &rArr; Kalman_getAngle &rArr; __aeabi_ddiv
 </UL>
 <BR>[Calls]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
@@ -2191,11 +2187,11 @@ Local Symbols
 <P><STRONG><a name="[63]"></a>_fp_digits</STRONG> (Thumb, 412 bytes, Stack size 96 bytes, _printf_fp_dec.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 272<LI>Call Chain = _fp_digits &rArr; _btod_etento &rArr; _btod_emul &rArr; btod_internal_mul &rArr; __ARM_common_ll_muluu
 </UL>
-<BR>[Calls]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_btod_ediv
+<BR>[Calls]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_ll_udiv10
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_btod_ediv
 <LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_btod_emul
 <LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_btod_d2e
 <LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_btod_etento
-<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_ll_udiv10
 </UL>
 <BR>[Called By]<UL><LI><a href="#[31]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_fp_dec_real
 </UL>
