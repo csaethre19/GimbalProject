@@ -76,6 +76,8 @@ volatile HMC5883_t mag_moving;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
 volatile int doPID = 0;
+volatile int tim1intcount = 0;
+volatile int maindoPIDcount = 0;
 volatile int pitch_PWM;
 volatile int roll_PWM;
 volatile int yaw_PWM;
@@ -154,7 +156,7 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -186,7 +188,31 @@ int main(void)
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_operationMode(1);
-
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
+	KFilter_2(&mpu_moving);
+	BLDC_PID(&mpu_moving,&mpu_stationary);
+	HAL_Delay(250);
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 	//MOTOR TESTING CODE
 	int DCtracker = 0;
@@ -200,12 +226,15 @@ int main(void)
 		//BLDCtracker += 1;
 		//if(BLDCtracker > 360){ BLDCtracker = 1;};
 		//HAL_Delay(100);
+
 		if(doPID == 1){
 			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
-			BLDC_PID(&mpu_moving, &mpu_stationary);
+			//BLDC_PID(&mpu_moving, &mpu_stationary);
+			maindoPIDcount += 1;
+			if(maindoPIDcount == 65000){maindoPIDcount = 0;}
 			doPID = 0;
-			
+			//HAL_Delay(1);
 			//DCSetOutput(DCtracker, 1);
 
 			//DCtracker += DC_Direction;
@@ -265,7 +294,10 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.HSI14CalibrationValue = 16;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL4;
+  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -275,11 +307,11 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV8;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -395,7 +427,7 @@ static void MX_I2C2_Init(void)
 
   /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
-  hi2c2.Init.Timing = 0x0000020B;
+  hi2c2.Init.Timing = 0x00000004;
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -449,7 +481,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 7;
+  htim1.Init.Prescaler = 63;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -527,7 +559,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 3;
+  htim2.Init.Prescaler = 7;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -594,7 +626,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 3;
+  htim3.Init.Prescaler = 7;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 1000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1077,6 +1109,8 @@ void init_YawMotor(){
 	
 
 void PID_execute(){
+	tim1intcount += 1;
+	if(tim1intcount == 65000){tim1intcount = 0;}
 	//Update Desired Angles
 	//USART CAN ALWAYS UPDATE DESIRED VALUES
 	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
@@ -1154,14 +1188,11 @@ void PID_execute(){
 	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 
-	//KFilter_2(&mpu_moving);
-	//KFilter_2(&mpu_stationary);
-	
-	//Yaw PID
-	
 	KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
-	//BLDC_PID(&mpu_moving, &mpu_stationary);
+	
+
+	BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;
