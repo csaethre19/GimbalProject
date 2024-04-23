@@ -56,10 +56,12 @@
 ADC_HandleTypeDef hadc;
 
 I2C_HandleTypeDef hi2c2;
+DMA_HandleTypeDef hdma_i2c2_rx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim17;
 
@@ -79,11 +81,17 @@ volatile int doPID = 0;
 volatile int pitch_PWM;
 volatile int roll_PWM;
 volatile int yaw_PWM;
+volatile int doPIDCount = 0;
+volatile int PID_execcount = 0;
+volatile char I2C2_DMA_state = 0;
+uint8_t I2C2_DMA_buffer[6];//this buffer is the memory address
+volatile char Process_mpu_moving = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_ADC_Init(void);
 static void MX_I2C2_Init(void);
@@ -92,8 +100,11 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM17_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+
+
 void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
@@ -142,6 +153,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART3_UART_Init();
   MX_ADC_Init();
   MX_I2C2_Init();
@@ -150,6 +162,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM15_Init();
   MX_TIM17_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
@@ -178,16 +191,16 @@ int main(void)
 	initDCOutput(1);
 	init_PitchMotor();
 	init_RollMotor();
-	BLDCEnable(2);
-	BLDCEnable(1);
+	//BLDCEnable(2);
+	//BLDCEnable(1);
 	
-	//BLDCDisable(2);
-	//BLDCDisable(1);
+	BLDCDisable(2);
+	BLDCDisable(1);
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_operationMode(1);
-
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//timer 1 initiates grabbing data from MPU6050 devices
+	//HAL_TIM_Base_Start_IT(&htim6);//timer 6 interrupt service routine calls PID_execute;
 	//MOTOR TESTING CODE
 	int DCtracker = 0;
 	int DC_Direction = 5;
@@ -203,7 +216,9 @@ int main(void)
 		if(doPID == 1){
 			//KFilter_2(&mpu_moving);
 			//KFilter_2(&mpu_stationary);
+			
 			BLDC_PID(&mpu_moving, &mpu_stationary);
+			doPIDCount ++;
 			doPID = 0;
 			
 			//DCSetOutput(DCtracker, 1);
@@ -212,6 +227,14 @@ int main(void)
 			//BLDCtracker += BLDC_Direction;
 			//if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
 		}
+		
+		if(Process_mpu_moving == 1){
+			KFilter_2(&mpu_moving);
+			
+			
+			Process_mpu_moving = 0;
+		}
+		
 		//GPIOC->ODR ^= GPIO_ODR_6;
 		//HMC5883_ReadRawData(&mag_moving);
 		//KFilter_2(&mpu_moving);
@@ -449,7 +472,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 7;
+  htim1.Init.Prescaler = 15;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -642,6 +665,44 @@ static void MX_TIM3_Init(void)
 }
 
 /**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 159;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 1000;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
   * @brief TIM15 Initialization Function
   * @param None
   * @retval None
@@ -786,6 +847,17 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -826,8 +898,122 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
-  * @brief This function handles USART3 and USART4 global interrupts.
+
+/*
+	*This functions handles the data retrieved by DMA processes on I2C2 line 
+	*burst reads from slave devices store data directly in provided memory address,
+	*this function manages this data based on a state machine, and initiates additional data
+	*transfers if appropriate
+*/
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	//List of states within volatile int state:
+	//States indiciate the most recent I2C data transfer that has been initiated
+	//state 1: moving_MPU6050 Gyro Data Retrieval,
+	//state 2: moving_MPU6050 Accel Data Retrieval
+	//state 3: moving_QMC5883 Data Retrieval
+	//state 4: stationary_MPU6050 Gyro Data Retrieval
+	//state 5: stationary_MPU6050 Accel Data Retrieval
+	
+	switch(I2C2_DMA_state)
+	{
+		case(1):{//moving_MPU6050 gyro data just retrieved
+			//Put newly retrieved data into appropriate struct
+			//initiate retreival of accel data
+			uint8_t xhigh;
+			uint8_t xlow;
+			uint8_t yhigh;
+			uint8_t ylow;
+			uint8_t zhigh;
+			uint8_t zlow;
+			
+			xhigh = I2C2_DMA_buffer[0];
+			xlow = I2C2_DMA_buffer[1];
+			float x_raw = (int16_t)(xhigh << 8 | xlow);
+			float gyro_x = x_raw/GYRO_LSB_SENS;
+			yhigh = I2C2_DMA_buffer[2];
+			ylow = I2C2_DMA_buffer[3];
+			float y_raw = (int16_t)(yhigh << 8 | ylow);
+			float gyro_y = y_raw/GYRO_LSB_SENS;
+			zhigh = I2C2_DMA_buffer[4];
+			zlow = I2C2_DMA_buffer[5];
+			float z_raw = (int16_t)(zhigh << 8 | zlow);
+			float gyro_z = z_raw/GYRO_LSB_SENS;
+			
+			mpu_moving.Gyro_X_RAW = x_raw;
+			mpu_moving.Gx = gyro_x;
+			mpu_moving.Gyro_Y_RAW = y_raw;
+			mpu_moving.Gy = gyro_y;
+			mpu_moving.Gyro_Z_RAW = z_raw;
+			mpu_moving.Gz = gyro_z;
+			
+			//initiate data retrieval from MPU_moving using dma capabilities
+			uint16_t numberofbytes = 6;
+	
+			I2C_SetRegAddress(mpu_moving.deviceAddr, 0x3B);
+			I2C2->CR2 = 0; // Clear register
+			I2C2->CR2 |= (mpu_moving.deviceAddr << 1); // Set the slave address 
+			I2C2->CR2 |= (numberofbytes << 16); // setup burst read of 6 bytes
+			I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
+			I2C2->CR2 |= I2C_CR2_START; // Send the start condition
+		
+			I2C2_DMA_state = 2;//A retrieval of moving_MPU6050 gyro data is about to occur
+	
+			HAL_I2C_Master_Receive_DMA(&hi2c2, mpu_moving.deviceAddr, I2C2_DMA_buffer, numberofbytes);
+			return;
+			}
+		case(2):{//moving_MPU6050 accel data just retrieved
+			//Put newly retrieved accel data into moving_MPU6050 struct
+			//raise flag indicating required data for Kalman filter is ready
+			uint8_t xhigh;
+			uint8_t xlow;
+			uint8_t yhigh;
+			uint8_t ylow;
+			uint8_t zhigh;
+			uint8_t zlow;
+			int16_t x_raw;
+			int16_t y_raw;
+			int16_t z_raw;
+			
+			xhigh = I2C2_DMA_buffer[0];
+			xlow = I2C2_DMA_buffer[1];
+			x_raw = (int16_t)(xhigh << 8 | xlow);
+			yhigh = I2C2_DMA_buffer[2];
+			ylow = I2C2_DMA_buffer[3];
+			y_raw = (int16_t)(yhigh << 8 | ylow);
+			zhigh = I2C2_DMA_buffer[4];
+			zlow = I2C2_DMA_buffer[5];
+			z_raw = (int16_t)(zhigh << 8 | zlow);
+	
+			mpu_moving.Accel_X_RAW = x_raw;
+			mpu_moving.Ax = (float)x_raw/ACC_LSB_SENS;
+			mpu_moving.Accel_Y_RAW = y_raw;
+			mpu_moving.Ay = (float)y_raw/ACC_LSB_SENS;
+			mpu_moving.Accel_Z_RAW = z_raw;
+			mpu_moving.Az = (float)z_raw/ACC_LSB_SENS;
+			
+			I2C2_DMA_state = 0;//no data retrieval to occur after this call.
+			Process_mpu_moving = 1;
+		}
+		case(3):{//moving_QMC5883 Data just retrieved
+			//not used
+			
+		}
+		case(4):{//stationary_MPU6050 gyro data just retrieved
+			//not used yet
+			
+		}
+		case(5):{//stationary_MPU6050 Accel Data just retrieved
+			//not used yet
+			
+		}
+		default: return;
+	
+	}
+	return;
+}
+
+/* @brief This function handles USART3 and USART4 global interrupts.
   */
 void USART3_4_IRQHandler(void)
 {
@@ -1079,6 +1265,7 @@ void init_YawMotor(){
 void PID_execute(){
 	//Update Desired Angles
 	//USART CAN ALWAYS UPDATE DESIRED VALUES
+	/*
 	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
 		int yawbuffer = provide_channel(1);
 		int pitchbuffer  = provide_channel(2);
@@ -1089,7 +1276,7 @@ void PID_execute(){
 		else  {
 			pitchbuffer = map(pitchbuffer, 1000,2000,-70,70);
 			pitch_PWM = pitchbuffer;
-			//set_desiredPitch(pitchbuffer);
+			set_desiredPitch(pitchbuffer);
 		}
 		if(rollbuffer < 900){}
 		else if(rollbuffer  > 2100){} 
@@ -1103,7 +1290,7 @@ void PID_execute(){
 		else  {
 			yawbuffer = map(yawbuffer, 1000,2000,-70,70);
 			yaw_PWM = yawbuffer;
-			//set_desiredYaw(yawbuffer);
+			set_desiredYaw(yawbuffer);
 		}
 		
 		//CURRENT IMPLEMENTATION ISSUE:
@@ -1112,6 +1299,7 @@ void PID_execute(){
 		//set_desiredRoll(rollbuffer);
 		//set_desiredYaw(yawbuffer);
 	}
+	*/
 	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
 		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
 		
@@ -1159,16 +1347,35 @@ void PID_execute(){
 	
 	//Yaw PID
 	
-	KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
 	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
 	doPID = 1;
+	PID_execcount ++;
 	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 }
 
+void MPU_Moving_DataSample(){
+	//initiate data retrieval from MPU_moving using dma
+	uint16_t numberofbytes = 6;
+	
+	I2C_SetRegAddress(mpu_moving.deviceAddr, 0x43);
+	I2C2->CR2 = 0; // Clear register
+	I2C2->CR2 |= (mpu_moving.deviceAddr << 1); // Set the slave address 
+	I2C2->CR2 |= (numberofbytes << 16); // setup burst read of 6 bytes
+	I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
+	I2C2->CR2 |= I2C_CR2_START; // Send the start condition
+
+	I2C2_DMA_state = 1;//A retrieval of moving_MPU6050 gyro data is about to occur
+	
+	HAL_I2C_Master_Receive_DMA(&hi2c2, mpu_moving.deviceAddr, I2C2_DMA_buffer, numberofbytes);
+	return;
+	//KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_stationary);
+}
 
 // Map function implementation used in PID_execute()
 int map(int value, int fromLow, int fromHigh, int toLow, int toHigh) {

@@ -56,6 +56,8 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void PID_execute();
+void MPU_Moving_DataSample();
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

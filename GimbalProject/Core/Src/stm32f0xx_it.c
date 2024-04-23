@@ -65,6 +65,7 @@
 /* External variables --------------------------------------------------------*/
 extern I2C_HandleTypeDef hi2c2;
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim15;
 extern TIM_HandleTypeDef htim17;
 extern UART_HandleTypeDef huart3;
@@ -158,12 +159,27 @@ void SysTick_Handler(void)
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 0 */
-	PID_execute();
+	//PID_execute();
+	MPU_Moving_DataSample();
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */
 
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM6 global and DAC channel underrun error interrupts.
+  */
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+	PID_execute();
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+  /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /**
@@ -181,7 +197,7 @@ void TIM15_IRQHandler(void)
             {
                 // Positive edge occurred on channel 1
                 //uint32_t timerValueBuffer = __HAL_TIM_GET_COUNTER(&htim15); // Get the timer value buffer
-								process_eventTime(captureValue, 0, 1);
+								process_eventTime((int)captureValue, 0, 1);
             }
             else
             {
@@ -271,7 +287,6 @@ void I2C2_IRQHandler(void)
 
   /* USER CODE END I2C2_IRQn 1 */
 }
-
 
 
 /* USER CODE BEGIN 1 */

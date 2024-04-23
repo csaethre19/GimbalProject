@@ -111,7 +111,6 @@ void ReadGyroData(volatile MPU6050_t *dataStruct)
 	zlow = dataBuffer[5];
 	float z_raw = (int16_t)(zhigh << 8 | zlow);
 	float gyro_z = z_raw/GYRO_LSB_SENS;
-
 	
 	dataStruct->Gyro_X_RAW = x_raw;
 	dataStruct->Gx = gyro_x;
@@ -191,8 +190,6 @@ float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
 
 void KalmanFilter(volatile MPU6050_t *dataStruct)
 {
-	
-	
 	ReadGyroData(dataStruct);
 	
 	ReadAccelData(dataStruct);
@@ -241,8 +238,8 @@ void KFilter_2(volatile MPU6050_t *DataStruct){
   DataStruct->timer = HAL_GetTick();
 	
 	//DataStruct->dt = 1;
-	ReadGyroData(DataStruct);
-	ReadAccelData(DataStruct);
+	//ReadGyroData(DataStruct);
+	//ReadAccelData(DataStruct);
 
 		float pitch;
 		arm_atan2_f32(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW, &pitch);
