@@ -33,6 +33,7 @@
 #include "HMC5883.h"
 #include <math.h>
 
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,8 +85,9 @@ volatile int yaw_PWM;
 volatile int doPIDCount = 0;
 volatile int PID_execcount = 0;
 volatile char I2C2_DMA_state = 0;
-uint8_t I2C2_DMA_buffer[6];//this buffer is the memory address
+uint8_t I2C2_DMA_buffer[14];//this buffer is the memory address
 volatile char Process_mpu_moving = 0;
+volatile char mpu_moving_kfilter_complete = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -167,7 +169,7 @@ int main(void)
 	HAL_I2C_Init(&hi2c2);
 	Init_LEDs();
 
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -199,7 +201,7 @@ int main(void)
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_operationMode(1);
-	//HAL_TIM_Base_Start_IT(&htim1);//timer 1 initiates grabbing data from MPU6050 devices
+	HAL_TIM_Base_Start_IT(&htim1);//timer 1 initiates grabbing data from MPU6050 devices
 	//HAL_TIM_Base_Start_IT(&htim6);//timer 6 interrupt service routine calls PID_execute;
 	//MOTOR TESTING CODE
 	int DCtracker = 0;
@@ -209,6 +211,7 @@ int main(void)
 	//BLDC_Output(1,1);
   while (1)
   {
+		doPIDCount++;
 		//BLDC_Output(BLDCtracker,1);
 		//BLDCtracker += 1;
 		//if(BLDCtracker > 360){ BLDCtracker = 1;};
@@ -229,10 +232,67 @@ int main(void)
 		}
 		
 		if(Process_mpu_moving == 1){
+			//Put newly retrieved accel data into moving_MPU6050 struct
+			//raise flag indicating required data for Kalman filter is ready
+			uint8_t xahigh;
+			uint8_t xalow;
+			uint8_t yahigh;
+			uint8_t yalow;
+			uint8_t zahigh;
+			uint8_t zalow;
+			int16_t xa_raw;
+			int16_t ya_raw;
+			int16_t za_raw;
+			
+			xahigh = I2C2_DMA_buffer[0];
+			xalow = I2C2_DMA_buffer[1];
+			xa_raw = (int16_t)(xahigh << 8 | xalow);
+			yahigh = I2C2_DMA_buffer[2];
+			yalow = I2C2_DMA_buffer[3];
+			ya_raw = (int16_t)(yahigh << 8 | yalow);
+			zahigh = I2C2_DMA_buffer[4];
+			zalow = I2C2_DMA_buffer[5];
+			za_raw = (int16_t)(zahigh << 8 | zalow);
+	
+			mpu_moving.Accel_X_RAW = xa_raw;
+			mpu_moving.Ax = (float)xa_raw/ACC_LSB_SENS;
+			mpu_moving.Accel_Y_RAW = ya_raw;
+			mpu_moving.Ay = (float)ya_raw/ACC_LSB_SENS;
+			mpu_moving.Accel_Z_RAW = za_raw;
+			mpu_moving.Az = (float)za_raw/ACC_LSB_SENS;
+			
+			uint8_t xhigh;
+			uint8_t xlow;
+			uint8_t yhigh;
+			uint8_t ylow;
+			uint8_t zhigh;
+			uint8_t zlow;
+			
+			xhigh = I2C2_DMA_buffer[8];
+			xlow = I2C2_DMA_buffer[9];
+			float x_raw = (int16_t)(xhigh << 8 | xlow);
+			float gyro_x = x_raw/GYRO_LSB_SENS;
+			yhigh = I2C2_DMA_buffer[10];
+			ylow = I2C2_DMA_buffer[11];
+			float y_raw = (int16_t)(yhigh << 8 | ylow);
+			float gyro_y = y_raw/GYRO_LSB_SENS;
+			zhigh = I2C2_DMA_buffer[12];
+			zlow = I2C2_DMA_buffer[13];
+			float z_raw = (int16_t)(zhigh << 8 | zlow);
+			float gyro_z = z_raw/GYRO_LSB_SENS;
+			
+			mpu_moving.Gyro_X_RAW = x_raw;
+			mpu_moving.Gx = gyro_x;
+			mpu_moving.Gyro_Y_RAW = y_raw;
+			mpu_moving.Gy = gyro_y;
+			mpu_moving.Gyro_Z_RAW = z_raw;
+			mpu_moving.Gz = gyro_z;
+			
 			KFilter_2(&mpu_moving);
 			
 			
 			Process_mpu_moving = 0;
+			mpu_moving_kfilter_complete = 1;
 		}
 		
 		//GPIOC->ODR ^= GPIO_ODR_6;
@@ -854,7 +914,19 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
+	hdma_i2c2_rx.Instance = DMA1_Channel5;
+    hdma_i2c2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_i2c2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_i2c2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_i2c2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_i2c2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_i2c2_rx.Init.Mode = DMA_NORMAL;
+    hdma_i2c2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_i2c2_rx) != HAL_OK) {
+        Error_Handler();
+    }
 
+   __HAL_LINKDMA(&hi2c2, hdmarx, hdma_i2c2_rx);
 }
 
 /**
@@ -907,93 +979,26 @@ static void MX_GPIO_Init(void)
 */
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-	//List of states within volatile int state:
+	//List of states within I2C2_DMA_state:
 	//States indiciate the most recent I2C data transfer that has been initiated
-	//state 1: moving_MPU6050 Gyro Data Retrieval,
-	//state 2: moving_MPU6050 Accel Data Retrieval
+	//state 1: moving_MPU6050 Data Retrieval,
+	//state 2: N/A
 	//state 3: moving_QMC5883 Data Retrieval
-	//state 4: stationary_MPU6050 Gyro Data Retrieval
-	//state 5: stationary_MPU6050 Accel Data Retrieval
+	//state 4: stationary_MPU6050 Data Retrieval
+	//state 5: N/A
 	
 	switch(I2C2_DMA_state)
 	{
 		case(1):{//moving_MPU6050 gyro data just retrieved
-			//Put newly retrieved data into appropriate struct
-			//initiate retreival of accel data
-			uint8_t xhigh;
-			uint8_t xlow;
-			uint8_t yhigh;
-			uint8_t ylow;
-			uint8_t zhigh;
-			uint8_t zlow;
+			//New data has been put into I2C2_DMA_buffer, 
+			//tell main loop to process this new data using flag below
+			Process_mpu_moving = 1;
 			
-			xhigh = I2C2_DMA_buffer[0];
-			xlow = I2C2_DMA_buffer[1];
-			float x_raw = (int16_t)(xhigh << 8 | xlow);
-			float gyro_x = x_raw/GYRO_LSB_SENS;
-			yhigh = I2C2_DMA_buffer[2];
-			ylow = I2C2_DMA_buffer[3];
-			float y_raw = (int16_t)(yhigh << 8 | ylow);
-			float gyro_y = y_raw/GYRO_LSB_SENS;
-			zhigh = I2C2_DMA_buffer[4];
-			zlow = I2C2_DMA_buffer[5];
-			float z_raw = (int16_t)(zhigh << 8 | zlow);
-			float gyro_z = z_raw/GYRO_LSB_SENS;
-			
-			mpu_moving.Gyro_X_RAW = x_raw;
-			mpu_moving.Gx = gyro_x;
-			mpu_moving.Gyro_Y_RAW = y_raw;
-			mpu_moving.Gy = gyro_y;
-			mpu_moving.Gyro_Z_RAW = z_raw;
-			mpu_moving.Gz = gyro_z;
-			
-			//initiate data retrieval from MPU_moving using dma capabilities
-			uint16_t numberofbytes = 6;
-	
-			I2C_SetRegAddress(mpu_moving.deviceAddr, 0x3B);
-			I2C2->CR2 = 0; // Clear register
-			I2C2->CR2 |= (mpu_moving.deviceAddr << 1); // Set the slave address 
-			I2C2->CR2 |= (numberofbytes << 16); // setup burst read of 6 bytes
-			I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
-			I2C2->CR2 |= I2C_CR2_START; // Send the start condition
-		
-			I2C2_DMA_state = 2;//A retrieval of moving_MPU6050 gyro data is about to occur
-	
-			HAL_I2C_Master_Receive_DMA(&hi2c2, mpu_moving.deviceAddr, I2C2_DMA_buffer, numberofbytes);
 			return;
 			}
-		case(2):{//moving_MPU6050 accel data just retrieved
-			//Put newly retrieved accel data into moving_MPU6050 struct
-			//raise flag indicating required data for Kalman filter is ready
-			uint8_t xhigh;
-			uint8_t xlow;
-			uint8_t yhigh;
-			uint8_t ylow;
-			uint8_t zhigh;
-			uint8_t zlow;
-			int16_t x_raw;
-			int16_t y_raw;
-			int16_t z_raw;
-			
-			xhigh = I2C2_DMA_buffer[0];
-			xlow = I2C2_DMA_buffer[1];
-			x_raw = (int16_t)(xhigh << 8 | xlow);
-			yhigh = I2C2_DMA_buffer[2];
-			ylow = I2C2_DMA_buffer[3];
-			y_raw = (int16_t)(yhigh << 8 | ylow);
-			zhigh = I2C2_DMA_buffer[4];
-			zlow = I2C2_DMA_buffer[5];
-			z_raw = (int16_t)(zhigh << 8 | zlow);
-	
-			mpu_moving.Accel_X_RAW = x_raw;
-			mpu_moving.Ax = (float)x_raw/ACC_LSB_SENS;
-			mpu_moving.Accel_Y_RAW = y_raw;
-			mpu_moving.Ay = (float)y_raw/ACC_LSB_SENS;
-			mpu_moving.Accel_Z_RAW = z_raw;
-			mpu_moving.Az = (float)z_raw/ACC_LSB_SENS;
-			
-			I2C2_DMA_state = 0;//no data retrieval to occur after this call.
-			Process_mpu_moving = 1;
+		case(2):{
+			//not used
+		
 		}
 		case(3):{//moving_QMC5883 Data just retrieved
 			//not used
@@ -1360,18 +1365,17 @@ void PID_execute(){
 
 void MPU_Moving_DataSample(){
 	//initiate data retrieval from MPU_moving using dma
-	uint16_t numberofbytes = 6;
-	
-	I2C_SetRegAddress(mpu_moving.deviceAddr, 0x43);
-	I2C2->CR2 = 0; // Clear register
-	I2C2->CR2 |= (mpu_moving.deviceAddr << 1); // Set the slave address 
-	I2C2->CR2 |= (numberofbytes << 16); // setup burst read of 6 bytes
-	I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
-	I2C2->CR2 |= I2C_CR2_START; // Send the start condition
-
-	I2C2_DMA_state = 1;//A retrieval of moving_MPU6050 gyro data is about to occur
-	
-	HAL_I2C_Master_Receive_DMA(&hi2c2, mpu_moving.deviceAddr, I2C2_DMA_buffer, numberofbytes);
+	if(mpu_moving_kfilter_complete == 1){
+		uint16_t numberofbytes = 14;
+		I2C_SetRegAddress(mpu_moving.deviceAddr, 0x43);
+		I2C2->CR2 = 0; // Clear register
+		I2C2->CR2 |= (mpu_moving.deviceAddr << 1); // Set the slave address 
+		I2C2->CR2 |= (numberofbytes << 16); // setup burst read of 14 bytes
+		I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
+		
+		HAL_I2C_Master_Receive_DMA(&hi2c2, mpu_moving.deviceAddr, I2C2_DMA_buffer, numberofbytes);
+		I2C2->CR2 |= I2C_CR2_START; // Send the start condition
+	}
 	return;
 	//KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
