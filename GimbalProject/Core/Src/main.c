@@ -60,6 +60,7 @@ I2C_HandleTypeDef hi2c2;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim17;
 
@@ -92,6 +93,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM17_Init(void);
+static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void init_PitchMotor();
@@ -104,7 +106,7 @@ void enableADCIN();
 void disableADCIN();
 int map(int value, int fromLow, int fromHigh, int toLow, int toHigh);
 int constrain(int value, int minVal, int maxVal);
-
+void Custom_StartupRoutine();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -150,97 +152,15 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM15_Init();
   MX_TIM17_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-	HAL_I2C_Init(&hi2c2);
-	Init_LEDs();
 
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
-	//MPU_Init(&mpu_stationary, 0x69);
-
-	
-	//INPUT MODE SETUP
-	disablePWMIN();
-	disableADCIN();
-
-
-	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	
-
-	
-	//MOTOR Setup
-	init_YawMotor();
-	initDCOutput(1);
-	init_PitchMotor();
-	init_RollMotor();
-	BLDCEnable(2);
-	BLDCEnable(1);
-	
-	//BLDCDisable(2);
-	//BLDCDisable(1);
-	set_desiredRoll(0.0f);
-	set_desiredPitch(0.0f);
-	set_operationMode(1);
-
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
-	//MOTOR TESTING CODE
-	int DCtracker = 0;
-	int DC_Direction = 5;
-	double BLDCtracker = 1;
-	int BLDC_Direction = 5;
-	//BLDC_Output(1,1);
   while (1)
   {
-		//BLDC_Output(BLDCtracker,1);
-		//BLDCtracker += 1;
-		//if(BLDCtracker > 360){ BLDCtracker = 1;};
-		//HAL_Delay(100);
-		if(doPID == 1){
-			//KFilter_2(&mpu_moving);
-			//KFilter_2(&mpu_stationary);
-			BLDC_PID(&mpu_moving, &mpu_stationary);
-			doPID = 0;
-			
-			//DCSetOutput(DCtracker, 1);
-
-			//DCtracker += DC_Direction;
-			//BLDCtracker += BLDC_Direction;
-			//if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-		}
-		//GPIOC->ODR ^= GPIO_ODR_6;
-		//HMC5883_ReadRawData(&mag_moving);
-		//KFilter_2(&mpu_moving);
-		//KFilter_2(&mpu_stationary);
-		//HAL_Delay(100);
-
-		
-		
-		/*//PWM TESTING CODE
-		GPIOC->ODR &= ~(GPIO_ODR_7 | GPIO_ODR_6 | GPIO_ODR_9);
-		if(provide_channel(1) > 1500){GPIOC->ODR |= GPIO_ODR_6;}
-		if(provide_channel(2) > 1500){GPIOC->ODR |= GPIO_ODR_7;}
-		if(provide_channel(3) > 1500){GPIOC->ODR |= GPIO_ODR_9;}
-		*/
-		
-		//MOTOR TESTING CODE
-		
-		//DCSetOutput(DCtracker, 1);
-		//BLDC_Output(BLDCtracker, 1);
-		//BLDC_Output(BLDCtracker, 2);
-		
-		//DCtracker += DC_Direction;
-		//BLDCtracker += BLDC_Direction;
-		//if((DCtracker > 999) || (DCtracker < -999)) {DC_Direction -= 2 * DC_Direction;}
-		//if(BLDCtracker > 350) BLDC_Direction = -5;
-		//if(BLDCtracker < 10)  BLDC_Direction = 5;
-		//HAL_Delay(2);
-		
-		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -489,6 +409,10 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
   sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
   sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
   sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
@@ -638,6 +562,44 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 39;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 1000;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
 
 }
 
@@ -805,6 +767,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LED_Indicator_GPIO_Port, LED_Indicator_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(EN_BLDC3_GPIO_Port, EN_BLDC3_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, EN_BLDC2_Pin|EN_BLDC1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : LED_Indicator_Pin */
@@ -813,6 +778,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_Indicator_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : EN_BLDC3_Pin */
+  GPIO_InitStruct.Pin = EN_BLDC3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(EN_BLDC3_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : EN_BLDC2_Pin EN_BLDC1_Pin */
   GPIO_InitStruct.Pin = EN_BLDC2_Pin|EN_BLDC1_Pin;
@@ -965,31 +937,15 @@ void init_PitchMotor()
 {
   double PI = 3.1415926535897932;
 	double Angle1 = 0;
-	double Angle2 = Angle1 + 120;
-	double Angle3 = Angle1 + 240;
 	
 	//Angle1 Conversion
 	Angle1 = (double)Angle1 * PI;
 	Angle1 = Angle1 / 180;
 	Angle1 = sin(Angle1);
-	//Angle2 Conversion
-	Angle2 = (double)Angle2 * PI;
-	Angle2 = Angle2 / 180;
-	Angle2 = sin(Angle2);
-	//Angle3 Conversion
-	Angle3 = (double)Angle3 * PI;
-	Angle3 = Angle3 / 180;
-	Angle3 = sin(Angle3);
 
 	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 	Angle1 = Angle1 + 500;
-	Angle2 = Angle2 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle2 = Angle2 + 500;
-	Angle3 = Angle3 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle3 = Angle3 + 500;
 	Angle1 = Angle1 * 0.7;
-	Angle2 = Angle2 * 0.7;
-	Angle3 = Angle3 * 0.7;
 
   TIM_OC_InitTypeDef sConfigOC;
   
@@ -1014,47 +970,30 @@ void init_RollMotor()
 {
 	double PI = 3.1415926535897932;
 	double Angle1 = 0;
-	double Angle2 = Angle1 + 120;
-	double Angle3 = Angle1 + 240;
 	
 	//Angle1 Conversion
 	Angle1 = (double)Angle1 * PI;
 	Angle1 = Angle1 / 180;
 	Angle1 = sin(Angle1);
-	//Angle2 Conversion
-	Angle2 = (double)Angle2 * PI;
-	Angle2 = Angle2 / 180;
-	Angle2 = sin(Angle2);
-	//Angle3 Conversion
-	Angle3 = (double)Angle3 * PI;
-	Angle3 = Angle3 / 180;
-	Angle3 = sin(Angle3);
 
-		Angle1 = Angle1 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle1 = Angle1 + 1000;
-		Angle2 = Angle2 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle2 = Angle2 + 1000;
-		Angle3 = Angle3 * 1000;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle3 = Angle3 + 1000;
-		Angle1 = Angle1 * 0.7;
-		Angle2 = Angle2 * 0.7;
-		Angle3 = Angle3 * 0.7;
+	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle1 = Angle1 + 500;
 
-    TIM_OC_InitTypeDef sConfigOC;
+  TIM_OC_InitTypeDef sConfigOC;
   
-    sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		sConfigOC.Pulse = Angle1;
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);  
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	sConfigOC.Pulse = Angle1;
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);  
 
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);  
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);  
 
-    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  
-		return;
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  
+	return;
 }
 
 void init_YawMotor(){
@@ -1214,6 +1153,36 @@ void disableADCIN(){
 	useADC = 0;
 	//FILL IN HOW TO STOP AND DISABLE ADC
 	
+}
+
+//This function call initializes the usage all peripherals,
+void Custom_StartupRoutine() {
+	//External Data Init-----------------------------------------------
+	HAL_I2C_Init(&hi2c2);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HMC5883_Init(&mag_moving);
+	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_stationary, 0x69);
+
+	//INPUT MODE SETUP-------------------------------------------------
+	disablePWMIN();
+	disableADCIN();
+	
+	//MOTOR Setup
+	init_PitchMotor();
+	init_RollMotor();
+	init_YawMotor();
+	BLDCEnable(1);
+	BLDCEnable(2);
+	initDCOutput(1);
+	
+	//BLDCDisable(2);
+	//BLDCDisable(1);
+	set_desiredRoll(0.0f);
+	set_desiredPitch(0.0f);
+	set_operationMode(1);
+
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 }
 
 /* USER CODE END 4 */
