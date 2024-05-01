@@ -80,6 +80,7 @@ volatile int doPID = 0;
 volatile int pitch_PWM;
 volatile int roll_PWM;
 volatile int yaw_PWM;
+volatile int BurstReadState = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,11 +103,11 @@ void init_YawMotor();
 
 void enablePWMIN();
 void disablePWMIN();
-void enableADCIN();
-void disableADCIN();
 int map(int value, int fromLow, int fromHigh, int toLow, int toHigh);
 int constrain(int value, int minVal, int maxVal);
 void Custom_StartupRoutine();
+void Sample_MpuMoving();
+void BurstReadCheap_StateMachine();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -872,29 +873,20 @@ void USART3_4_IRQHandler(void)
 					}else{
 						USART_Transmit_String("ERROR: Parsing failed!\n");						
 					}
-				} else if((strcmp(cmdBuffer, "PWM") == 0) | (strcmp(cmdBuffer, "pwm") == 0)){
+				}
+				else if((strcmp(cmdBuffer, "PWM") == 0) | (strcmp(cmdBuffer, "pwm") == 0)){
 					
 						USART_Transmit_String("Input set to PWM");
 						USART_Transmit_Newline();
 						enablePWMIN();
-						disableADCIN();
 					
-				} else if((strcmp(cmdBuffer, "ADC") == 0) | (strcmp(cmdBuffer, "adc") == 0)){
-					
-						USART_Transmit_String("Input set to ADC");
-						USART_Transmit_Newline();
-					
-						enableADCIN();
-						disablePWMIN();
-					
-			}else if((strcmp(cmdBuffer, "PWM/ADC off") == 0) | (strcmp(cmdBuffer, "pwm/adc off") == 0)){
+				}
+				else if((strcmp(cmdBuffer, "PWM/ADC off") == 0) | (strcmp(cmdBuffer, "pwm/adc off") == 0)){
 				
 						USART_Transmit_String("PWM and ADC off!");
 						USART_Transmit_Newline();
 						disablePWMIN();
-						disableADCIN();
-				
-			} else
+				} else
 				{
 					// Command not recognized
 					USART_Transmit_String("ERROR: Command not recognized\n");
@@ -1051,45 +1043,7 @@ void PID_execute(){
 		//set_desiredRoll(rollbuffer);
 		//set_desiredYaw(yawbuffer);
 	}
-	if(useADC == 1){ // init made ADC 12 bit so it goes up to 4096
-		int maxADCValue = (1 << 12) - 1; // For a 12-bit ADC
-		
-		// PITCH - PA4
-		ADC1->CHSELR = ADC_CHSELR_CHSEL4;
-		ADC1->CR |= ADC_CR_ADSTART;
-		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
-		int pitchADC = ADC1->DR;
-		double pitchBuffer = map(pitchADC, 0, maxADCValue, 1000, 2000);
-		pitchBuffer = constrain(pitchBuffer, 1000, 2000);
-		float pitchAngle = map(pitchBuffer, 1000, 2000, -80, 80);
-		
-		//ROLL - PA5
-		ADC1->CHSELR = ADC_CHSELR_CHSEL5;
-		ADC1->CR |= ADC_CR_ADSTART;
-		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
-		int rollADC = ADC1->DR;
-		double rollBuffer = map(rollADC, 0, maxADCValue, 1000, 2000);
-		rollBuffer = constrain(rollBuffer, 1000, 2000);
-		float rollAngle = map(rollBuffer, 1000, 2000, -80, 80);
-		
-		//YAW - PA3
-		ADC1->CHSELR = ADC_CHSELR_CHSEL3;
-		ADC1->CR |= ADC_CR_ADSTART;
-		while (ADC1->CR & ADC_CR_ADSTART); // Wait for conversion to complete
-		int yawADC = ADC1->DR;
-		double yawBuffer = map(yawADC, 0, maxADCValue, 1000, 2000);
-		yawBuffer = constrain(yawBuffer, 1000, 2000);
-		float yawAngle = map(yawBuffer, 1000, 2000, -1000, 1000);
-    
 
-    // Set desired angles
-    set_desiredPitch(pitchAngle);
-    set_desiredRoll(rollAngle);
-    set_desiredYaw(yawAngle);	
-		//set_desiredPitch(60);
-		//set_desiredRoll(60);
-		DCSetOutput(yawAngle,1);
-	}
 	//GPIOC->ODR ^= GPIO_ODR_6;
 	//Sample new IMU data
 
@@ -1098,12 +1052,12 @@ void PID_execute(){
 	
 	//Yaw PID
 	
-	KFilter_2(&mpu_moving);
+	//KFilter_2(&mpu_moving);
 	//KFilter_2(&mpu_stationary);
 	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 	//Pitch & Roll PID
-	doPID = 1;
+	//doPID = 1;
 	//BLDC_PID(&mpu_moving, &mpu_stationary);
 	
 }
@@ -1126,6 +1080,10 @@ int constrain(int value, int minVal, int maxVal) {
     }
 }
 
+void doPIDLoop() {
+	doPID = 1;
+}
+
 void enablePWMIN(){
 	usePWM = 1;
 
@@ -1143,17 +1101,7 @@ void disablePWMIN(){
 	HAL_TIM_Base_Stop(&htim17);
 }
 
-void enableADCIN(){
-	useADC = 1;
-	//FILL IN HOW TO STARTUP AND ENABLE ADC
-	
-}
 
-void disableADCIN(){
-	useADC = 0;
-	//FILL IN HOW TO STOP AND DISABLE ADC
-	
-}
 
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
@@ -1166,7 +1114,6 @@ void Custom_StartupRoutine() {
 
 	//INPUT MODE SETUP-------------------------------------------------
 	disablePWMIN();
-	disableADCIN();
 	
 	//MOTOR Setup
 	init_PitchMotor();
@@ -1185,6 +1132,103 @@ void Custom_StartupRoutine() {
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
 }
 
+void Sample_MpuMoving() {
+	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+	BurstReadState = 1;
+}
+
+/*
+	I2C2 interrupt service routine
+	This function acts as the interrupt service routine when I2C2 has an interupt, 
+	Its current use is to assess the flag that caused the interrupt, and clear the flag
+	
+	Additionally, the function will move through a state machine representing the byte being
+	received from the device, reading from the I2C_RXDR register and placing the data in the appropriate location
+
+	Each path through the state machine takes in a pre-determined number of bytes, such that the state machine can generate a NACK flag
+	when it knows the last useful byte has been received.
+	STATE LIST:
+	1 - 15 = mpu_moving
+	21 - 35 = mpu_stationary
+	51 - 5X = Hall_sensor
+*/
+void BurstReadCheap_StateMachine(){
+	//determine a I2C2 failure (NACKF)
+	if (I2C2->ISR & I2C_ISR_NACKF){
+					// If a NACK is received, exit with error
+					return; // Error code for NACK
+					if((BurstReadState > 0) & (BurstReadState < 16)){//Reading from MPU_Moving failed, report this error
+						USART_Transmit_Byte(71);//transmit G = 0d071 to user --> Moving IMU not working
+					}
+	}
+	if(I2C2->ISR & (I2C_ISR_RXNE)){//a byte is present in the read buffer, process it.
+		uint8_t bufferData = I2C2->RXDR;
+		switch(BurstReadState){
+			case(1):{
+				mpu_moving.accel_xhigh = bufferData;
+				BurstReadState++;
+			}
+			case(2):{
+				mpu_moving.accel_xlow = bufferData;
+				BurstReadState++;
+			}
+			case(3):{
+				mpu_moving.accel_yhigh = bufferData;
+				BurstReadState++;
+			}
+			case(4):{
+				mpu_moving.accel_ylow = bufferData;
+				BurstReadState++;
+			}
+			case(5):{
+				mpu_moving.accel_zhigh = bufferData;
+				BurstReadState++;
+			}
+			case(6):{
+				mpu_moving.accel_zlow = bufferData;
+				BurstReadState++;
+			}
+			case(7):{
+				
+				BurstReadState++;
+			}
+			case(8):{
+				
+				BurstReadState++;
+			}
+			case(9):{
+				mpu_moving.gyro_xhigh = bufferData;
+				BurstReadState++;
+			}
+			case(10):{
+				mpu_moving.gyro_xlow = bufferData;
+				BurstReadState++;
+			}
+			case(11):{
+				mpu_moving.gyro_yhigh = bufferData;
+				BurstReadState++;
+			}
+			case(12):{
+				mpu_moving.gyro_ylow = bufferData;
+				BurstReadState++;
+			}
+			case(13):{
+				mpu_moving.gyro_zhigh = bufferData;
+				BurstReadState++;
+			}
+			case(14):{
+				mpu_moving.gyro_zlow = bufferData;
+				BurstReadState = 0;
+				//last byte, send NACK
+				I2C2->CR2 |= I2C_CR2_NACK;
+			}
+			default:{ BurstReadState = 0; return;}
+		}
+		
+	}
+	
+	
+}
 /* USER CODE END 4 */
 
 /**

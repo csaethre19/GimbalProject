@@ -11,8 +11,6 @@
 #include "main.h"
 
 
-void Init_LEDs(void);
-
 void USART_SetUp();
 
 void USART_Transmit_Byte(uint8_t b);

@@ -107,31 +107,3 @@ void USART_Transmit_Float(float number, unsigned int decimal_places)
     USART_Transmit_String(numberString);
 }
 
-void Init_LEDs(void)
-{
-	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-	
-	// Set pins to general purpose output mode in MODER register
-  GPIOC->MODER |= (1<<12); // PC6 RED
-	GPIOC->MODER |= (1<<14); // PC7 BLUE
-  GPIOC->MODER |= (1<<16); // PC8 ORANGE
-	GPIOC->MODER |= (1<<18); // PC9 GREEN
-	
-	// Set pins to push-pull output type in OTYPER register
-	GPIOC->OTYPER &= ~(1<<6); // PC6
-	GPIOC->OTYPER &= ~(1<<7); // PC7
-	GPIOC->OTYPER &= ~(1<<8); // PC8
-	GPIOC->OTYPER &= ~(1<<9); // PC9
-	
-	// Set pins to low speed in OSPEEDR register
-	GPIOC->OSPEEDR &= ~(1<<12); // PC6
-	GPIOC->OSPEEDR &= ~(1<<14); // PC7
-	GPIOC->OSPEEDR &= ~(1<<16); // PC8
-	GPIOC->OSPEEDR &= ~(1<<18); // PC9
-	
-	// Set to no pull-up/down resistors in PUPDR register
-	GPIOC->PUPDR &= ~((1<<12) | (1<<13)); // PC6
-	GPIOC->PUPDR &= ~((1<<14) | (1<<15)); // PC7
-	GPIOC->PUPDR &= ~((1<<16) | (1<<17)); // PC8
-	GPIOC->PUPDR &= ~((1<<18) | (1<<19)); // PC9
-}

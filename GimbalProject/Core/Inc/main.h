@@ -56,6 +56,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void PID_execute();
+void doPIDLoop();
+void Sample_MpuMoving();
+void BurstReadCheap_StateMachine();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

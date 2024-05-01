@@ -159,7 +159,8 @@ void SysTick_Handler(void)
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 0 */
-	PID_execute();
+	//PID_execute();
+	Sample_MpuMoving();
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */
@@ -173,7 +174,7 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-
+	doPIDLoop();
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
@@ -275,7 +276,7 @@ void TIM17_IRQHandler(void)
 void I2C2_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_IRQn 0 */
-
+	
   /* USER CODE END I2C2_IRQn 0 */
   if (hi2c2.Instance->ISR & (I2C_FLAG_BERR | I2C_FLAG_ARLO | I2C_FLAG_OVR)) {
     HAL_I2C_ER_IRQHandler(&hi2c2);
