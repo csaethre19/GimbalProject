@@ -167,6 +167,7 @@ int main(void)
   {
 		if(doPID){
 			BLDC_PID(&mpu_moving, &mpu_stationary);
+			PID_execute();
 			doPID = 0;
 		}
 		if(mpu_moving_newdata){
@@ -1009,7 +1010,7 @@ void PID_execute(){
 		else  {
 			pitchbuffer = map(pitchbuffer, 1000,2000,-70,70);
 			pitch_PWM = pitchbuffer;
-			//set_desiredPitch(pitchbuffer);
+			set_desiredPitch(pitchbuffer);
 		}
 		if(rollbuffer < 900){}
 		else if(rollbuffer  > 2100){} 
@@ -1023,7 +1024,7 @@ void PID_execute(){
 		else  {
 			yawbuffer = map(yawbuffer, 1000,2000,-70,70);
 			yaw_PWM = yawbuffer;
-			//set_desiredYaw(yawbuffer);
+			set_desiredYaw(yawbuffer);
 		}
 		
 		//CURRENT IMPLEMENTATION ISSUE:
@@ -1097,7 +1098,7 @@ void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
-	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -1205,31 +1206,35 @@ void BurstReadCheap_StateMachine(){
 				return;
 			}
 			case(9):{
-				mpu_moving.gyro_xhigh = bufferData;
 				BurstReadState++;
 				return;
 			}
 			case(10):{
-				mpu_moving.gyro_xlow = bufferData;
+				mpu_moving.gyro_xhigh = bufferData;
 				BurstReadState++;
 				return;
 			}
 			case(11):{
-				mpu_moving.gyro_yhigh = bufferData;
+				mpu_moving.gyro_xlow = bufferData;
 				BurstReadState++;
 				return;
 			}
 			case(12):{
-				mpu_moving.gyro_ylow = bufferData;
+				mpu_moving.gyro_yhigh = bufferData;
 				BurstReadState++;
 				return;
 			}
 			case(13):{
-				mpu_moving.gyro_zhigh = bufferData;
+				mpu_moving.gyro_ylow = bufferData;
 				BurstReadState++;
 				return;
 			}
 			case(14):{
+				mpu_moving.gyro_zhigh = bufferData;
+				BurstReadState++;
+				return;
+			}
+			case(15):{
 				mpu_moving.gyro_zlow = bufferData;
 				BurstReadState = 0;
 				mpu_moving_newdata = 1;

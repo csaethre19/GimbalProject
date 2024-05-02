@@ -257,11 +257,11 @@ void KFilter_2(volatile MPU6050_t *DataStruct){
 		DataStruct->Accel_Z_RAW = z_raw;
 		DataStruct->Az = accel_z;
 		//New Data present in raw low, high gyro values, update gyro data
-		int16_t gyrox_raw = (int16_t)(DataStruct->gyro_xhigh << 8 | DataStruct->gyro_xlow);
+		float gyrox_raw = (int16_t)(DataStruct->gyro_xhigh << 8 | DataStruct->gyro_xlow);
 		float gyro_x = gyrox_raw/GYRO_LSB_SENS;
-		int16_t gyroy_raw = (int16_t)(DataStruct->gyro_yhigh << 8 | DataStruct->gyro_ylow);
+		float gyroy_raw = (int16_t)(DataStruct->gyro_yhigh << 8 | DataStruct->gyro_ylow);
 		float gyro_y = gyroy_raw/GYRO_LSB_SENS;
-		int16_t gyroz_raw = (int16_t)(DataStruct->gyro_zhigh << 8 | DataStruct->gyro_zlow);
+		float gyroz_raw = (int16_t)(DataStruct->gyro_zhigh << 8 | DataStruct->gyro_zlow);
 		float gyro_z = gyroz_raw/GYRO_LSB_SENS;
 		DataStruct->Gyro_X_RAW = gyrox_raw;
 		DataStruct->Gx = gyro_x;
