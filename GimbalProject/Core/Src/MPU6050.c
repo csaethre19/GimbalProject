@@ -77,7 +77,9 @@ if (pwr_mgmt == 0)
 	USART_Transmit_Newline();
 	
 	USART_Transmit_Newline();
-	
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1B, 0x8);
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1A, 0x05);
+	I2C_WriteRegister(dataStruct->deviceAddr, 0x1C, 0x10);
 	// Setting initial values for Kalman Filter parameters
 	dataStruct->KalmanAnglePitch = 0.0;
 	dataStruct->KalmanAngleRoll = 0.0;
@@ -237,12 +239,39 @@ void KalmanFilter(volatile MPU6050_t *dataStruct)
 void KFilter_2(volatile MPU6050_t *DataStruct){
 
 	
-	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 1000;
-  DataStruct->timer = HAL_GetTick();
 	
-	//DataStruct->dt = 1;
-	ReadGyroData(DataStruct);
-	ReadAccelData(DataStruct);
+	//ReadGyroData(DataStruct);
+	//ReadAccelData(DataStruct);
+	
+		//New data present in raw low, high accel values, update accel data
+		int16_t x_raw = (int16_t)(DataStruct->accel_xhigh << 8 | DataStruct->accel_xlow);
+		float accel_x = (float)x_raw/ACC_LSB_SENS;
+		int16_t y_raw = (int16_t)(DataStruct->accel_yhigh << 8 | DataStruct->accel_ylow);
+		float accel_y = (float)y_raw/ACC_LSB_SENS;
+		int16_t z_raw = (int16_t)(DataStruct->accel_zhigh << 8 | DataStruct->accel_zlow);
+		float accel_z = (float)z_raw/ACC_LSB_SENS;
+		DataStruct->Accel_X_RAW = x_raw;
+		DataStruct->Ax = accel_x;
+		DataStruct->Accel_Y_RAW = y_raw;
+		DataStruct->Ay = accel_y;
+		DataStruct->Accel_Z_RAW = z_raw;
+		DataStruct->Az = accel_z;
+		//New Data present in raw low, high gyro values, update gyro data
+		int16_t gyrox_raw = (int16_t)(DataStruct->gyro_xhigh << 8 | DataStruct->gyro_xlow);
+		float gyro_x = gyrox_raw/GYRO_LSB_SENS;
+		int16_t gyroy_raw = (int16_t)(DataStruct->gyro_yhigh << 8 | DataStruct->gyro_ylow);
+		float gyro_y = gyroy_raw/GYRO_LSB_SENS;
+		int16_t gyroz_raw = (int16_t)(DataStruct->gyro_zhigh << 8 | DataStruct->gyro_zlow);
+		float gyro_z = gyroz_raw/GYRO_LSB_SENS;
+		DataStruct->Gyro_X_RAW = gyrox_raw;
+		DataStruct->Gx = gyro_x;
+		DataStruct->Gyro_Y_RAW = gyroy_raw;
+		DataStruct->Gy = gyro_y;
+		DataStruct->Gyro_Z_RAW = gyroz_raw;
+		DataStruct->Gz = gyro_z;
+
+		DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 500;
+		DataStruct->timer = HAL_GetTick();
 
 		float pitch;
 		arm_atan2_f32(-DataStruct->Accel_X_RAW, DataStruct->Accel_Z_RAW, &pitch);

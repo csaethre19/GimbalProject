@@ -57,6 +57,20 @@ typedef struct {
 	
 	uint16_t deviceAddr;
 	
+	uint8_t accel_xhigh;
+	uint8_t accel_xlow;
+	uint8_t accel_yhigh;
+	uint8_t accel_ylow;
+	uint8_t accel_zhigh;
+	uint8_t accel_zlow;
+	
+	uint8_t gyro_xhigh;
+	uint8_t gyro_xlow;
+	uint8_t gyro_yhigh;
+	uint8_t gyro_ylow;
+	uint8_t gyro_zhigh;
+	uint8_t gyro_zlow;
+	
 	int16_t Accel_X_RAW;
 	int16_t Accel_Y_RAW;
 	int16_t Accel_Z_RAW;

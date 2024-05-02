@@ -276,7 +276,8 @@ void TIM17_IRQHandler(void)
 void I2C2_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_IRQn 0 */
-	
+
+	BurstReadCheap_StateMachine();
   /* USER CODE END I2C2_IRQn 0 */
   if (hi2c2.Instance->ISR & (I2C_FLAG_BERR | I2C_FLAG_ARLO | I2C_FLAG_OVR)) {
     HAL_I2C_ER_IRQHandler(&hi2c2);
@@ -287,7 +288,6 @@ void I2C2_IRQHandler(void)
 
   /* USER CODE END I2C2_IRQn 1 */
 }
-
 
 
 /* USER CODE BEGIN 1 */

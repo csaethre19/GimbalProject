@@ -74,12 +74,6 @@ void BurstReadCheap_StateMachine();
 #define BLDC_1B_GPIO_Port GPIOA
 #define BLDC_1C_Pin GPIO_PIN_2
 #define BLDC_1C_GPIO_Port GPIOA
-#define Yaw_ADC_Pin GPIO_PIN_3
-#define Yaw_ADC_GPIO_Port GPIOA
-#define Pitch_ADC_Pin GPIO_PIN_4
-#define Pitch_ADC_GPIO_Port GPIOA
-#define Roll_ADC_Pin GPIO_PIN_5
-#define Roll_ADC_GPIO_Port GPIOA
 #define BLDC_2A_Pin GPIO_PIN_6
 #define BLDC_2A_GPIO_Port GPIOA
 #define BLDC_2B_Pin GPIO_PIN_7

@@ -72,7 +72,6 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 	// Check if NACK set
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
-		GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
 		USART_Transmit_String("Set Reg Address not working!\n\r");
 	}
 	
@@ -149,7 +148,6 @@ int I2C_ReadBurst(uint16_t deviceAddr, uint8_t regAddr, int8_t *dataBuffer, uint
 			if (I2C2->ISR & I2C_ISR_NACKF)
 			{
 					// If a NACK is received, exit with error
-					GPIOC->ODR |= GPIO_ODR_8; // Orange - I2C not working!
 					USART_Transmit_String("Read burst not working!\n\r");
 					return -1; // Error code for NACK
 			}
@@ -227,19 +225,17 @@ void I2C_Ports_Config()
 }
 
 void I2C_BurstRead_Cheap(uint16_t deviceAddr, uint8_t regAddr, uint16_t length) {
+
 	// Set the register address to start read from
 	I2C_SetRegAddress(deviceAddr, regAddr);
-	
+	I2C2->CR1 |= I2C_CR1_RXIE;
 	I2C2->CR2 = 0; // Clear register
 	I2C2->CR2 |= (deviceAddr << 1); // Set the slave address 
 	I2C2->CR2 |= (length << 16); // Set the number of bytes you want to read
 	I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
 	
 	//configure I2C2 to generate interrupts when new byte is received
-	I2C2->CR1 |= I2C_CR1_RXIE;//enable RX buffer data ready interrupt
+	//enable RX buffer data ready interrupt
 	
 	I2C2->CR2 |= I2C_CR2_START; // Send the start condition
-	
-	
-	
 }

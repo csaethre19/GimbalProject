@@ -97,24 +97,15 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     __HAL_RCC_ADC1_CLK_ENABLE();
 
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
     /**ADC GPIO Configuration
     PC1     ------> ADC_IN11
     PC2     ------> ADC_IN12
     PC3     ------> ADC_IN13
-    PA3     ------> ADC_IN3
-    PA4     ------> ADC_IN4
-    PA5     ------> ADC_IN5
     */
     GPIO_InitStruct.Pin = Yaw_CurrSense_Pin|Pitch_CurrSense_Pin|Roll_CurrSense_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Pin = Yaw_ADC_Pin|Pitch_ADC_Pin|Roll_ADC_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -143,13 +134,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     PC1     ------> ADC_IN11
     PC2     ------> ADC_IN12
     PC3     ------> ADC_IN13
-    PA3     ------> ADC_IN3
-    PA4     ------> ADC_IN4
-    PA5     ------> ADC_IN5
     */
     HAL_GPIO_DeInit(GPIOC, Yaw_CurrSense_Pin|Pitch_CurrSense_Pin|Roll_CurrSense_Pin);
-
-    HAL_GPIO_DeInit(GPIOA, Yaw_ADC_Pin|Pitch_ADC_Pin|Roll_ADC_Pin);
 
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -310,7 +296,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* TIM15 interrupt Init */
-    HAL_NVIC_SetPriority(TIM15_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM15_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM15_IRQn);
   /* USER CODE BEGIN TIM15_MspInit 1 */
 
@@ -336,7 +322,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     HAL_GPIO_Init(Roll_PWMIN_GPIO_Port, &GPIO_InitStruct);
 
     /* TIM17 interrupt Init */
-    HAL_NVIC_SetPriority(TIM17_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM17_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM17_IRQn);
   /* USER CODE BEGIN TIM17_MspInit 1 */
 
@@ -556,7 +542,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /* USART3 interrupt Init */
-    HAL_NVIC_SetPriority(USART3_4_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(USART3_4_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(USART3_4_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
 

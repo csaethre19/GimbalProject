@@ -81,6 +81,9 @@ volatile int pitch_PWM;
 volatile int roll_PWM;
 volatile int yaw_PWM;
 volatile int BurstReadState = 0;
+volatile int mpu_moving_newdata = 0;
+volatile int mpu_moving_readburstcheapcalled = 0;
+volatile int8_t bufferData;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -155,13 +158,23 @@ int main(void)
   MX_TIM17_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+	Custom_StartupRoutine();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		if(doPID){
+			BLDC_PID(&mpu_moving, &mpu_stationary);
+			doPID = 0;
+		}
+		if(mpu_moving_newdata){
+			KFilter_2(&mpu_moving);
+			mpu_moving_newdata = 0;
+		}
+		
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -247,33 +260,9 @@ static void MX_ADC_Init(void)
 
   /** Configure for the selected ADC regular channel to be converted.
   */
-  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
   sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel to be converted.
-  */
-  sConfig.Channel = ADC_CHANNEL_4;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel to be converted.
-  */
-  sConfig.Channel = ADC_CHANNEL_5;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel to be converted.
-  */
-  sConfig.Channel = ADC_CHANNEL_11;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -1106,8 +1095,9 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
+	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -1119,9 +1109,11 @@ void Custom_StartupRoutine() {
 	init_PitchMotor();
 	init_RollMotor();
 	init_YawMotor();
-	BLDCEnable(1);
-	BLDCEnable(2);
-	initDCOutput(1);
+	//BLDCEnable(1);
+	//BLDCEnable(2);
+	BLDCDisable(1);
+	BLDCDisable(1);
+	//initDCOutput(1);
 	
 	//BLDCDisable(2);
 	//BLDCDisable(1);
@@ -1129,12 +1121,18 @@ void Custom_StartupRoutine() {
 	set_desiredPitch(0.0f);
 	set_operationMode(1);
 
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
-	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
-	BurstReadState = 1;
+	//KFilter_2(&mpu_moving);
+	
+	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
+		I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+		BurstReadState = 1;//reading from mpu_moving
+	}
+	
 }
 
 /*
@@ -1145,7 +1143,7 @@ void Sample_MpuMoving() {
 	Additionally, the function will move through a state machine representing the byte being
 	received from the device, reading from the I2C_RXDR register and placing the data in the appropriate location
 
-	Each path through the state machine takes in a pre-determined number of bytes, such that the state machine can generate a NACK flag
+	Each path through the state machine receives a pre-determined number of bytes, such that the state machine can generate a NACK flag
 	when it knows the last useful byte has been received.
 	STATE LIST:
 	1 - 15 = mpu_moving
@@ -1153,32 +1151,39 @@ void Sample_MpuMoving() {
 	51 - 5X = Hall_sensor
 */
 void BurstReadCheap_StateMachine(){
-	//determine a I2C2 failure (NACKF)
+	
+	//check for an I2C2 failure (NACKF)
 	if (I2C2->ISR & I2C_ISR_NACKF){
 					// If a NACK is received, exit with error
 					return; // Error code for NACK
 					if((BurstReadState > 0) & (BurstReadState < 16)){//Reading from MPU_Moving failed, report this error
 						USART_Transmit_Byte(71);//transmit G = 0d071 to user --> Moving IMU not working
+						BurstReadState = 0;
 					}
 	}
 	if(I2C2->ISR & (I2C_ISR_RXNE)){//a byte is present in the read buffer, process it.
-		uint8_t bufferData = I2C2->RXDR;
+		bufferData = I2C2->RXDR;
+		mpu_moving_readburstcheapcalled ++;
 		switch(BurstReadState){
 			case(1):{
 				mpu_moving.accel_xhigh = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(2):{
 				mpu_moving.accel_xlow = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(3):{
 				mpu_moving.accel_yhigh = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(4):{
 				mpu_moving.accel_ylow = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(5):{
 				mpu_moving.accel_zhigh = bufferData;
@@ -1187,46 +1192,58 @@ void BurstReadCheap_StateMachine(){
 			case(6):{
 				mpu_moving.accel_zlow = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(7):{
-				
+				//bufferData contains Temperature High bits
 				BurstReadState++;
+				return;
 			}
 			case(8):{
-				
+				//bufferData contains Temperature Low bits
 				BurstReadState++;
+				return;
 			}
 			case(9):{
 				mpu_moving.gyro_xhigh = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(10):{
 				mpu_moving.gyro_xlow = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(11):{
 				mpu_moving.gyro_yhigh = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(12):{
 				mpu_moving.gyro_ylow = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(13):{
 				mpu_moving.gyro_zhigh = bufferData;
 				BurstReadState++;
+				return;
 			}
 			case(14):{
 				mpu_moving.gyro_zlow = bufferData;
 				BurstReadState = 0;
-				//last byte, send NACK
+				mpu_moving_newdata = 1;
+				//last byte, set CR2_NACK
 				I2C2->CR2 |= I2C_CR2_NACK;
+				I2C2->CR2 |= I2C_CR2_STOP;
+				return;
 			}
 			default:{ BurstReadState = 0; return;}
 		}
 		
+		
 	}
-	
+	return;
 	
 }
 /* USER CODE END 4 */
