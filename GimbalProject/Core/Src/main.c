@@ -874,16 +874,26 @@ void USART3_4_IRQHandler(void)
 						USART_Transmit_Newline();
 						disablePWMIN();
 					
-				}///BEGIN MODE CONTROL-------------------------------------------1 == absolute, 0 == relative
+				}///BEGIN MODE CONTROL-------------------------------------------(absolute==1  relative==0)
 				else if(strcmp(cmdBuffer, "A1") == 0){
-					char* extractedMode = &cmdBuffer[1];
-					
+					set_operationModeYaw(1);
+					USART_Transmit_String("Yaw=Abs");
+					USART_Transmit_Newline();
+				}
+				else if(strcmp(cmdBuffer, "A0") == 0){
+					set_operationModeYaw(0);
+					USART_Transmit_String("Yaw=Rel");
+					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "B1") == 0){
 					set_operationModeRollPitch(1);
+					USART_Transmit_String("RP=Abs");
+					USART_Transmit_Newline();
 				} 
 				else if(strcmp(cmdBuffer, "B0") == 0){
-						set_operationModeRollPitch(0);
+					set_operationModeRollPitch(0);
+					USART_Transmit_String("RP=Rel");
+					USART_Transmit_Newline();
 				} 
 				else {
 					// Command not recognized
