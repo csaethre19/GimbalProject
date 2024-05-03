@@ -3,7 +3,7 @@
 <title>Static Call Graph - [GimbalProject\GimbalProject.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image GimbalProject\GimbalProject.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Fri May  3 14:41:57 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Fri May  3 15:10:22 2024
 <BR><P>
 <H3>Maximum Stack Usage =        376 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -380,7 +380,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
 
-<P><STRONG><a name="[ff]"></a>memcmp</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, memcmp.o(.text))
+<P><STRONG><a name="[102]"></a>memcmp</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, memcmp.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
@@ -557,7 +557,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_sin_f32
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
-<LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredYaw
+<LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredYaw
 </UL>
 
 <P><STRONG><a name="[160]"></a>_ffix</STRONG> (Thumb, 76 bytes, Stack size 8 bytes, ffixi.o(.text), UNUSED)
@@ -629,7 +629,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_local_sscanf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
+<BR>[Called By]<UL><LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
 </UL>
 
 <P><STRONG><a name="[110]"></a>__ARM_scalbn</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, dscalbn.o(.text))
@@ -929,7 +929,7 @@ Global Symbols
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Init
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID_Init
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDCEnable
-<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_operationMode
+<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_operationModeRollPitch
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredPitch
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredRoll
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MPU_Init
@@ -1254,13 +1254,13 @@ Global Symbols
 <P><STRONG><a name="[c2]"></a>HAL_TIM_IRQHandler</STRONG> (Thumb, 328 bytes, Stack size 16 bytes, stm32f0xx_hal_tim.o(.text.HAL_TIM_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = HAL_TIM_IRQHandler
 </UL>
-<BR>[Calls]<UL><LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_CommutCallback
+<BR>[Calls]<UL><LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
+<LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_CommutCallback
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_TriggerCallback
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_BreakCallback
 <LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_OC_DelayElapsedCallback
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IC_CaptureCallback
 <LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_PulseFinishedCallback
-<LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM17_IRQHandler
 <LI><a href="#[1a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM15_IRQHandler
@@ -1575,23 +1575,24 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_CheckIdleState
 </UL>
 
-<P><STRONG><a name="[23]"></a>USART3_4_IRQHandler</STRONG> (Thumb, 472 bytes, Stack size 32 bytes, main.o(.text.USART3_4_IRQHandler))
+<P><STRONG><a name="[23]"></a>USART3_4_IRQHandler</STRONG> (Thumb, 396 bytes, Stack size 32 bytes, main.o(.text.USART3_4_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216 + Unknown Stack Size
 <LI>Call Chain = USART3_4_IRQHandler &rArr; USART_Transmit_Float &rArr; __2snprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
-<LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disablePWMIN
+<BR>[Calls]<UL><LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disablePWMIN
 <LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enablePWMIN
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
+<LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_operationModeRollPitch
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredPitch
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredRoll
-<LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredYaw
+<LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredYaw
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Float
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Newline
 <LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_Byte
 <LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Transmit_String
-<LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtod
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
-<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
+<LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f072xb.o(RESET)
 </UL>
@@ -1730,7 +1731,7 @@ Global Symbols
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Custom_StartupRoutine
 </UL>
 
-<P><STRONG><a name="[102]"></a>set_desiredYaw</STRONG> (Thumb, 12 bytes, Stack size 8 bytes, dcmotor.o(.text.set_desiredYaw))
+<P><STRONG><a name="[101]"></a>set_desiredYaw</STRONG> (Thumb, 12 bytes, Stack size 8 bytes, dcmotor.o(.text.set_desiredYaw))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = set_desiredYaw &rArr; __aeabi_f2iz
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2iz
@@ -1738,8 +1739,9 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
 </UL>
 
-<P><STRONG><a name="[ab]"></a>set_operationMode</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, bldcmotor.o(.text.set_operationMode))
-<BR><BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Custom_StartupRoutine
+<P><STRONG><a name="[ab]"></a>set_operationModeRollPitch</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, bldcmotor.o(.text.set_operationModeRollPitch))
+<BR><BR>[Called By]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART3_4_IRQHandler
+<LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Custom_StartupRoutine
 </UL>
 
 <P><STRONG><a name="[ae]"></a>__aeabi_uidiv</STRONG> (Thumb, 68 bytes, Stack size 0 bytes, aeabi_sdivfast.o(.text_divfast))
@@ -1930,7 +1932,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__support_ldexp
 </UL>
 
-<P><STRONG><a name="[101]"></a>strtod</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, strtod.o(i.strtod))
+<P><STRONG><a name="[ff]"></a>strtod</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, strtod.o(i.strtod))
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = strtod &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real
 </UL>
 <BR>[Calls]<UL><LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__strtod_int

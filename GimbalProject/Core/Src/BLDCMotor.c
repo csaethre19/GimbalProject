@@ -33,7 +33,8 @@ PIDController rollPID;
 PIDController pitchPID;
 PIDController yawPID;
 
-volatile int16_t relative0_absolute1 = 1;
+volatile int16_t rpMode = 1;
+volatile int16_t yMode = 0;
 
 int lastPIDtime = 0;
 
@@ -54,7 +55,8 @@ float pitchPID_output = 0;
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
-void set_operationMode(int16_t setMode){relative0_absolute1 = setMode;}
+void set_operationModeRollPitch(int16_t setMode){rpMode = setMode;}
+void set_operationModeYaw(int16_t setMode){yMode = setMode;}
 
 void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){
 	//CURRENT IMPLEMENTATION:
@@ -72,7 +74,7 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	//float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
 	//float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
 	
-	if(relative0_absolute1){//Absolute Position Mode Execute
+	if(rpMode == 1){//Absolute Position Mode Execute
 		// Need to add collision checking
 		//PITCH MOTOR
 		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->KalmanAnglePitch);

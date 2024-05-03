@@ -808,80 +808,86 @@ void USART3_4_IRQHandler(void)
     {
 				cmdBuffer[cmdBufferPos] = '\0'; // Null-terminate the string
 					//processCommand(cmdBuffer); // Process the buffered command
-				if (strcmp(cmdBuffer, "rdpitch") == 0)
-				{
-
-					USART_Transmit_String("Angle pitch = ");
+			//BEGIN: ANGLE CONTROL, RETRIEVE CURRENT ANGLE----------------------------------------------
+				if (strcmp(cmdBuffer, "p") == 0){
 					USART_Transmit_Float(mpu_moving.KalmanAnglePitch, 2);
 					USART_Transmit_Newline();
 				}
-				else if(strcmp(cmdBuffer, "rdroll") == 0){
-
-					USART_Transmit_String("Angle roll = ");
+				else if(strcmp(cmdBuffer, "r") == 0){
 					USART_Transmit_Float(mpu_moving.KalmanAngleRoll, 2);				
 					USART_Transmit_Newline();
 				}
-				else if(strcmp(cmdBuffer, "rdyaw") == 0){
+				else if(strcmp(cmdBuffer, "y") == 0){
 
-					USART_Transmit_String("Angle roll = ");
 					USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
 					USART_Transmit_Newline();
-				}
-				else if(strncmp(cmdBuffer, "wrpitch", 7) == 0){
+					}//BEGIN: ANGLE CONTROL, SET TARGET ANGLE-------------------------------------------
+				else if(strncmp(cmdBuffer, "P", 1) == 0){
 
-					char* extractedString = &cmdBuffer[8];
+					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
-						USART_Transmit_String("wrpitch: Set pitch to ");
+						USART_Transmit_String("P=");
 						USART_Transmit_Float(value, 2);
 						set_desiredPitch(value); 
 						USART_Transmit_Newline();						
 					}else{
-					USART_Transmit_String("ERROR: Parsing failed!\n");						
+					USART_Transmit_String("ParseFail");						
 					}
 				}
-				else if(strncmp(cmdBuffer, "wrroll", 6) == 0){
+				else if(strncmp(cmdBuffer, "R", 1) == 0){
 
-					char* extractedString = &cmdBuffer[7];
+					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
-						USART_Transmit_String("wrroll: Set roll to ");
+						USART_Transmit_String("R=");
 						USART_Transmit_Float(value, 2);
 						set_desiredRoll(value);
 						USART_Transmit_Newline();						
 					}else{
-						USART_Transmit_String("ERROR: Parsing failed!\n");						
+						USART_Transmit_String("ParseFail");						
 					}
 				}
-				else if(strncmp(cmdBuffer, "wryaw", 5) == 0){
+				else if(strncmp(cmdBuffer, "Y", 1) == 0){
 
-					char* extractedString = &cmdBuffer[6];
+					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
-						USART_Transmit_String("wryaw: Set yaw to ");
+						USART_Transmit_String("Y=");
 						USART_Transmit_Float(value, 2);
 						set_desiredYaw(value);
 						USART_Transmit_Newline();						
 					}else{
-						USART_Transmit_String("ERROR: Parsing failed!\n");						
+						USART_Transmit_String("ParseFail");						
 					}
-				}
-				else if((strcmp(cmdBuffer, "PWM") == 0) | (strcmp(cmdBuffer, "pwm") == 0)){
+				}//BEGIN: INPUT CONFIGURATION-------------------------------------------------------
+				else if(strcmp(cmdBuffer, "pwm1") == 0){
 					
-						USART_Transmit_String("Input set to PWM");
+						USART_Transmit_String("PWM_EN");
 						USART_Transmit_Newline();
 						enablePWMIN();
 					
 				}
-				else if((strcmp(cmdBuffer, "PWM/ADC off") == 0) | (strcmp(cmdBuffer, "pwm/adc off") == 0)){
-				
-						USART_Transmit_String("PWM and ADC off!");
+				else if(strcmp(cmdBuffer, "pwm0") == 0){
+					
+						USART_Transmit_String("PWM_DIS");
 						USART_Transmit_Newline();
 						disablePWMIN();
-				} else
-				{
+					
+				}///BEGIN MODE CONTROL-------------------------------------------1 == absolute, 0 == relative
+				else if(strcmp(cmdBuffer, "A1") == 0){
+					char* extractedMode = &cmdBuffer[1];
+					
+				}
+				else if(strcmp(cmdBuffer, "B1") == 0){
+					set_operationModeRollPitch(1);
+				} 
+				else if(strcmp(cmdBuffer, "B0") == 0){
+						set_operationModeRollPitch(0);
+				} 
+				else {
 					// Command not recognized
-					USART_Transmit_String("ERROR: Command not recognized\n");
+					USART_Transmit_String("ERROR");
 				}
 						
           cmdBufferPos = 0; // Reset the buffer for the next command
@@ -1123,7 +1129,7 @@ void Custom_StartupRoutine() {
 	//BLDCDisable(1);
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
-	set_operationMode(1);
+	set_operationModeRollPitch(1);
 
 	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
