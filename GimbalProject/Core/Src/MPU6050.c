@@ -5,15 +5,15 @@
         .Q_bias = 0.003f,
         .R_measure = 0.0001f,*/
 Kalman_t KalmanPitch = {//KalmanX
-        .Q_angle = 0.005f,
+        .Q_angle = 0.003f,
         .Q_bias = 0.009f,
-        .R_measure = 0.0005f
+        .R_measure = 0.0009f
 };
 
 Kalman_t KalmanRoll = {//KalmanY
-        .Q_angle = 0.005f,
+        .Q_angle = 0.003f,
         .Q_bias = 0.009f,
-        .R_measure = 0.0005f,
+        .R_measure = 0.0009f,
 };
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
@@ -269,8 +269,8 @@ void KFilter_2(volatile MPU6050_t *DataStruct){
 		DataStruct->Gy = gyro_y;
 		DataStruct->Gyro_Z_RAW = gyroz_raw;
 		DataStruct->Gz = gyro_z;
-
-		DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 500;
+		
+		DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 300;
 		DataStruct->timer = HAL_GetTick();
 
 		float pitch;

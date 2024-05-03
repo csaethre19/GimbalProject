@@ -289,7 +289,6 @@ void I2C2_IRQHandler(void)
   /* USER CODE END I2C2_IRQn 1 */
 }
 
-
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

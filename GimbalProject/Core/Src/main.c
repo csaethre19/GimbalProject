@@ -84,6 +84,7 @@ volatile int BurstReadState = 0;
 volatile int mpu_moving_newdata = 0;
 volatile int mpu_moving_readburstcheapcalled = 0;
 volatile int8_t bufferData;
+volatile double FREquencycounter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -159,6 +160,7 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
+	uint32_t prevtime;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -167,14 +169,14 @@ int main(void)
   {
 		if(doPID){
 			BLDC_PID(&mpu_moving, &mpu_stationary);
-			PID_execute();
+			//PID_execute();
 			doPID = 0;
 		}
 		if(mpu_moving_newdata){
-			KFilter_2(&mpu_moving);
 			mpu_moving_newdata = 0;
+			KFilter_2(&mpu_moving);
 		}
-		
+
 		
     /* USER CODE END WHILE */
 
@@ -574,7 +576,7 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 39;
+  htim6.Init.Prescaler = 79;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 1000;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -1098,7 +1100,7 @@ void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -1110,10 +1112,11 @@ void Custom_StartupRoutine() {
 	init_PitchMotor();
 	init_RollMotor();
 	init_YawMotor();
-	//BLDCEnable(1);
-	//BLDCEnable(2);
-	BLDCDisable(1);
-	BLDCDisable(1);
+	BLDC_PID_Init();
+	BLDCEnable(1);
+	BLDCEnable(2);
+	//BLDCDisable(1);
+	//BLDCDisable(1);
 	//initDCOutput(1);
 	
 	//BLDCDisable(2);
@@ -1132,6 +1135,7 @@ void Sample_MpuMoving() {
 	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
 		I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
 		BurstReadState = 1;//reading from mpu_moving
+		mpu_moving_readburstcheapcalled++;
 	}
 	
 }
@@ -1164,7 +1168,7 @@ void BurstReadCheap_StateMachine(){
 	}
 	if(I2C2->ISR & (I2C_ISR_RXNE)){//a byte is present in the read buffer, process it.
 		bufferData = I2C2->RXDR;
-		mpu_moving_readburstcheapcalled ++;
+		
 		switch(BurstReadState){
 			case(1):{
 				mpu_moving.accel_xhigh = bufferData;
