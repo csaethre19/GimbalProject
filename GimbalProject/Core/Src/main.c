@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "USART.h"
 #include "MPU6050.h"
+#include "AS5600.h"
 #include "I2C.h"
 #include <stdio.h>
 #include <string.h>
