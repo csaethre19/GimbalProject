@@ -57,20 +57,6 @@ typedef struct {
 	
 	uint16_t deviceAddr;
 	
-	uint8_t accel_xhigh;
-	uint8_t accel_xlow;
-	uint8_t accel_yhigh;
-	uint8_t accel_ylow;
-	uint8_t accel_zhigh;
-	uint8_t accel_zlow;
-	
-	uint8_t gyro_xhigh;
-	uint8_t gyro_xlow;
-	uint8_t gyro_yhigh;
-	uint8_t gyro_ylow;
-	uint8_t gyro_zhigh;
-	uint8_t gyro_zlow;
-	
 	int16_t Accel_X_RAW;
 	int16_t Accel_Y_RAW;
 	int16_t Accel_Z_RAW;
@@ -104,18 +90,7 @@ typedef struct {
 	double dt;//Time since last KalmanFilter Execution
 	double timer;//Time of last KalmanFilter Execution
 	
-} MPU6050_t;
-
-
-// Kalman structure
-typedef struct {
-    double Q_angle;
-    double Q_bias;
-    double R_measure;
-    double angle;
-    double bias;
-    double P[2][2];
-} Kalman_t;
+} AS5600_t;
 
 /*
 	Initializes an MPU6050 IMU given a MPU6050_t type and a device address, specified by deviceAddr parameter.
@@ -125,20 +100,8 @@ typedef struct {
 	and enabling digital low pass filter setting. 
 	If MPU6050 initialization is successfull, UART messages will print to console to confirm this.
 */
-void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr);
+void AS5600_Init(volatile AS5600_t *dataStruct, uint16_t deviceAddr);
 
-
-/*
-
-*/
-void QMC_Init(void);
-
-/*
-	Reads Gyroscope data for all three axes (X, Y, and Z) from specified MPU6050 device.
-	Uses I2C read burst to get data and saves raw and converted values in dataStruct.
-	Conversion is based on the raw value divided by the LSB sensitivity constant (macro defined in this file).
-*/
-void ReadGyroData(volatile MPU6050_t *dataStruct);
 
 /*
 	Reads Accelerometer data for all three axes (X, Y, and Z) from specified MPU6050 device.
@@ -148,29 +111,7 @@ void ReadGyroData(volatile MPU6050_t *dataStruct);
 	The Angle Roll and Angle Pitch are also calculated using all data from all three accelerometer axes and
 	saved into dataStruct. 
 */
-void ReadAccelData(volatile MPU6050_t *dataStruct);
+void ReadYawData(volatile AS5600_t *dataStruct);
 
-
-/*
-	Given X, Y, and Z accelerometer data calculates the roll angle. 
-*/
-float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ);
-
-/*
-	Given X, Y, and Z accelerometer data calculates the roll pitch. 
-*/
-float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ);
-
-
-/*
-	Reads gyroscope and accelerometer data from MPU6050 (reads will save applicable data in dataStruct).
-	Calculates kalman filtered values for pitch and roll given the values saved in dataStruct for the 
-	specified MPU6050 device. 
-*/
-void KalmanFilter(volatile MPU6050_t *dataStruct);
-
-void KFilter_2(volatile MPU6050_t *dataStruct);
-
-double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
 
 #endif /* MPU6050_H */
