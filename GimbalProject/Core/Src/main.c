@@ -1110,7 +1110,6 @@ void disablePWMIN(){
 }
 
 
-
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
