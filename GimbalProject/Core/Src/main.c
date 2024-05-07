@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "USART.h"
 #include "MPU6050.h"
+#include "AS5600.h"
 #include "I2C.h"
 #include <stdio.h>
 #include <string.h>
@@ -73,6 +74,7 @@ char cmdBuffer[CMD_BUFFER_SIZE];
 uint32_t cmdBufferPos = 0;
 volatile MPU6050_t mpu_moving;
 volatile MPU6050_t mpu_stationary;
+volatile AS5600_t yaw_sense;
 volatile HMC5883_t mag_moving;
 volatile int usePWM;//usePWM decides if PWM determines desired angles
 volatile int useADC;//useADC decides if Analog input determines desired angles
@@ -1147,11 +1149,11 @@ void Custom_StartupRoutine() {
 void Sample_MpuMoving() {
 	//KFilter_2(&mpu_moving);
 	
-	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
-		I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
-		BurstReadState = 1;//reading from mpu_moving
-		mpu_moving_readburstcheapcalled++;
-	}
+//	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
+//  	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+//		BurstReadState = 1;//reading from mpu_moving
+//		mpu_moving_readburstcheapcalled++;
+//	}
 	
 }
 

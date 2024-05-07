@@ -460,11 +460,6 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\AS5600.c</FilePath>
             </File>
-            <File>
-              <FileName>AS5600.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Core\Inc\AS5600.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

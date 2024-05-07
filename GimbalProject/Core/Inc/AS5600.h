@@ -1,5 +1,5 @@
-#ifndef MPU6050_H
-#define MPU6050_H
+#ifndef AS5600_H
+#define AS5600_H
 /*
 * 	MPU6050 IMU reading and filtering functionality.
 *
@@ -16,76 +16,61 @@
  *  -------------------------------------------------------------------------------------------------------------
  */
  
+ //not accurate
 #define RAD_TO_DEG 57.295779513082320876798154814105
 
+#define AS5600_ADDR 0x36
+#define AS5600_ADDR_R   0x6D
+#define AS5600_ADDR_W   0x6C
 
-#define MPU6050_ADDR   0x68
-#define WHO_AM_I       0x75
+//Configuration Registers
+#define ZCMO 0x00
 
-#define PWR_MGMT_1     0x6B
-#define SMPLRT_DIV     0x19
-#define CONFIG         0x1A
+#define ZPOS_l 0x02
+#define ZPOS_h 0x01
 
-#define GYRO_CONFIG    0x1B
-#define GYRO_LSB_SENS  32.8 // for +-1000 deg/s
-#define GYRO_XOUT_HIGH 0x43
-#define GYRO_XOUT_LOW  0x44
+#define MPOS_l 0x04
+#define MPOS_h 0x03
 
-#define GYRO_YOUT_HIGH 0x45
-#define GYRO_YOUT_LOW  0x46
+#define MANG_l 0x06
+#define MANG_h 0x05
 
-#define GYRO_ZOUT_HIGH 0x47
-#define GYRO_ZOUT_LOW  0x48
+#define CONF_l 0x08
+#define CONF_h 0x07
 
-#define ACC_CONFIG     0x1A
-#define ACC_LSB_SENS   4096.0 // for +-8g
-#define ACC_XOUT_HIGH  0x3B
-#define ACC_XOUT_LOW   0x3C
+//Ouptut Registers
+#define RANG_l 0x0D
+#define RANG_h 0x0C
 
-#define ACC_YOUT_HIGH  0x3D
-#define ACC_YOUT_LOW   0x3E
+#define ANG_l 0x0F
+#define ANG_h 0x0E
 
-#define ACC_ZOUT_HIGH  0x3F
-#define ACC_ZOUT_LOW   0x40
+//Status Registers
+#define STATUS 0x0B
+#define AGC 0x1A
 
-#define TEMP_OUT_HIGH  0x41
-#define TEMP_OUT_LOW   0x42
+//Configurations
+#define PWMF_460 2b10
+#define OUTS_PWM 2b10
+
+
+
+//To change a configuration, read out the register, modify only the desired bits and write the new configuration. Blank fields may contain factory settings
 
 // datastruct used to hold gyro/accel data that are read from MPU6050 device
 // contains latest kalman filtered measurements 
 typedef struct {
 	
 	uint16_t deviceAddr;
+	uint16_t deviceAddrR;
+  uint16_t deviceAddrW;
 	
-	int16_t Accel_X_RAW;
-	int16_t Accel_Y_RAW;
-	int16_t Accel_Z_RAW;
-	float Ax; 
-	float Ay;
-	float Az;
-
-	int16_t Gyro_X_RAW;
-	int16_t Gyro_Y_RAW;
-	int16_t Gyro_Z_RAW;
-	float Gx;
-	float Gy;
-	float Gz;
+  uint16_t rawAngle;
+	uint16_t angle;
 	
-	float RateRoll;
-	float RatePitch;
-	float RateYaw;
+	uint8_t agc;
 	
-	float AngleRoll;
-	float AnglePitch;
-	float AngleYaw;
-	
-	float KalmanAngleRoll;
-	float KalmanAnglePitch;
-	float KalmanAngleYaw;
-	
-	float KalmanAngleUncertaintyRoll;
-	float KalmanAngleUncertaintyPitch;
-	float KalmanAngleUncertaintyYaw;
+	uint8_t magnetStatus;
 	
 	double dt;//Time since last KalmanFilter Execution
 	double timer;//Time of last KalmanFilter Execution
@@ -102,16 +87,10 @@ typedef struct {
 */
 void AS5600_Init(volatile AS5600_t *dataStruct, uint16_t deviceAddr);
 
+void AS5600_Set_Zero(volatile AS5600_t *dataStruct);
 
-/*
-	Reads Accelerometer data for all three axes (X, Y, and Z) from specified MPU6050 device.
-	Uses I2C read burst to get data and saves raw and converted values in dataStruct.
-	Conversion is based on the raw value divided by the LSB sensitivity constant (macro defined in this file).
-	
-	The Angle Roll and Angle Pitch are also calculated using all data from all three accelerometer axes and
-	saved into dataStruct. 
-*/
-void ReadYawData(volatile AS5600_t *dataStruct);
+void AS5600_Magnet_Status(volatile AS5600_t *dataStruct);
 
+void AS5600_Read_Angle(volatile AS5600_t *dataStruct);
 
 #endif /* MPU6050_H */
