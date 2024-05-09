@@ -809,20 +809,20 @@ void USART3_4_IRQHandler(void)
 				cmdBuffer[cmdBufferPos] = '\0'; // Null-terminate the string
 					//processCommand(cmdBuffer); // Process the buffered command
 			//BEGIN: ANGLE CONTROL, RETRIEVE CURRENT ANGLE----------------------------------------------
-				if (strcmp(cmdBuffer, "p") == 0){
+				if (strcmp(cmdBuffer, "p") == 0){//p\r = Return the current (absolute) pitch angle of the payload
 					USART_Transmit_Float(mpu_moving.KalmanAnglePitch, 2);
 					USART_Transmit_Newline();
 				}
-				else if(strcmp(cmdBuffer, "r") == 0){
+				else if(strcmp(cmdBuffer, "r") == 0){//r\r = Return the current (absolute) roll angle of the payload
 					USART_Transmit_Float(mpu_moving.KalmanAngleRoll, 2);				
 					USART_Transmit_Newline();
 				}
-				else if(strcmp(cmdBuffer, "y") == 0){
+				else if(strcmp(cmdBuffer, "y") == 0){//y\r = Return the current relative yaw angle of the gimbal (not implemented)
 
 					USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
 					USART_Transmit_Newline();
 					}//BEGIN: ANGLE CONTROL, SET TARGET ANGLE-------------------------------------------
-				else if(strncmp(cmdBuffer, "P", 1) == 0){
+				else if(strncmp(cmdBuffer, "P", 1) == 0){//P123.4\r = Set the desired Pitch angle using this USART messege
 
 					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
@@ -835,7 +835,7 @@ void USART3_4_IRQHandler(void)
 					USART_Transmit_String("ParseFail");						
 					}
 				}
-				else if(strncmp(cmdBuffer, "R", 1) == 0){
+				else if(strncmp(cmdBuffer, "R", 1) == 0){//R123.4\r = Set the desired Roll angle using this USART messege
 
 					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
@@ -848,7 +848,7 @@ void USART3_4_IRQHandler(void)
 						USART_Transmit_String("ParseFail");						
 					}
 				}
-				else if(strncmp(cmdBuffer, "Y", 1) == 0){
+				else if(strncmp(cmdBuffer, "Y", 1) == 0){ //Y123.4\r = Set the desired Yaw angle using this USART messege
 
 					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
@@ -861,38 +861,36 @@ void USART3_4_IRQHandler(void)
 						USART_Transmit_String("ParseFail");						
 					}
 				}//BEGIN: INPUT CONFIGURATION-------------------------------------------------------
-				else if(strcmp(cmdBuffer, "pwm1") == 0){
-					
+				else if(strcmp(cmdBuffer, "pwm1") == 0){//Enable PWM control of desired roll / pitch / yaw
 						USART_Transmit_String("PWM_EN");
 						USART_Transmit_Newline();
 						enablePWMIN();
 					
 				}
-				else if(strcmp(cmdBuffer, "pwm0") == 0){
-					
+				else if(strcmp(cmdBuffer, "pwm0") == 0){//Disable PWM control of desired roll / pitch / yaw
 						USART_Transmit_String("PWM_DIS");
 						USART_Transmit_Newline();
 						disablePWMIN();
 					
 				}///BEGIN MODE CONTROL-------------------------------------------(absolute==1  relative==0)
-				else if(strcmp(cmdBuffer, "A1") == 0){
+				else if(strcmp(cmdBuffer, "A1") == 0){//set the operation mode of Yaw (Y)
 					set_operationModeYaw(1);
-					USART_Transmit_String("Yaw=Abs");
+					USART_Transmit_String("Yaw=Abs");//A1\n = Yaw set to Absolute (magnetic heading)
 					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "A0") == 0){
 					set_operationModeYaw(0);
-					USART_Transmit_String("Yaw=Rel");
+					USART_Transmit_String("Yaw=Rel");//A0\n = Yaw set to Relative
 					USART_Transmit_Newline();
 				}
-				else if(strcmp(cmdBuffer, "B1") == 0){
+				else if(strcmp(cmdBuffer, "B1") == 0){//set the operation mode of Roll & Pitch (RP)
 					set_operationModeRollPitch(1);
-					USART_Transmit_String("RP=Abs");
+					USART_Transmit_String("RP=Abs");//A1\n = Roll/Pitch set to Absolute (Only current option)
 					USART_Transmit_Newline();
 				} 
 				else if(strcmp(cmdBuffer, "B0") == 0){
 					set_operationModeRollPitch(0);
-					USART_Transmit_String("RP=Rel");
+					USART_Transmit_String("RP=Rel");//B0\n = Roll/Pitch set to Relative (NOT IMPLEMENTED)
 					USART_Transmit_Newline();
 				} 
 				else {
@@ -1116,9 +1114,9 @@ void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
-	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
 
 	//INPUT MODE SETUP-------------------------------------------------
@@ -1129,10 +1127,10 @@ void Custom_StartupRoutine() {
 	init_RollMotor();
 	init_YawMotor();
 	BLDC_PID_Init();
-	BLDCEnable(1);
-	BLDCEnable(2);
-	//BLDCDisable(1);
-	//BLDCDisable(1);
+	//BLDCEnable(1);
+	//BLDCEnable(2);
+	BLDCDisable(1);
+	BLDCDisable(1);
 	//initDCOutput(1);
 	
 	//BLDCDisable(2);
@@ -1141,8 +1139,8 @@ void Custom_StartupRoutine() {
 	set_desiredPitch(0.0f);
 	set_operationModeRollPitch(1);
 
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
-	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
