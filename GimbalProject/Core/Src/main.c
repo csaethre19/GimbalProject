@@ -163,6 +163,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
 	uint32_t prevtime;
+	AS5600_Set_Zero(&yaw_sense);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -178,6 +179,9 @@ int main(void)
 			mpu_moving_newdata = 0;
 			KFilter_2(&mpu_moving);
 		}
+		
+		AS5600_Read_Angle(&yaw_sense);
+		AS5600_Magnet_Status(&yaw_sense);
 
 		
     /* USER CODE END WHILE */
@@ -1119,8 +1123,9 @@ void Custom_StartupRoutine() {
 	HAL_I2C_Init(&hi2c2);
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
+	AS5600_Init(&yaw_sense, 0x36);
 
 	//INPUT MODE SETUP-------------------------------------------------
 	disablePWMIN();
