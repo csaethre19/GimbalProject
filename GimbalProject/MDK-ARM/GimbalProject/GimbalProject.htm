@@ -3,7 +3,7 @@
 <title>Static Call Graph - [GimbalProject\GimbalProject.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image GimbalProject\GimbalProject.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Mon May 13 14:30:19 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6210000: Last Updated: Mon May 13 16:08:06 2024
 <BR><P>
 <H3>Maximum Stack Usage =        424 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -901,7 +901,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[33]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_scanf_really_hex_real
 </UL>
 
-<P><STRONG><a name="[a8]"></a>BLDCDisable</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, bldcmotor.o(.text.BLDCDisable))
+<P><STRONG><a name="[a8]"></a>BLDCEnable</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, bldcmotor.o(.text.BLDCEnable))
 <BR><BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Custom_StartupRoutine
 </UL>
 
@@ -922,7 +922,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID
 </UL>
 
-<P><STRONG><a name="[99]"></a>BLDC_PID</STRONG> (Thumb, 340 bytes, Stack size 24 bytes, bldcmotor.o(.text.BLDC_PID))
+<P><STRONG><a name="[99]"></a>BLDC_PID</STRONG> (Thumb, 344 bytes, Stack size 24 bytes, bldcmotor.o(.text.BLDC_PID))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = BLDC_PID &rArr; BLDC_Output &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_Output
@@ -950,7 +950,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C2_IRQHandler
 </UL>
 
-<P><STRONG><a name="[a0]"></a>Custom_StartupRoutine</STRONG> (Thumb, 316 bytes, Stack size 64 bytes, main.o(.text.Custom_StartupRoutine))
+<P><STRONG><a name="[a0]"></a>Custom_StartupRoutine</STRONG> (Thumb, 308 bytes, Stack size 64 bytes, main.o(.text.Custom_StartupRoutine))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = Custom_StartupRoutine &rArr; HAL_I2C_Init &rArr; HAL_I2C_MspInit &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
@@ -960,7 +960,7 @@ Global Symbols
 <LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_ConfigChannel
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Init
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDC_PID_Init
-<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDCDisable
+<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BLDCEnable
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_operationModeRollPitch
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredPitch
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_desiredRoll
@@ -1458,7 +1458,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Custom_StartupRoutine
 </UL>
 
-<P><STRONG><a name="[ec]"></a>Mahony_update</STRONG> (Thumb, 1504 bytes, Stack size 88 bytes, mpu6050.o(.text.Mahony_update))
+<P><STRONG><a name="[ec]"></a>Mahony_update</STRONG> (Thumb, 1516 bytes, Stack size 88 bytes, mpu6050.o(.text.Mahony_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 304<LI>Call Chain = Mahony_update &rArr; ToEulerAngles &rArr; atan2 &rArr; atan &rArr; __kernel_poly &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ToEulerAngles

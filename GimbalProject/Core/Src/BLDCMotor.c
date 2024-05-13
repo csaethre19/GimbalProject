@@ -69,21 +69,21 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	
 	rollPID.T = (float)Ti/1000;
 	pitchPID.T = (float)Ti/1000;
-	rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->KalmanAngleRoll);
-	pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->KalmanAnglePitch);
+	rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outRoll);
+	pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outPitch);
 	//float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
 	//float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
 	
 	if(rpMode == 1){//Absolute Position Mode Execute
 		// Need to add collision checking
 		//PITCH MOTOR
-		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->KalmanAnglePitch);
+		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outPitch);
 		current_pitch_instruction = current_pitch_instruction + pitchPID_output;
 		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
 		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
 		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
 		//ROLL MOTOR
-		rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->KalmanAngleRoll);
+		rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outRoll);
 		current_roll_instruction = current_roll_instruction + rollPID_output;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
@@ -184,7 +184,7 @@ void BLDCDisable(int MotorNum){
 }
 
 void BLDC_PID_Init(){
-	rollPID.Kp = 0.2;
+	rollPID.Kp = 0.4;
 	rollPID.Ki = 0.00000;
 	rollPID.Kd = 1;
 	rollPID.tau = 0.02f;
@@ -199,7 +199,7 @@ void BLDC_PID_Init(){
 	rollPID.out = 0.0f;
 	
 	
-	pitchPID.Kp = 0.2;
+	pitchPID.Kp = 0.4;
 	pitchPID.Ki = 0.0000;
 	pitchPID.Kd = 1;
 	pitchPID.tau = 0.02f;

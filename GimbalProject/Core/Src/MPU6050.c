@@ -29,7 +29,7 @@ void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 	//float q[4] = {1.0, 0.0, 0.0, 0.0};
 	dataStruct->q[0] = 1.0;dataStruct->q[1] = 0.0;dataStruct->q[2] = 0.0;dataStruct->q[3] = 0.0;
 	
-	dataStruct->Kp = 30.0;
+	dataStruct->Kp = 40.0;
 	dataStruct->Ki = 0.0;
 	
 	
@@ -375,7 +375,7 @@ void Mahony_update(volatile MPU6050_t *DataStruct) {
 	DataStruct->Gyro_Z_RAW = gyroz_raw;
 	DataStruct->Gz = gyro_z;
 	
-	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer);
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer) / 500;
 	DataStruct->timer = HAL_GetTick();
 	
 	float recipNorm;
@@ -482,7 +482,7 @@ void ToEulerAngles(volatile MPU6050_t *DataStruct) {
 	*/
 	
 	
-	DataStruct->outRoll  = (180.0 / PI) * atan2((DataStruct->q[0] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[3]), 0.5 - (DataStruct->q[1] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[2]));
+	DataStruct->outRoll  = -(180.0 / PI) * atan2((DataStruct->q[0] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[3]), 0.5 - (DataStruct->q[1] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[2]));
   DataStruct->outPitch = (180.0 / PI) * asin(2.0 * (DataStruct->q[0] * DataStruct->q[2] - DataStruct->q[1] * DataStruct->q[3]));
   //conventional yaw increases clockwise from North. Not that the MPU-6050 knows where North is.
 

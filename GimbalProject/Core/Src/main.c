@@ -1115,7 +1115,7 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
-	HAL_Delay(500);
+	HAL_Delay(1000);
 	HAL_I2C_Init(&hi2c2);
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
@@ -1131,10 +1131,10 @@ void Custom_StartupRoutine() {
 	init_RollMotor();
 	init_YawMotor();
 	BLDC_PID_Init();
-	//BLDCEnable(1);
-	//BLDCEnable(2);
-	BLDCDisable(1);
-	BLDCDisable(1);
+	BLDCEnable(1);
+	BLDCEnable(2);
+	//BLDCDisable(1);
+	//BLDCDisable(1);
 	//initDCOutput(1);
 	
 	//BLDCDisable(2);
