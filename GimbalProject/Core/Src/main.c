@@ -177,7 +177,7 @@ int main(void)
 			KFilter_2(&mpu_moving);
 		}
 
-		
+		FREquencycounter++;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
