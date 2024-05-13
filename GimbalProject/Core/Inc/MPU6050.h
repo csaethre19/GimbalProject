@@ -104,6 +104,27 @@ typedef struct {
 	double dt;//Time since last KalmanFilter Execution
 	double timer;//Time of last KalmanFilter Execution
 	
+	//-----------------MAHONY FILTER-------------------//
+	
+	float A_cal[6]; // 0..2 offset xyz, 3..5 scale xyz
+
+	float G_off[3]; //raw offsets, determined for gyro at rest
+	
+	// GLOBALLY DECLARED, required for Mahony filter
+	// vector to hold quaternion
+	float q[4];
+
+	// Free parameters in the Mahony filter and fusion scheme,
+	// Kp for proportional feedback, Ki for integral
+	float Kp;
+	float Ki;
+	
+	float outRoll;
+	float outPitch;
+	float outYaw;
+	
+	unsigned long now_ms, last_ms; //millis() timers
+	
 } MPU6050_t;
 
 
@@ -172,5 +193,9 @@ void KalmanFilter(volatile MPU6050_t *dataStruct);
 void KFilter_2(volatile MPU6050_t *dataStruct);
 
 double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
+
+void Mahony_update(volatile MPU6050_t *DataStruct);
+
+void ToEulerAngles(volatile MPU6050_t *DataStruct);
 
 #endif /* MPU6050_H */

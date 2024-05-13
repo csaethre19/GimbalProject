@@ -1,6 +1,8 @@
 #include "MPU6050.h"
 #include "arm_math.h"
 
+#define gscale ((32.8./32768.0)*(PI/180.0))  //gyro default 250 LSB per d/s -> rad/s
+
 /*.Q_angle = 0.005f,
         .Q_bias = 0.003f,
         .R_measure = 0.0001f,*/
@@ -18,6 +20,19 @@ Kalman_t KalmanRoll = {//KalmanY
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
+	//float A_cal[6] = {0.0, 0.0, 0.0, 1.000, 1.000, 1.000};
+	dataStruct->A_cal[0] = 0.0;dataStruct->A_cal[1] = 0.0;dataStruct->A_cal[2] = 0.0;
+	dataStruct->A_cal[3] = 1.000;dataStruct->A_cal[4] = 1.000;dataStruct->A_cal[5] = 1.000;
+	//float G_off[3] = { -499.5, -17.7, -82.0};
+	dataStruct->G_off[0] = 0.0;dataStruct->G_off[1] = 0.0;dataStruct->G_off[2] = 0.0;
+	
+	//float q[4] = {1.0, 0.0, 0.0, 0.0};
+	dataStruct->q[0] = 1.0;dataStruct->q[1] = 0.0;dataStruct->q[2] = 0.0;dataStruct->q[3] = 0.0;
+	
+	dataStruct->Kp = 30.0;
+	dataStruct->Ki = 0.0;
+	
+	
 	dataStruct->deviceAddr = deviceAddr;
 	USART_Transmit_String("MPU6050 Address: ");
 	USART_Transmit_Number(deviceAddr);
@@ -332,3 +347,131 @@ double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double
     return Kalman->angle;
 };
 
+void Mahony_update(volatile MPU6050_t *DataStruct) {
+	int16_t x_raw = (int16_t)(DataStruct->accel_xhigh << 8 | DataStruct->accel_xlow);
+	float accel_x = (float)x_raw/ACC_LSB_SENS;
+	int16_t y_raw = (int16_t)(DataStruct->accel_yhigh << 8 | DataStruct->accel_ylow);
+	float accel_y = (float)y_raw/ACC_LSB_SENS;
+	int16_t z_raw = (int16_t)(DataStruct->accel_zhigh << 8 | DataStruct->accel_zlow);
+	float accel_z = (float)z_raw/ACC_LSB_SENS;
+	DataStruct->Accel_X_RAW = x_raw;
+	DataStruct->Ax = accel_x;
+	DataStruct->Accel_Y_RAW = y_raw;
+	DataStruct->Ay = accel_y;
+	DataStruct->Accel_Z_RAW = z_raw;
+	DataStruct->Az = accel_z;
+	//New Data present in raw low, high gyro values, update gyro data
+	float gyrox_raw = (int16_t)(DataStruct->gyro_xhigh << 8 | DataStruct->gyro_xlow);
+	float gyro_x = gyrox_raw/GYRO_LSB_SENS;
+	float gyroy_raw = (int16_t)(DataStruct->gyro_yhigh << 8 | DataStruct->gyro_ylow);
+	float gyro_y = gyroy_raw/GYRO_LSB_SENS;
+	float gyroz_raw = (int16_t)(DataStruct->gyro_zhigh << 8 | DataStruct->gyro_zlow);
+	float gyro_z = gyroz_raw/GYRO_LSB_SENS;
+	DataStruct->Gyro_X_RAW = gyrox_raw;
+	DataStruct->Gx = gyro_x;
+	DataStruct->Gyro_Y_RAW = gyroy_raw;
+	DataStruct->Gy = gyro_y;
+	DataStruct->Gyro_Z_RAW = gyroz_raw;
+	DataStruct->Gz = gyro_z;
+	
+	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer);
+	DataStruct->timer = HAL_GetTick();
+	
+	float recipNorm;
+  float vx, vy, vz;
+  float ex, ey, ez;  //error terms
+  float qa, qb, qc;
+	//void Mahony_update(float ax, float ay, float az, float gx, float gy, float gz, float deltat)
+	float ax = DataStruct->Accel_X_RAW;
+	float ay = DataStruct->Accel_Y_RAW;
+	float az = DataStruct->Accel_Z_RAW;
+	float gx = DataStruct->Gyro_X_RAW;
+	float gy = DataStruct->Gyro_Y_RAW;
+	float gz = DataStruct->Gyro_Z_RAW;
+	double Gxyz[3];
+  Gxyz[0] = ((float) DataStruct->Gyro_X_RAW - DataStruct->G_off[0]) * gscale; //250 LSB(d/s) default to radians/s
+  Gxyz[1] = ((float) DataStruct->Gyro_Y_RAW - DataStruct->G_off[1]) * gscale;
+  Gxyz[2] = ((float) DataStruct->Gyro_Z_RAW - DataStruct->G_off[2]) * gscale;
+	
+  static float ix = 0.0, iy = 0.0, iz = 0.0;  //integral feedback terms
+	float tmp;
+
+  // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
+  tmp = ax * ax + ay * ay + az * az;
+	
+    // Normalise accelerometer (assumed to measure the direction of gravity in body frame)
+    recipNorm = 1.0 / sqrt(tmp);
+    ax *= recipNorm;
+    ay *= recipNorm;
+    az *= recipNorm;
+
+    // Estimated direction of gravity in the body frame (factor of two divided out)
+    vx = DataStruct->q[1] * DataStruct->q[3] - DataStruct->q[0] * DataStruct->q[2];  //to normalize these terms, multiply each by 2.0
+    vy = DataStruct->q[0] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[3];
+    vz = DataStruct->q[0] * DataStruct->q[0] - 0.5f + DataStruct->q[3] * DataStruct->q[3];
+
+    // Error is cross product between estimated and measured direction of gravity in body frame
+    // (half the actual magnitude)
+    ex = (ay * vz - az * vy);
+    ey = (az * vx - ax * vz);
+    ez = (ax * vy - ay * vx);
+
+    // Compute and apply to gyro term the integral feedback, if enabled
+    if (DataStruct->Ki > 0.0f) {
+      ix += DataStruct->Ki * ex * DataStruct->dt;  // integral error scaled by Ki
+      iy += DataStruct->Ki * ey * DataStruct->dt;
+      iz += DataStruct->Ki * ez * DataStruct->dt;
+      gx += ix;  // apply integral feedback
+      gy += iy;
+      gz += iz;
+    }
+
+    // Apply proportional feedback to gyro term
+    gx += DataStruct->Kp * ex;
+    gy += DataStruct->Kp * ey;
+    gz += DataStruct->Kp * ez;
+
+  // Integrate rate of change of quaternion, q cross gyro term
+  DataStruct->dt = 0.5 * DataStruct->dt;
+  gx *= DataStruct->dt;   // pre-multiply common factors
+  gy *= DataStruct->dt;
+  gz *= DataStruct->dt;
+  qa = DataStruct->q[0];
+  qb = DataStruct->q[1];
+  qc = DataStruct->q[2];
+  DataStruct->q[0] += (-qb * gx - qc * gy - DataStruct->q[3] * gz);
+  DataStruct->q[1] += (qa * gx + qc * gz - DataStruct->q[3] * gy);
+  DataStruct->q[2] += (qa * gy - qb * gz + DataStruct->q[3] * gx);
+  DataStruct->q[3] += (qa * gz + qb * gy - qc * gx);
+
+  // renormalise quaternion
+  recipNorm = 1.0 / sqrt(DataStruct->q[0] * DataStruct->q[0] + DataStruct->q[1] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[2] + DataStruct->q[3] * DataStruct->q[3]);
+  DataStruct->q[0] = DataStruct->q[0] * recipNorm;
+  DataStruct->q[1] = DataStruct->q[1] * recipNorm;
+  DataStruct->q[2] = DataStruct->q[2] * recipNorm;
+  DataStruct->q[3] = DataStruct->q[3] * recipNorm;
+	
+	ToEulerAngles(DataStruct);
+	
+}
+
+
+void ToEulerAngles(volatile MPU6050_t *DataStruct) {
+
+    // roll (x-axis rotation)
+    double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+    double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+    DataStruct->outRoll = std::atan2(sinr_cosp, cosr_cosp);
+
+    // pitch (y-axis rotation)
+    double sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+    double cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+    DataStruct->pitch = 2 * std::atan2(sinp, cosp) - M_PI / 2;
+
+    // yaw (z-axis rotation)
+    double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+    double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+    angles.yaw = std::atan2(siny_cosp, cosy_cosp);
+
+    return angles;
+}
