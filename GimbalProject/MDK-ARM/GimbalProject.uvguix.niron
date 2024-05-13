@@ -1865,17 +1865,17 @@
       <ActiveTab>2</ActiveTab>
       <Doc>
         <Name>../Core/Src/main.c</Name>
-        <ColumnNumber>26</ColumnNumber>
-        <TopLine>279</TopLine>
-        <CurrentLine>1174</CurrentLine>
+        <ColumnNumber>23</ColumnNumber>
+        <TopLine>163</TopLine>
+        <CurrentLine>166</CurrentLine>
         <Folding>1</Folding>
-        <ContractedFolders>190,195,227,233,297,303,345,351,429,435,496,502,563,569,601,607,664,670,710,716,745,751,796,800,923,939,972,1001,1020,1077,1083,1097,1108</ContractedFolders>
+        <ContractedFolders>189,194,226,232,296,302,344,350,428,434,495,501,562,568,600,606,663,669,709,715,744,750,795,799,922,938,971,1000,1019,1076,1082,1096,1107</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
       <Doc>
         <Name>..\Core\Src\BLDCMotor.c</Name>
         <ColumnNumber>67</ColumnNumber>
-        <TopLine>1</TopLine>
+        <TopLine>37</TopLine>
         <CurrentLine>56</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
@@ -1883,18 +1883,18 @@
       </Doc>
       <Doc>
         <Name>..\Core\Src\MPU6050.c</Name>
-        <ColumnNumber>20</ColumnNumber>
-        <TopLine>1</TopLine>
-        <CurrentLine>7</CurrentLine>
+        <ColumnNumber>50</ColumnNumber>
+        <TopLine>205</TopLine>
+        <CurrentLine>397</CurrentLine>
         <Folding>1</Folding>
-        <ContractedFolders></ContractedFolders>
+        <ContractedFolders>106,145,188,198,209,317</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
       <Doc>
         <Name>..\Core\Inc\MPU6050.h</Name>
-        <ColumnNumber>15</ColumnNumber>
-        <TopLine>100</TopLine>
-        <CurrentLine>124</CurrentLine>
+        <ColumnNumber>26</ColumnNumber>
+        <TopLine>109</TopLine>
+        <CurrentLine>54</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>

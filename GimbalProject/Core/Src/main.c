@@ -162,7 +162,6 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
-	uint32_t prevtime;
 
   /* USER CODE END 2 */
 
@@ -177,7 +176,7 @@ int main(void)
 		}
 		if(mpu_moving_newdata){
 			mpu_moving_newdata = 0;
-			KFilter_2(&mpu_moving);
+			Mahony_update(&mpu_moving);
 		}
 
 		

@@ -51,6 +51,8 @@
 #define TEMP_OUT_HIGH  0x41
 #define TEMP_OUT_LOW   0x42
 
+#define M_PI 3.14159265359
+
 // datastruct used to hold gyro/accel data that are read from MPU6050 device
 // contains latest kalman filtered measurements 
 typedef struct {

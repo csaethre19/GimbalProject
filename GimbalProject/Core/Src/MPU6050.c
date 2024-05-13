@@ -1,7 +1,7 @@
 #include "MPU6050.h"
 #include "arm_math.h"
 
-#define gscale ((32.8./32768.0)*(PI/180.0))  //gyro default 250 LSB per d/s -> rad/s
+#define gscale 0.00001747  //gyro default 250 LSB per d/s -> rad/s
 
 /*.Q_angle = 0.005f,
         .Q_bias = 0.003f,
@@ -348,6 +348,7 @@ double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double
 };
 
 void Mahony_update(volatile MPU6050_t *DataStruct) {
+	
 	int16_t x_raw = (int16_t)(DataStruct->accel_xhigh << 8 | DataStruct->accel_xlow);
 	float accel_x = (float)x_raw/ACC_LSB_SENS;
 	int16_t y_raw = (int16_t)(DataStruct->accel_yhigh << 8 | DataStruct->accel_ylow);
@@ -381,6 +382,8 @@ void Mahony_update(volatile MPU6050_t *DataStruct) {
   float vx, vy, vz;
   float ex, ey, ez;  //error terms
   float qa, qb, qc;
+	static float ix = 0.0, iy = 0.0, iz = 0.0;  //integral feedback terms
+	float tmp;
 	//void Mahony_update(float ax, float ay, float az, float gx, float gy, float gz, float deltat)
 	float ax = DataStruct->Accel_X_RAW;
 	float ay = DataStruct->Accel_Y_RAW;
@@ -389,12 +392,12 @@ void Mahony_update(volatile MPU6050_t *DataStruct) {
 	float gy = DataStruct->Gyro_Y_RAW;
 	float gz = DataStruct->Gyro_Z_RAW;
 	double Gxyz[3];
-  Gxyz[0] = ((float) DataStruct->Gyro_X_RAW - DataStruct->G_off[0]) * gscale; //250 LSB(d/s) default to radians/s
-  Gxyz[1] = ((float) DataStruct->Gyro_Y_RAW - DataStruct->G_off[1]) * gscale;
-  Gxyz[2] = ((float) DataStruct->Gyro_Z_RAW - DataStruct->G_off[2]) * gscale;
-	
-  static float ix = 0.0, iy = 0.0, iz = 0.0;  //integral feedback terms
-	float tmp;
+  gx = ((float) DataStruct->Gyro_X_RAW) * (1000/32768.0);
+	gx = gx * M_PI / 180;
+  gy = ((float) DataStruct->Gyro_Y_RAW) * (1000/32768.0);
+	gy = gy * M_PI / 180;
+  gz = ((float) DataStruct->Gyro_Z_RAW) * (1000/32768.0);
+	gz = gz * M_PI / 180;
 
   // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
   tmp = ax * ax + ay * ay + az * az;
@@ -457,21 +460,31 @@ void Mahony_update(volatile MPU6050_t *DataStruct) {
 
 
 void ToEulerAngles(volatile MPU6050_t *DataStruct) {
+	float qw = DataStruct->q[0];
+	float qx = DataStruct->q[1];
+	float qy = DataStruct->q[2];
+	float qz = DataStruct->q[3];
+	/*
+	// roll (x-axis rotation)
+  double sinr_cosp = 2 * (qw * qx + qy * qz);
+  double cosr_cosp = 1 - 2 * (qx * qx + qy * qy);
+  DataStruct->outRoll = atan2(sinr_cosp, cosr_cosp);;
 
-    // roll (x-axis rotation)
-    double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-    double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-    DataStruct->outRoll = std::atan2(sinr_cosp, cosr_cosp);
+  // pitch (y-axis rotation)
+  double sinp = sqrt(1 + 2 * (qw * qy - qx * qz));
+  double cosp = sqrt(1 - 2 * (qw * qy - qx * qz));
+  DataStruct->outPitch = 2 * atan2(sinp, cosp) - M_PI / 2;
 
-    // pitch (y-axis rotation)
-    double sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
-    double cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
-    DataStruct->pitch = 2 * std::atan2(sinp, cosp) - M_PI / 2;
+  // yaw (z-axis rotation)
+  double siny_cosp = 2 * (qw * qz + qx * qy);
+  double cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
+  DataStruct->outYaw = atan2(siny_cosp, cosy_cosp);
+	*/
+	
+	
+	DataStruct->outRoll  = (180.0 / PI) * atan2((DataStruct->q[0] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[3]), 0.5 - (DataStruct->q[1] * DataStruct->q[1] + DataStruct->q[2] * DataStruct->q[2]));
+  DataStruct->outPitch = (180.0 / PI) * asin(2.0 * (DataStruct->q[0] * DataStruct->q[2] - DataStruct->q[1] * DataStruct->q[3]));
+  //conventional yaw increases clockwise from North. Not that the MPU-6050 knows where North is.
 
-    // yaw (z-axis rotation)
-    double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-    double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-    angles.yaw = std::atan2(siny_cosp, cosy_cosp);
-
-    return angles;
+  return;
 }

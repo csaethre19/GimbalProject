@@ -28,68 +28,12 @@ Project File Date:  05/13/2024
 *** Using Compiler 'V6.21', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'GimbalProject'
 compiling DCMotor.c...
-../Core/Src/MPU6050.c(359): error: no member named 'ax' in 'MPU6050_t'
-  359 |   tmp = DataStruct->ax * ax + ay * ay + az * az;
-      |         ~~~~~~~~~~  ^
-../Core/Src/MPU6050.c(359): error: use of undeclared identifier 'ax'
-  359 |   tmp = DataStruct->ax * ax + ay * ay + az * az;
-      |                          ^
-../Core/Src/MPU6050.c(359): error: use of undeclared identifier 'ay'
-  359 |   tmp = DataStruct->ax * ax + ay * ay + az * az;
-      |                               ^
-../Core/Src/MPU6050.c(359): error: use of undeclared identifier 'ay'
-  359 |   tmp = DataStruct->ax * ax + ay * ay + az * az;
-      |                                    ^
-../Core/Src/MPU6050.c(359): error: use of undeclared identifier 'az'
-  359 |   tmp = DataStruct->ax * ax + ay * ay + az * az;
-      |                                         ^
-../Core/Src/MPU6050.c(359): error: use of undeclared identifier 'az'
-  359 |   tmp = DataStruct->ax * ax + ay * ay + az * az;
-      |                                              ^
-../Core/Src/MPU6050.c(365): error: use of undeclared identifier 'ax'
-  365 |     ax *= recipNorm;
-      |     ^
-../Core/Src/MPU6050.c(366): error: use of undeclared identifier 'ay'
-  366 |     ay *= recipNorm;
-      |     ^
-../Core/Src/MPU6050.c(367): error: use of undeclared identifier 'az'
-  367 |     az *= recipNorm;
-      |     ^
-../Core/Src/MPU6050.c(370): error: use of undeclared identifier 'q'
-  370 |     vx = q[1] * q[3] - q[0] * q[2];  //to normalize these terms, multiply each by 2.0
-      |          ^
-../Core/Src/MPU6050.c(370): error: use of undeclared identifier 'q'
-  370 |     vx = q[1] * q[3] - q[0] * q[2];  //to normalize these terms, multiply each by 2.0
-      |                 ^
-../Core/Src/MPU6050.c(370): error: use of undeclared identifier 'q'
-  370 |     vx = q[1] * q[3] - q[0] * q[2];  //to normalize these terms, multiply each by 2.0
-      |                        ^
-../Core/Src/MPU6050.c(370): error: use of undeclared identifier 'q'
-  370 |     vx = q[1] * q[3] - q[0] * q[2];  //to normalize these terms, multiply each by 2.0
-      |                               ^
-../Core/Src/MPU6050.c(371): error: use of undeclared identifier 'q'
-  371 |     vy = q[0] * q[1] + q[2] * q[3];
-      |          ^
-../Core/Src/MPU6050.c(371): error: use of undeclared identifier 'q'
-  371 |     vy = q[0] * q[1] + q[2] * q[3];
-      |                 ^
-../Core/Src/MPU6050.c(371): error: use of undeclared identifier 'q'
-  371 |     vy = q[0] * q[1] + q[2] * q[3];
-      |                        ^
-../Core/Src/MPU6050.c(371): error: use of undeclared identifier 'q'
-  371 |     vy = q[0] * q[1] + q[2] * q[3];
-      |                               ^
-../Core/Src/MPU6050.c(372): error: use of undeclared identifier 'q'
-  372 |     vz = q[0] * q[0] - 0.5f + q[3] * q[3];
-      |          ^
-../Core/Src/MPU6050.c(372): error: use of undeclared identifier 'q'
-  372 |     vz = q[0] * q[0] - 0.5f + q[3] * q[3];
-      |                 ^
-fatal error: too many errors emitted, stopping now [-ferror-limit=]
-20 errors generated.
-compiling MPU6050.c...
 compiling I2C.c...
-"GimbalProject\GimbalProject.axf" - 19 Error(s), 0 Warning(s).
+compiling MPU6050.c...
+linking...
+Program Size: Code=36088 RO-data=3508 RW-data=16 ZI-data=3088  
+FromELF: creating hex file...
+"GimbalProject\GimbalProject.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -156,8 +100,7 @@ Package Vendor: Keil
       Source file:   Source/SVMFunctions/SVMFunctionsF16.c
       Source file:   Source/ComplexMathFunctions/ComplexMathFunctionsF16.c
       Source file:   Source/InterpolationFunctions/InterpolationFunctions.c
-Target not created.
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>
