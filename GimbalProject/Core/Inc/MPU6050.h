@@ -10,6 +10,7 @@
 #include "main.h"
 #include "I2C.h"
 #include "USART.h"
+#include "Fusion.h"
 
 /* -------------------------------------------------------------------------------------------------------------
  *  Global Variable and Type Declarations
@@ -50,8 +51,6 @@
 
 #define TEMP_OUT_HIGH  0x41
 #define TEMP_OUT_LOW   0x42
-
-#define M_PI 3.14159265359
 
 // datastruct used to hold gyro/accel data that are read from MPU6050 device
 // contains latest kalman filtered measurements 
@@ -112,14 +111,8 @@ typedef struct {
 
 	float G_off[3]; //raw offsets, determined for gyro at rest
 	
-	// GLOBALLY DECLARED, required for Mahony filter
-	// vector to hold quaternion
-	float q[4];
-
-	// Free parameters in the Mahony filter and fusion scheme,
-	// Kp for proportional feedback, Ki for integral
-	float Kp;
-	float Ki;
+	// GLOBALLY DECLARED, required for Fusion Library Operation
+	FusionAhrs ahrs;
 	
 	float outRoll;
 	float outPitch;
@@ -196,8 +189,7 @@ void KFilter_2(volatile MPU6050_t *dataStruct);
 
 double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
 
-void Mahony_update(volatile MPU6050_t *DataStruct);
+void Fusion_update(volatile MPU6050_t *DataStruct);
 
-void ToEulerAngles(volatile MPU6050_t *DataStruct);
 
 #endif /* MPU6050_H */
