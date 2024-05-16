@@ -86,12 +86,12 @@ typedef struct {
 	float Gy;
 	float Gz;
 	
-	float RateRoll;
-	float RatePitch;
-	float RateYaw;
+	//float RateRoll;
+	//float RatePitch;
+	//float RateYaw;
 	
-	float AngleRoll;
-	float AnglePitch;
+	//float AngleRoll;
+	//float AnglePitch;
 	float AngleYaw;
 	
 	float KalmanAngleRoll;

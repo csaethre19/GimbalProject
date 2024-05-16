@@ -3,8 +3,11 @@
 #include "arm_math.h"
 
 #define gscale 0.00001747  //gyro default 250 LSB per d/s -> rad/s
+#define moving_samplerate (0.001f)
 
 FusionAhrs moving_ahrs;
+
+
 
 /*.Q_angle = 0.005f,
         .Q_bias = 0.003f,
@@ -23,7 +26,8 @@ Kalman_t KalmanRoll = {//KalmanY
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
-	FusionAhrsInitialise(&(dataStruct->ahrs));
+	
+	FusionAhrsInitialise(&moving_ahrs);
 	
 	dataStruct->deviceAddr = deviceAddr;
 	USART_Transmit_String("MPU6050 Address: ");
@@ -129,9 +133,6 @@ void ReadGyroData(volatile MPU6050_t *dataStruct)
 	dataStruct->Gyro_Z_RAW = z_raw;
 	dataStruct->Gz = gyro_z;
 	
-	//dataStruct->RateRoll = gyro_x;
-	//dataStruct->RatePitch = gyro_y;
-	//dataStruct->RateYaw = gyro_z;
 }
 
 void ReadAccelData(volatile MPU6050_t *dataStruct)
@@ -172,75 +173,7 @@ void ReadAccelData(volatile MPU6050_t *dataStruct)
 	dataStruct->Ay = accel_y;
 	dataStruct->Accel_Z_RAW = z_raw;
 	dataStruct->Az = accel_z;
-	
-	//dataStruct->AngleRoll = CalculateAngleRoll(accel_x, accel_y, accel_z);
-	//dataStruct->AnglePitch = CalculateAnglePitch(accel_x, accel_y, accel_z);
-}
 
-float CalculateAngleRoll(float AccelX, float AccelY, float AccelZ)
-{
-	float stepvar = sqrt((AccelX*AccelX) + (AccelZ*AccelZ));
-	stepvar = AccelY / stepvar;
-	stepvar = atan(stepvar);
-	stepvar = stepvar / (3.141592/180);
-	return stepvar;
-	//return atan(AccelY/sqrt((AccelX*AccelX)+(AccelZ*AccelZ)))*1/(3.141592/180);
-}
-
-float CalculateAnglePitch(float AccelX, float AccelY, float AccelZ)
-{
-	float stepvar = sqrt((AccelY*AccelY) + (AccelZ*AccelZ));
-	stepvar = AccelX / stepvar;
-	stepvar = -atan(stepvar);
-	stepvar = stepvar / (3.141592/180);
-	return stepvar;
-	//return -atan(AccelX/sqrt((AccelY*AccelY)+(AccelZ*AvccelZ)))*1/(3.141592/180);
-}
-
-
-void KalmanFilter(volatile MPU6050_t *dataStruct)
-{
-	
-	
-	ReadGyroData(dataStruct);
-	
-	ReadAccelData(dataStruct);
-
-	// Not using Magnetometer right now!
-	//ReadMagData(dataStruct);
-
-	
-	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (0.004 * dataStruct->RateRoll);
-	dataStruct->KalmanAngleUncertaintyRoll = dataStruct->KalmanAngleUncertaintyRoll + (0.004 * 0.004 * 3 * 3);
-	float KalmanGainRoll = dataStruct->KalmanAngleUncertaintyRoll * (1/(dataStruct->KalmanAngleUncertaintyRoll + (9)));
-	dataStruct->KalmanAngleRoll = dataStruct->KalmanAngleRoll + (KalmanGainRoll * (dataStruct->AngleRoll - dataStruct->KalmanAngleRoll));
-	dataStruct->KalmanAngleUncertaintyRoll = (1 - KalmanGainRoll) * dataStruct->KalmanAngleUncertaintyRoll;
-	
-	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (0.004 * dataStruct->RatePitch);
-	dataStruct->KalmanAngleUncertaintyPitch = dataStruct->KalmanAngleUncertaintyPitch + (0.004 * 0.004 * 3 * 3);
-	float KalmanGainPitch = dataStruct->KalmanAngleUncertaintyPitch * (1/(dataStruct->KalmanAngleUncertaintyPitch + (9)));
-	dataStruct->KalmanAnglePitch = dataStruct->KalmanAnglePitch + (KalmanGainPitch * (dataStruct->AnglePitch - dataStruct->KalmanAnglePitch));
-	dataStruct->KalmanAngleUncertaintyPitch = (1 - KalmanGainPitch) * dataStruct->KalmanAngleUncertaintyPitch;
-	
-
-	//USART_Transmit_String("AxelY: ");
-	//USART_Transmit_Float(dataStruct->Ay, 3);
-	//USART_Transmit_Float(dataStruct->KalmanAnglePitch, 3);
-	//USART_Transmit_Newline();
-	
-	//USART_Transmit_String("  AxelX: ");
-	//USART_Transmit_Float(dataStruct->Ax, 3);
-	//USART_Transmit_Float(dataStruct->KalmanAngleRoll, 3);
-	//USART_Transmit_Newline();
-	
-	//USART_Transmit_String("  AxelZ: ");
-	//USART_Transmit_Float(dataStruct->Az, 3);
-	
-	//USART_Transmit_String("Yaw: ");
-	//USART_Transmit_Float(dataStruct->KalmanAngleYaw, 3);
-	//USART_Transmit_Newline();
-	
-	//USART_Transmit_Newline();
 }
 
 void KFilter_2(volatile MPU6050_t *DataStruct){
@@ -370,7 +303,13 @@ void Fusion_update(volatile MPU6050_t *DataStruct) {
 	DataStruct->dt = (double) (HAL_GetTick() - DataStruct->timer);
 	DataStruct->timer = HAL_GetTick();
 	
+	FusionVector gyroscope = {gyro_x, gyro_y, gyro_z};//xyz
+	FusionVector accelerometer = {accel_x, accel_y, accel_z};//xyz
 	
+	FusionAhrsUpdateNoMagnetometer(&moving_ahrs,gyroscope, accelerometer, moving_samplerate);
+	
+	FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&moving_ahrs));
+	DataStruct->outPitch = euler.angle.pitch;
+	DataStruct->outRoll = euler.angle.roll;
 	
 }
-

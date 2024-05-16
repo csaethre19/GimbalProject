@@ -176,7 +176,7 @@ int main(void)
 		}
 		if(mpu_moving_newdata){
 			mpu_moving_newdata = 0;
-			Mahony_update(&mpu_moving);
+			Fusion_update(&mpu_moving);
 		}
 
 		

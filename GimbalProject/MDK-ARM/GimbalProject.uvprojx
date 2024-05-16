@@ -459,6 +459,21 @@
               <FileType>1</FileType>
               <FilePath>..\Core\Src\AS5600.c</FilePath>
             </File>
+            <File>
+              <FileName>FusionAhrs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\FusionAhrs.c</FilePath>
+            </File>
+            <File>
+              <FileName>FusionCompass.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\FusionCompass.c</FilePath>
+            </File>
+            <File>
+              <FileName>FusionOffset.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\FusionOffset.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
