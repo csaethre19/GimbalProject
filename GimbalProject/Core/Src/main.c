@@ -106,7 +106,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void init_PitchMotor();
 void init_RollMotor();
 void init_YawMotor();
-
 void enablePWMIN();
 void disablePWMIN();
 int map(int value, int fromLow, int fromHigh, int toLow, int toHigh);
@@ -179,6 +178,14 @@ int main(void)
 			Mahony_update(&mpu_moving);
 		}
 
+		
+		if(GPIOC->IDR &= GPIO_IDR_13){
+			GPIOC->ODR &= ~GPIO_ODR_6;
+		}
+		else{
+			GPIOC->ODR |= GPIO_ODR_6;
+		}
+		
 		
     /* USER CODE END WHILE */
 
@@ -767,6 +774,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, EN_BLDC2_Pin|EN_BLDC1_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /*Configure GPIO pin : LED_Indicator_Pin */
   GPIO_InitStruct.Pin = LED_Indicator_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -997,25 +1010,35 @@ void init_RollMotor()
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  
 	return;
 }
-
-void init_YawMotor(){
-		int value = 1000;
-
-    TIM_OC_InitTypeDef sConfigOC;
-  
-    sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		sConfigOC.Pulse = 1000;
-		//begin outputting dutycycle = 100% on DC_Ch1 & DC_Ch2
-    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);  
-
-    HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);  
-		return;
-}
+void init_YawMotor()
+{
+	double PI = 3.1415926535897932;
+	double Angle1 = 0;
 	
+	//Angle1 Conversion
+	Angle1 = (double)Angle1 * PI;
+	Angle1 = Angle1 / 180;
+	Angle1 = sin(Angle1);
+
+	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+	Angle1 = Angle1 + 500;
+
+  TIM_OC_InitTypeDef sConfigOC;
+  
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	sConfigOC.Pulse = Angle1;
+  HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);  
+
+  HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);  
+
+  HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);  
+}
+
 
 void PID_execute(){
 	//Update Desired Angles
@@ -1131,14 +1154,13 @@ void Custom_StartupRoutine() {
 	init_RollMotor();
 	init_YawMotor();
 	BLDC_PID_Init();
-	BLDCEnable(1);
-	BLDCEnable(2);
-	//BLDCDisable(1);
-	//BLDCDisable(1);
+	//BLDCEnable(1);
+	//BLDCEnable(2);
+	BLDCDisable(1);
+	BLDCDisable(2);
+	BLDCDisable(3);
 	//initDCOutput(1);
 	
-	//BLDCDisable(2);
-	//BLDCDisable(1);
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_operationModeRollPitch(1);

@@ -109,7 +109,7 @@ int8_t I2C_ReadRegister(uint16_t deviceAddr)
 	// Check if NACK set
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
-		GPIOC->ODR |= GPIO_ODR_8; // ORANGE - I2C not working!
+		//GPIOC->ODR |= GPIO_ODR_8; // ORANGE - I2C not working!
 	}
 		
 	// Wait for TC flag set

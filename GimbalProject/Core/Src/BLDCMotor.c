@@ -11,6 +11,7 @@
 #define half_Roll_TimARR 500;
 #define Pitch 1;
 #define Roll 2;
+#define Yaw 3;
 #define Pitch_1A TIM2->CCR1;
 #define Pitch_1B TIM2->CCR2;
 #define Pitch_1C TIM2->CCR3;
@@ -20,14 +21,18 @@
 
 
 //PID TRACKING DATA
-volatile double target_pitch = 0;        // Desired pitch angle target
-volatile double target_roll = 0;        // Desired roll angle target
+volatile float target_pitch = 0;        // Desired pitch angle
+volatile float target_roll = 0;        // Desired roll angle
+volatile float target_yaw = 0;         // Desired (relative) yaw angle target
+
 
 volatile int16_t measured_roll = 0;       // Measured roll angle
 volatile int16_t measured_pitch = 0;       // Measured pitch angle
+volatile int16_t measured_yaw = 0;        //Measured (relative) yaw angle
 
-volatile double current_pitch_instruction = 0; //currently instructed motor angle for pitch axis
-volatile double current_roll_instruction = 0;
+volatile float current_pitch_instruction = 0; //currently instructed motor angle for pitch axis
+volatile float current_roll_instruction = 0;
+volatile float current_yaw_instruction = 0;
 
 PIDController rollPID;
 PIDController pitchPID;
@@ -37,9 +42,11 @@ volatile int16_t rpMode = 1;
 volatile int16_t yMode = 0;
 
 int lastPIDtime = 0;
+int lastYawPIDtime = 0;
 
 float rollPID_output = 0;
 float pitchPID_output = 0;
+float yawPID_output = 0;
 
 // This implementation of BLDCMotor control takes in a value from 0-359 as the "desired angle"
 //	The determination of what this "desired angle" is currently intended to be performed elsewhere
@@ -55,8 +62,24 @@ float pitchPID_output = 0;
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
+void set_desiredYaw(float desiredYaw){target_yaw = desiredYaw;}
 void set_operationModeRollPitch(int16_t setMode){rpMode = setMode;}
 void set_operationModeYaw(int16_t setMode){yMode = setMode;}
+
+void YAW_PID(volatile HMC5883_t yawSense)
+{
+	float Ti = (float) (HAL_GetTick() - lastYawPIDtime);//Time increment
+	float lastYawPIDtime = HAL_GetTick();
+	yawPID.T = (float)Ti/1000;
+	
+	if(yMode == 0){//Desired Yaw Orientation in RELATIVE mode-----------------
+		//YAW MOTOR
+		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, yawSense->outPitch);
+		current_pitch_instruction = current_pitch_instruction + pitchPID_output;
+		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
+		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+	}
+}
 
 void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *stationaryOrientation){
 	//CURRENT IMPLEMENTATION:
@@ -64,13 +87,12 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	//,
 	//double pitch_preverror = pitch_error;
 	//double roll_preverror = roll_error;
-	double Ti = (double) (HAL_GetTick() - lastPIDtime);//Time increment
-	double lastPIDtime = HAL_GetTick();
+	float Ti = (float) (HAL_GetTick() - lastPIDtime);//Time increment
+	float lastPIDtime = HAL_GetTick();
 	
 	rollPID.T = (float)Ti/1000;
 	pitchPID.T = (float)Ti/1000;
-	rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outRoll);
-	pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outPitch);
+	
 	//float relativePitch = targetOrientation->AnglePitch - stationaryOrientation->AnglePitch;
 	//float relativeRoll = targetOrientation->AngleRoll - stationaryOrientation->AngleRoll;
 	
@@ -88,6 +110,9 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
 		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;
+		//YAW MOTOR
+		
+		
 	}
 	/*else{//Relative Position Mode Execute
 		//PITCH MOTOR
@@ -121,8 +146,8 @@ void BLDC_Output(float Angle1, int MotorNum)
 {
 	if((Angle1 < 0) || (Angle1 > 360)) return;
 	
-	double Angle2 = Angle1 + 120;
-	double Angle3 = Angle1 + 240;
+	float Angle2 = Angle1 + 120;
+	float Angle3 = Angle1 + 240;
 	if(Angle2 > 360) Angle2 -= 360;
 	if(Angle3 > 360) Angle3 -= 360;
 	
@@ -137,12 +162,12 @@ void BLDC_Output(float Angle1, int MotorNum)
 	Angle3 = arm_sin_f32(Angle3);
 	
 	if(MotorNum == 1){
-		Angle1 = Angle1 * (double)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle1 = Angle1 + (double)half_Pitch_TimARR;
-		Angle2 = Angle2 * (double)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle2 = Angle2 + (double)half_Pitch_TimARR;
-		Angle3 = Angle3 * (double)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle3 = Angle3 + (double)half_Pitch_TimARR;
+		Angle1 = Angle1 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + (float)half_Pitch_TimARR;
+		Angle2 = Angle2 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + (float)half_Pitch_TimARR;
+		Angle3 = Angle3 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + (float)half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
 		
 		TIM2->CCR1 = Angle1 * 0.7;
@@ -151,12 +176,12 @@ void BLDC_Output(float Angle1, int MotorNum)
 		return;
 	}
 	else if(MotorNum == 2){
-		Angle1 = Angle1 * (double)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle1 = Angle1 + (double)half_Pitch_TimARR;
-		Angle2 = Angle2 * (double)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle2 = Angle2 + (double)half_Pitch_TimARR;
-		Angle3 = Angle3 * (double)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-		Angle3 = Angle3 + (double)half_Pitch_TimARR;
+		Angle1 = Angle1 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + (float)half_Pitch_TimARR;
+		Angle2 = Angle2 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + (float)half_Pitch_TimARR;
+		Angle3 = Angle3 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + (float)half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
 		
 		TIM3->CCR1 = Angle1 * 0.7;
@@ -164,6 +189,20 @@ void BLDC_Output(float Angle1, int MotorNum)
 		TIM3->CCR3 = Angle3 * 0.7;
 		return;
 	}
+	else if(MotorNum == 3){
+		Angle1 = Angle1 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle1 = Angle1 + (float)half_Pitch_TimARR;
+		Angle2 = Angle2 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle2 = Angle2 + (float)half_Pitch_TimARR;
+		Angle3 = Angle3 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
+		Angle3 = Angle3 + (float)half_Pitch_TimARR;
+		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
+		
+		TIM1->CCR1 = Angle1 * 0.7;
+		TIM1->CCR2 = Angle2 * 0.7;
+		TIM1->CCR3 = Angle3 * 0.7;
+	}
+	
 	
 	return;
 }
@@ -176,11 +215,13 @@ void BLDC_Output(float Angle1, int MotorNum)
 void BLDCEnable(int MotorNum){
 	if(MotorNum == 1)GPIOB->ODR |= GPIO_ODR_6;//enable pitch motor driver
 	if(MotorNum == 2)GPIOB->ODR |= GPIO_ODR_5;//enable roll motor driver
+	if(MotorNum == 3)GPIOA->ODR |= GPIO_ODR_11;
 }
 
 void BLDCDisable(int MotorNum){
 	if(MotorNum == 1)GPIOB->ODR &= ~GPIO_ODR_6;//disable pitch motor driver
 	if(MotorNum == 2)GPIOB->ODR &= ~GPIO_ODR_5;//disable roll motor driver
+	if(MotorNum == 3)GPIOA->ODR &= ~GPIO_ODR_11;
 }
 
 void BLDC_PID_Init(){
@@ -213,14 +254,14 @@ void BLDC_PID_Init(){
 	pitchPID.prevMeasurement = 0.0f;
 	pitchPID.out = 0.0f;
 	
-	yawPID.Kp = 0.5;
-	yawPID.Ki = 10;
-	yawPID.Kd = 10;
+	yawPID.Kp = 0.2;
+	yawPID.Ki = 0.0000;
+	yawPID.Kd = 1;
 	yawPID.tau = 0.02f;
-	yawPID.limMin = 100.0f;
-	yawPID.limMax = 100.0f;
-	yawPID.limMinInt = -10.0f;
-	yawPID.limMaxInt = 10.0f;
+	yawPID.limMin = -10.0f;
+	yawPID.limMax = 10.0f;
+	yawPID.limMinInt = -5.0f;
+	yawPID.limMaxInt = 5.0f;
 	yawPID.integrator = 0.0f;
 	yawPID.prevError = 0.0f;
 	yawPID.differentiator = 0.0f;

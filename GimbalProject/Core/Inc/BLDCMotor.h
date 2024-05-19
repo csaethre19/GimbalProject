@@ -1,5 +1,6 @@
 #include "main.h"
 #include "MPU6050.h"
+#include "HMC5883.h"
 
 typedef struct {
 
@@ -35,8 +36,12 @@ typedef struct {
 
 void set_desiredRoll(float desiredRoll);
 void set_desiredPitch(float desiredPitch);
+void set_desiredYaw(float desiredYaw);
 void set_operationModeRollPitch(int16_t setMode);
 void set_operationModeYaw(int16_t setMode);
+
+void YAW_PID(volatile HMC5883_t yawSense);
+
 void BLDC_PID(volatile MPU6050_t *targetOrientation,volatile MPU6050_t *stationaryOrientation);
 
 void BLDC_Output(float Angle1, int MotorNum);

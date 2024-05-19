@@ -69,10 +69,7 @@ typedef struct {
 	uint8_t agc;
 	
 	uint8_t magnetStatus;
-	
-	double dt;//Time since last KalmanFilter Execution
-	double timer;//Time of last KalmanFilter Execution
-	
+
 } AS5600_t;
 
 /*
