@@ -1,6 +1,6 @@
 #include "main.h"
 #include "MPU6050.h"
-#include "HMC5883.h"
+#include "AS5600.h"
 
 typedef struct {
 
@@ -40,7 +40,7 @@ void set_desiredYaw(float desiredYaw);
 void set_operationModeRollPitch(int16_t setMode);
 void set_operationModeYaw(int16_t setMode);
 
-void YAW_PID(volatile HMC5883_t yawSense);
+void YAW_PID(volatile AS5600_t *yawSense);
 
 void BLDC_PID(volatile MPU6050_t *targetOrientation,volatile MPU6050_t *stationaryOrientation);
 

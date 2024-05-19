@@ -58,6 +58,7 @@ void Error_Handler(void);
 void PID_execute();
 void doPIDLoop();
 void Sample_MpuMoving();
+void Sample_YawSensor();
 void BurstReadCheap_StateMachine();
 /* USER CODE END EFP */
 

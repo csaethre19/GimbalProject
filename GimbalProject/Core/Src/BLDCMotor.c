@@ -66,18 +66,19 @@ void set_desiredYaw(float desiredYaw){target_yaw = desiredYaw;}
 void set_operationModeRollPitch(int16_t setMode){rpMode = setMode;}
 void set_operationModeYaw(int16_t setMode){yMode = setMode;}
 
-void YAW_PID(volatile HMC5883_t yawSense)
+void YAW_PID(volatile AS5600_t *yawSense)
 {
 	float Ti = (float) (HAL_GetTick() - lastYawPIDtime);//Time increment
 	float lastYawPIDtime = HAL_GetTick();
 	yawPID.T = (float)Ti/1000;
 	
-	if(yMode == 0){//Desired Yaw Orientation in RELATIVE mode-----------------
+	if(yMode == 1){//Desired Yaw Orientation in RELATIVE mode-----------------
 		//YAW MOTOR
-		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, yawSense->outPitch);
-		current_pitch_instruction = current_pitch_instruction + pitchPID_output;
-		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
-		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
+		yawPID_output = PIDController_Update(&yawPID, target_yaw, yawSense->angle);
+		current_yaw_instruction = current_yaw_instruction + yawPID_output;
+		if(current_yaw_instruction > 360) current_yaw_instruction -= 360;
+		if(current_yaw_instruction < 0) current_yaw_instruction += 360;
+		BLDC_Output(current_yaw_instruction, 1);//write new instructed angle to pitch BLDC motor;
 	}
 }
 

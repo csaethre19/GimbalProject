@@ -415,11 +415,6 @@
               <FilePath>..\Core\Src\MPU6050.c</FilePath>
             </File>
             <File>
-              <FileName>DCMotor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\DCMotor.c</FilePath>
-            </File>
-            <File>
               <FileName>BLDCMotor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\BLDCMotor.c</FilePath>

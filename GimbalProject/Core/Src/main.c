@@ -29,7 +29,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "BLDCMotor.h"
-#include "DCMotor.h"
 #include "PWM_input.h"
 #include "HMC5883.h"
 #include <math.h>
@@ -161,7 +160,7 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
-
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -176,8 +175,11 @@ int main(void)
 		if(mpu_moving_newdata){
 			mpu_moving_newdata = 0;
 			Mahony_update(&mpu_moving);
+			Sample_YawSensor();
 		}
-
+		
+		AS5600_Magnet_Status(&yaw_sense);
+		AS5600_Read_Angle(&yaw_sense);
 		
 		if(GPIOC->IDR &= GPIO_IDR_13){
 			GPIOC->ODR &= ~GPIO_ODR_6;
@@ -1138,13 +1140,13 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
-	HAL_Delay(1000);
+	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
+	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
-	//AS5600_Init(&yaw_sense, 0x36);
+	AS5600_Init(&yaw_sense, 0x40);
 
 	//INPUT MODE SETUP-------------------------------------------------
 	disablePWMIN();
@@ -1163,10 +1165,12 @@ void Custom_StartupRoutine() {
 	
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
-	set_operationModeRollPitch(1);
+	set_desiredYaw(0.0f);
+	set_operationModeRollPitch(1);//Default to relative 
+	set_operationModeYaw(1);
 
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
-	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
@@ -1178,6 +1182,14 @@ void Sample_MpuMoving() {
 		mpu_moving_readburstcheapcalled++;
 	}
 	
+}
+
+void Sample_YawSensor() {
+	if(BurstReadState == 0){
+  	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+		BurstReadState = 51;//reading from mpu_moving
+		mpu_moving_readburstcheapcalled++;
+	}
 }
 
 /*
