@@ -178,8 +178,8 @@ int main(void)
 			Sample_YawSensor();
 		}
 		
-		//AS5600_Magnet_Status(&yaw_sense);
-		//AS5600_Read_Angle(&yaw_sense);
+		AS5600_Magnet_Status(&yaw_sense);
+		AS5600_Read_Angle(&yaw_sense);
 		
 		if(GPIOC->IDR &= GPIO_IDR_13){
 			GPIOC->ODR &= ~GPIO_ODR_6;
@@ -187,7 +187,7 @@ int main(void)
 		else{
 			GPIOC->ODR |= GPIO_ODR_6;
 		}
-		
+		HAL_Delay(100);
 		
     /* USER CODE END WHILE */
 

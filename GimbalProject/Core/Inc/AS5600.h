@@ -19,7 +19,7 @@
  //not accurate
 #define RAD_TO_DEG 57.295779513082320876798154814105
 
-#define AS5600_ADDR 0x36
+#define AS5600_ADDR 0x40
 
 //Configuration Registers
 #define ZCMO 0x00
