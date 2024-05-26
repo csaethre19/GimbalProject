@@ -178,8 +178,8 @@ int main(void)
 			Sample_YawSensor();
 		}
 		
-		AS5600_Magnet_Status(&yaw_sense);
-		AS5600_Read_Angle(&yaw_sense);
+		//AS5600_Magnet_Status(&yaw_sense);
+		//AS5600_Read_Angle(&yaw_sense);
 		
 		if(GPIOC->IDR &= GPIO_IDR_13){
 			GPIOC->ODR &= ~GPIO_ODR_6;
@@ -1155,19 +1155,23 @@ void Custom_StartupRoutine() {
 	init_PitchMotor();
 	init_RollMotor();
 	init_YawMotor();
+	
 	BLDC_PID_Init();
+	
 	//BLDCEnable(1);
 	//BLDCEnable(2);
+	//BLDCEnable(3);
+	
 	BLDCDisable(1);
 	BLDCDisable(2);
 	BLDCDisable(3);
-	//initDCOutput(1);
 	
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_desiredYaw(0.0f);
-	set_operationModeRollPitch(1);//Default to relative 
-	set_operationModeYaw(1);
+	
+	set_operationModeRollPitch(1);//Default to relative roll/pitch operation
+	set_operationModeYaw(1);//Default to relative yaw operation
 
 	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)

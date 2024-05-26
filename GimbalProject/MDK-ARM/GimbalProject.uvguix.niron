@@ -1865,18 +1865,18 @@
       <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>../Core/Src/main.c</Name>
-        <ColumnNumber>34</ColumnNumber>
-        <TopLine>185</TopLine>
+        <ColumnNumber>6</ColumnNumber>
+        <TopLine>166</TopLine>
         <CurrentLine>182</CurrentLine>
         <Folding>1</Folding>
-        <ContractedFolders>198,203,235,241,305,311,353,359,437,443,504,510,571,577,609,615,672,678,718,724,753,759,810,814,937,953,986,1015,1044,1101,1107,1121,1132</ContractedFolders>
+        <ContractedFolders>198,203,235,241,305,311,353,359,437,443,504,510,571,577,609,615,672,678,718,724,753,759,810,814,937,953,986,1015,1044,1101,1107,1121,1132,1213</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
       <Doc>
         <Name>..\Core\Src\BLDCMotor.c</Name>
-        <ColumnNumber>32</ColumnNumber>
+        <ColumnNumber>15</ColumnNumber>
         <TopLine>64</TopLine>
-        <CurrentLine>69</CurrentLine>
+        <CurrentLine>75</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -1911,7 +1911,7 @@
       <Doc>
         <Name>..\Core\Src\I2C.c</Name>
         <ColumnNumber>12</ColumnNumber>
-        <TopLine>88</TopLine>
+        <TopLine>82</TopLine>
         <CurrentLine>112</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders>172,194</ContractedFolders>
@@ -1937,9 +1937,9 @@
       </Doc>
       <Doc>
         <Name>..\Core\Src\AS5600.c</Name>
-        <ColumnNumber>5</ColumnNumber>
-        <TopLine>54</TopLine>
-        <CurrentLine>81</CurrentLine>
+        <ColumnNumber>0</ColumnNumber>
+        <TopLine>63</TopLine>
+        <CurrentLine>80</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -1947,7 +1947,7 @@
       <Doc>
         <Name>..\Core\Inc\AS5600.h</Name>
         <ColumnNumber>0</ColumnNumber>
-        <TopLine>52</TopLine>
+        <TopLine>58</TopLine>
         <CurrentLine>72</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
