@@ -1,14 +1,21 @@
 #include "AS5600.h"
 #include "arm_math.h"
 
+//BIG OL NOTE:
+//THIS CODE HAS BEEN ALTERED TO OPERATE WITH THE AS5600L device
+//
+//Slave device address is MODIFIED
+//
+//Device register values are UN-MODIFIED
+
 void AS5600_Init(volatile AS5600_t *dataStruct, uint16_t deviceAddr)
 {
 	dataStruct->deviceAddr = deviceAddr;
-	USART_Transmit_String("AS5600 Address: ");
-	USART_Transmit_Number(deviceAddr);
-	USART_Transmit_Newline();
-	//Who-AM_I does not exist in this component
-	/*// Check WHO_AM_I register
+	//USART_Transmit_String("AS5600 Address: ");
+	//USART_Transmit_Number(deviceAddr);
+	//USART_Transmit_Newline();
+	/*//Who-AM_I does not exist in this component
+	// Check WHO_AM_I register
 	I2C_SetRegAddress(deviceAddr, WHO_AM_I);
 	int8_t whoAmI = I2C_ReadRegister(AS5600_ADDR);
 	int8_t expected_whoAmI = 0x68;
@@ -74,7 +81,7 @@ void AS5600_Magnet_Status(volatile AS5600_t *dataStruct)
 	}else{
 		dataStruct->magnetStatus = 2;
 		//USART_Transmit_String("Magnetic field is too small");
-	  ///USART_Transmit_Newline();
+	  //USART_Transmit_Newline();
 	}
 }
 

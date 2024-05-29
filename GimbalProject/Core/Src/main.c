@@ -160,6 +160,16 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
+	//LED flash #1, startup complete
+	GPIOC->ODR &= ~GPIO_ODR_6;
+	HAL_Delay(1000);
+	GPIOC->ODR |= GPIO_ODR_6;
+	
+	AS5600_Set_Zero(&yaw_sense);
+	//LED flash #2, successful I2C interaction with AS5600
+	GPIOC->ODR &= ~GPIO_ODR_6;
+	HAL_Delay(1000);
+	GPIOC->ODR |= GPIO_ODR_6;	
 	
   /* USER CODE END 2 */
 
@@ -167,19 +177,27 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		
 		if(doPID){
 			BLDC_PID(&mpu_moving, &mpu_stationary);
 			//PID_execute();
 			doPID = 0;
 		}
+		
 		if(mpu_moving_newdata){
 			mpu_moving_newdata = 0;
 			Mahony_update(&mpu_moving);
 			Sample_YawSensor();
 		}
 		
-		AS5600_Magnet_Status(&yaw_sense);
-		AS5600_Read_Angle(&yaw_sense);
+		if(BurstReadState == 0){
+			BurstReadState = 51;
+			AS5600_Read_Angle(&yaw_sense);
+			AS5600_Magnet_Status(&yaw_sense);
+			BurstReadState = 0;
+		}
+		
+		FREquencycounter++;
 		
 		if(GPIOC->IDR &= GPIO_IDR_13){
 			GPIOC->ODR &= ~GPIO_ODR_6;
@@ -187,7 +205,7 @@ int main(void)
 		else{
 			GPIOC->ODR |= GPIO_ODR_6;
 		}
-		HAL_Delay(100);
+		//HAL_Delay(100);
 		
     /* USER CODE END WHILE */
 
@@ -1142,38 +1160,48 @@ void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
-	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
-	AS5600_Init(&yaw_sense, 0x40);
+	AS5600_Init(&yaw_sense, 0x36);
 
-	//INPUT MODE SETUP-------------------------------------------------
+	//---------------------DEFAULT Disable PWM control----------------------//
 	disablePWMIN();
 	
-	//MOTOR Setup
+	//----------//-Deliver Power to Motors, in some default state------------//
 	init_PitchMotor();
 	init_RollMotor();
 	init_YawMotor();
 	
-	BLDC_PID_Init();
+	//---------------------Setup PID controller for brushless motors--------//
+	//BLDC_PID_Init();
 	
+	//--------------------------Enable Power to the Motors------------------//
+	///*
 	//BLDCEnable(1);
 	//BLDCEnable(2);
 	//BLDCEnable(3);
+	//*/
 	
+	//---------------------------Disable Power to the Motors-----------------//
+	///*
 	BLDCDisable(1);
 	BLDCDisable(2);
 	BLDCDisable(3);
-	
+	//*/
+	//----------------DEFAULT TO CENTERED PAYLOAD ORIENTATION---------------------//
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
 	set_desiredYaw(0.0f);
 	
-	set_operationModeRollPitch(1);//Default to relative roll/pitch operation
-	set_operationModeYaw(1);//Default to relative yaw operation
+	//----------------DEFAULT Roll & Pitch & Yaw to Aboslute Angle----------------//
+	set_operationModeRollPitch(1);
+	set_operationModeYaw(1);
 
+	//----------------------ENABLE MOTOR PID----------------------//
 	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
 	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
@@ -1189,11 +1217,7 @@ void Sample_MpuMoving() {
 }
 
 void Sample_YawSensor() {
-	if(BurstReadState == 0){
-  	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
-		BurstReadState = 51;//reading from mpu_moving
-		mpu_moving_readburstcheapcalled++;
-	}
+	
 }
 
 /*
