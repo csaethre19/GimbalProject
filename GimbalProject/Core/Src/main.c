@@ -86,6 +86,7 @@ volatile int mpu_moving_newdata = 0;
 volatile int mpu_moving_readburstcheapcalled = 0;
 volatile int8_t bufferData;
 volatile double FREquencycounter = 0;
+volatile int button_press_count;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,6 +113,7 @@ int constrain(int value, int minVal, int maxVal);
 void Custom_StartupRoutine();
 void Sample_MpuMoving();
 void BurstReadCheap_StateMachine();
+void Calibration();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -165,12 +167,16 @@ int main(void)
 	HAL_Delay(1000);
 	GPIOC->ODR |= GPIO_ODR_6;
 	
-	AS5600_Set_Zero(&yaw_sense);
+	//AS5600_Set_Zero(&yaw_sense);
 	//LED flash #2, successful I2C interaction with AS5600
 	GPIOC->ODR &= ~GPIO_ODR_6;
 	HAL_Delay(1000);
 	GPIOC->ODR |= GPIO_ODR_6;	
 	
+	
+	BLDC_Output(0,1);
+	BLDC_Output(0,2);
+	float BLDCtracker = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -187,7 +193,6 @@ int main(void)
 		if(mpu_moving_newdata){
 			mpu_moving_newdata = 0;
 			Mahony_update(&mpu_moving);
-			Sample_YawSensor();
 		}
 		
 		if(BurstReadState == 0){
@@ -197,15 +202,60 @@ int main(void)
 			BurstReadState = 0;
 		}
 		
+		
+		if(BLDCtracker < 358){
+			BLDCtracker ++;
+			BLDC_Output(BLDCtracker, 1);
+			BLDC_Output(BLDCtracker, 2);
+			
+		}
+		else{
+			BLDCtracker = 0;
+		}
+
 		FREquencycounter++;
 		
 		if(GPIOC->IDR &= GPIO_IDR_13){
-			GPIOC->ODR &= ~GPIO_ODR_6;
+			button_press_count = 0;
 		}
 		else{
 			GPIOC->ODR |= GPIO_ODR_6;
+			button_press_count++;
 		}
-		//HAL_Delay(100);
+		
+		if(button_press_count > 2000){
+			while(~(GPIOC->IDR &= GPIO_IDR_13)){}
+			button_press_count = 0;
+			//DO CALIBRATION SEQUENCE
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR |= GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR |= GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR |= GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR |= GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR |= GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+			HAL_Delay(100);
+			GPIOC->ODR |= GPIO_ODR_6;	
+			HAL_Delay(100);
+			GPIOC->ODR &= ~GPIO_ODR_6;
+					
+		}
+		
 		
     /* USER CODE END WHILE */
 
@@ -1178,11 +1228,11 @@ void Custom_StartupRoutine() {
 	//BLDC_PID_Init();
 	
 	//--------------------------Enable Power to the Motors------------------//
-	///*
+	//
 	//BLDCEnable(1);
 	//BLDCEnable(2);
 	//BLDCEnable(3);
-	//*/
+	//
 	
 	//---------------------------Disable Power to the Motors-----------------//
 	///*
@@ -1213,6 +1263,10 @@ void Sample_MpuMoving() {
 		BurstReadState = 1;//reading from mpu_moving
 		mpu_moving_readburstcheapcalled++;
 	}
+	
+}
+
+void Calibration(){
 	
 }
 

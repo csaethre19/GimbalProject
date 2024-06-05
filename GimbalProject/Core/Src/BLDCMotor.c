@@ -162,7 +162,7 @@ void BLDC_Output(float Angle1, int MotorNum)
 	Angle3 = Angle3 * PI_180;
 	Angle3 = arm_sin_f32(Angle3);
 	
-	if(MotorNum == 1){
+	if(MotorNum == 1){//Roll Output
 		Angle1 = Angle1 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + (float)half_Pitch_TimARR;
 		Angle2 = Angle2 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
@@ -176,7 +176,7 @@ void BLDC_Output(float Angle1, int MotorNum)
 		TIM2->CCR3 = Angle3 * 0.7;
 		return;
 	}
-	else if(MotorNum == 2){
+	else if(MotorNum == 2){//Pitch Output
 		Angle1 = Angle1 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + (float)half_Pitch_TimARR;
 		Angle2 = Angle2 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
@@ -190,7 +190,7 @@ void BLDC_Output(float Angle1, int MotorNum)
 		TIM3->CCR3 = Angle3 * 0.7;
 		return;
 	}
-	else if(MotorNum == 3){
+	else if(MotorNum == 3){//Yaw Output
 		Angle1 = Angle1 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
 		Angle1 = Angle1 + (float)half_Pitch_TimARR;
 		Angle2 = Angle2 * (float)half_Pitch_TimARR;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
@@ -199,9 +199,9 @@ void BLDC_Output(float Angle1, int MotorNum)
 		Angle3 = Angle3 + (float)half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
 		
-		TIM1->CCR1 = Angle1 * 0.7;
-		TIM1->CCR2 = Angle2 * 0.7;
-		TIM1->CCR3 = Angle3 * 0.7;
+		TIM1->CCR1 = Angle1 * 0.5;
+		TIM1->CCR2 = Angle2 * 0.5;
+		TIM1->CCR3 = Angle3 * 0.5;
 	}
 	
 	

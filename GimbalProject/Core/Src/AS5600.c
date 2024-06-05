@@ -95,10 +95,11 @@ void AS5600_Read_Angle(volatile AS5600_t *dataStruct)
 	I2C_ReadBurst(dataStruct->deviceAddr, RANG_h, dataBuffer, 4);
 	rawAngle_h = dataBuffer[0];
 	rawAngle_l = dataBuffer[1];
-	float rawAngle = (int16_t)(rawAngle_h << 8 | rawAngle_l);
+	float rawAngle = (uint16_t)(rawAngle_h << 8 | rawAngle_l);
 	angle_h = dataBuffer[2];
 	angle_l = dataBuffer[3];
-	float angle = (int16_t)(angle_h << 8 | angle_l);
+	uint16_t angle = (uint16_t)(angle_h << 8 | angle_l);
+	angle = angle & (~(uint16_t)61440);
 	
 	//USART_Transmit_String("Angle: ");
 	//USART_Transmit_Number(angle);
