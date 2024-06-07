@@ -87,19 +87,20 @@ void AS5600_Magnet_Status(volatile AS5600_t *dataStruct)
 
 void AS5600_Read_Angle(volatile AS5600_t *dataStruct)
 {
-	int8_t rawAngle_h;
-	int8_t rawAngle_l;
-	int8_t angle_h;
-	int8_t angle_l;
+	uint8_t rawAngle_h;
+	uint8_t rawAngle_l;
+	uint8_t angle_h;
+	uint8_t angle_l;
 	int8_t dataBuffer[4];
-	I2C_ReadBurst(dataStruct->deviceAddr, RANG_h, dataBuffer, 4);
-	rawAngle_h = dataBuffer[0];
-	rawAngle_l = dataBuffer[1];
-	float rawAngle = (uint16_t)(rawAngle_h << 8 | rawAngle_l);
-	angle_h = dataBuffer[2];
-	angle_l = dataBuffer[3];
-	uint16_t angle = (uint16_t)(angle_h << 8 | angle_l);
-	angle = angle & (~(uint16_t)61440);
+	//I2C_ReadBurst(dataStruct->deviceAddr, RANG_h, dataBuffer, 4);
+	//rawAngle_h = dataBuffer[0];
+	//rawAngle_l = dataBuffer[1];
+	//float rawAngle = (uint16_t)(rawAngle_h << 8 | rawAngle_l);
+	I2C_ReadBurst(dataStruct->deviceAddr, ANG_h, dataBuffer, 2);
+	angle_h = (uint8_t)dataBuffer[0];
+	angle_l = (uint8_t)dataBuffer[1];
+	uint16_t Iangle = (uint16_t)(angle_h << 8 | angle_l);
+	Iangle = Iangle & (~(uint16_t)61440);
 	
 	//USART_Transmit_String("Angle: ");
 	//USART_Transmit_Number(angle);
@@ -108,8 +109,20 @@ void AS5600_Read_Angle(volatile AS5600_t *dataStruct)
 	//USART_Transmit_String("Raw Angle: ");
 	//USART_Transmit_Number(rawAngle);
 	//USART_Transmit_Newline();
-	dataStruct->angle = angle;
-	dataStruct->rawAngle = rawAngle;
+	dataStruct->angle = Iangle;
+	//dataStruct->rawAngle = rawAngle;
 }
 
+//This method is executed once some automated process has aded values into the (angle_high/angle_low)
+//variables of a AS5600_t object
+//Note: This method will only process the angle. no other data is procesed or loaded regarding the AS5600 sensor
+void AS5600_Process_Angle(volatile AS5600_t *dataStruct)
+{
+	uint8_t angle_h = dataStruct->angle_high;
+	uint8_t angle_l = dataStruct->angle_low;
+	uint16_t Iangle = (uint16_t)(angle_h << 8 | angle_l);
+	Iangle = Iangle & (~(uint16_t)61440);
+	
+	dataStruct->angle = Iangle;
+}
 

@@ -83,7 +83,7 @@ volatile int roll_PWM;
 volatile int yaw_PWM;
 volatile int BurstReadState = 0;
 volatile int mpu_moving_newdata = 0;
-volatile int mpu_moving_readburstcheapcalled = 0;
+volatile int yaw_sense_newdata = 0;
 volatile int8_t bufferData;
 volatile double FREquencycounter = 0;
 volatile int button_press_count;
@@ -151,7 +151,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART3_UART_Init();
+  //MX_USART3_UART_Init();
   MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
@@ -163,20 +163,17 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
 	//LED flash #1, startup complete
-	GPIOC->ODR &= ~GPIO_ODR_6;
-	HAL_Delay(1000);
-	GPIOC->ODR |= GPIO_ODR_6;
+	int counttracker = 0;
+	while(counttracker < 15){//flashy light shows chip is functioning
+		GPIOC->ODR |= GPIO_ODR_6;
+		HAL_Delay(100);
+		GPIOC->ODR &= ~GPIO_ODR_6;
+		HAL_Delay(100);
+		counttracker++;
+	}
 	
-	//AS5600_Set_Zero(&yaw_sense);
-	//LED flash #2, successful I2C interaction with AS5600
-	GPIOC->ODR &= ~GPIO_ODR_6;
-	HAL_Delay(1000);
-	GPIOC->ODR |= GPIO_ODR_6;	
-	
-	
-	BLDC_Output(0,1);
-	BLDC_Output(0,2);
-	float BLDCtracker = 0;
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -195,65 +192,43 @@ int main(void)
 			Mahony_update(&mpu_moving);
 		}
 		
-		if(BurstReadState == 0){
-			BurstReadState = 51;
-			AS5600_Read_Angle(&yaw_sense);
-			AS5600_Magnet_Status(&yaw_sense);
-			BurstReadState = 0;
-		}
-		
-		
-		if(BLDCtracker < 358){
-			BLDCtracker ++;
-			BLDC_Output(BLDCtracker, 1);
-			BLDC_Output(BLDCtracker, 2);
-			
-		}
-		else{
-			BLDCtracker = 0;
+		if(yaw_sense_newdata){
+			yaw_sense_newdata = 0;
+			AS5600_Process_Angle(&yaw_sense);
+			YAW_PID(&yaw_sense);
 		}
 
 		FREquencycounter++;
 		
+		//------------------------BUTTON STUFF--------------------------//
+		//Short Press < 3 seconds = LED lights
+		//Long Press > 3 seconds = Calibration requested
 		if(GPIOC->IDR &= GPIO_IDR_13){
-			button_press_count = 0;
+			button_press_count--;
 		}
 		else{
-			GPIOC->ODR |= GPIO_ODR_6;
 			button_press_count++;
 		}
 		
 		if(button_press_count > 2000){
-			while(~(GPIOC->IDR &= GPIO_IDR_13)){}
-			button_press_count = 0;
-			//DO CALIBRATION SEQUENCE
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR |= GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR |= GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR |= GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR |= GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR |= GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-			HAL_Delay(100);
-			GPIOC->ODR |= GPIO_ODR_6;	
-			HAL_Delay(100);
-			GPIOC->ODR &= ~GPIO_ODR_6;
-					
+			//wait for button to be released to begin calibration
+			if(~(GPIOC->IDR &= GPIO_IDR_13)){
+				if(BurstReadState == 0){
+					BurstReadState = 999;//A blocking I2C operation is occuring, don't start another I2C operation
+					AS5600_Set_Zero(&yaw_sense);
+					BurstReadState = 0;
+					//LED flash #1, startup complete
+					counttracker = 0;
+					while(counttracker < 15){//flashy light shows chip is functioning
+						GPIOC->ODR |= GPIO_ODR_6;
+						HAL_Delay(100);
+						GPIOC->ODR &= ~GPIO_ODR_6;
+						counttracker++;
+					}
+				}
+				//DO CALIBRATION SEQUENCE
+				
+			}
 		}
 		
 		
@@ -1210,7 +1185,7 @@ void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	HAL_Delay(500);
 	HAL_I2C_Init(&hi2c2);
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
 	//MPU_Init(&mpu_moving, 0x68);
 	//MPU_Init(&mpu_stationary, 0x69);
@@ -1252,7 +1227,7 @@ void Custom_StartupRoutine() {
 	//----------------------ENABLE MOTOR PID----------------------//
 	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
-	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
@@ -1261,17 +1236,20 @@ void Sample_MpuMoving() {
 	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
   	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
 		BurstReadState = 1;//reading from mpu_moving
-		mpu_moving_readburstcheapcalled++;
 	}
 	
 }
 
-void Calibration(){
-	
+void Calibrate(){
+	AS5600_Set_Zero(&yaw_sense);
 }
 
 void Sample_YawSensor() {
 	
+	if((BurstReadState == 0) && (yaw_sense_newdata == 0)){
+		I2C_BurstRead_Cheap(yaw_sense.deviceAddr, ANG_h, 2);
+		BurstReadState = 51;//reading from mpu_moving
+	}
 }
 
 /*
@@ -1287,7 +1265,7 @@ void Sample_YawSensor() {
 	STATE LIST:
 	1 - 15 = mpu_moving
 	21 - 35 = mpu_stationary
-	51 - 5X = Hall_sensor
+	51 - 52 = Yaw Angle(Hall)_sensor
 */
 void BurstReadCheap_StateMachine(){
 	
@@ -1304,7 +1282,7 @@ void BurstReadCheap_StateMachine(){
 		bufferData = I2C2->RXDR;
 		
 		switch(BurstReadState){
-			case(1):{
+			case(1):{//------------IMU Moving-----------//
 				mpu_moving.accel_xhigh = bufferData;
 				BurstReadState++;
 				return;
@@ -1380,6 +1358,19 @@ void BurstReadCheap_StateMachine(){
 				I2C2->CR2 |= I2C_CR2_NACK;
 				I2C2->CR2 |= I2C_CR2_STOP;
 				return;
+			}
+			case(51):{//----------AS5600 ANGLE Readout-----------//
+				yaw_sense.angle_high = bufferData;
+				BurstReadState++;
+				return;
+			}
+			case(52):{
+				yaw_sense.angle_low = bufferData;
+				BurstReadState = 0;
+				yaw_sense_newdata = 1;
+				//last byte, set CR2_NACK
+				I2C2->CR2 |= I2C_CR2_NACK;
+				I2C2->CR2 |= I2C_CR2_STOP;
 			}
 			default:{ BurstReadState = 0; return;}
 		}

@@ -60,8 +60,6 @@
 typedef struct {
 	
 	uint16_t deviceAddr;
-	uint16_t deviceAddrR;
-  uint16_t deviceAddrW;
 	
   uint16_t rawAngle;
 	uint16_t angle;
@@ -70,6 +68,9 @@ typedef struct {
 	
 	uint8_t magnetStatus;
 
+	uint8_t angle_low;
+	uint8_t angle_high;
+	
 } AS5600_t;
 
 /*
@@ -87,5 +88,7 @@ void AS5600_Set_Zero(volatile AS5600_t *dataStruct);
 void AS5600_Magnet_Status(volatile AS5600_t *dataStruct);
 
 void AS5600_Read_Angle(volatile AS5600_t *dataStruct);
+
+void AS5600_Process_Angle(volatile AS5600_t *dataStruct);
 
 #endif /* AS5600_H */

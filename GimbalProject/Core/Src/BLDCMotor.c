@@ -48,6 +48,9 @@ float rollPID_output = 0;
 float pitchPID_output = 0;
 float yawPID_output = 0;
 
+float measuredyaw_to_angle = 360/4096;//multiply measured yaw (0-4097) by this value to convert to angle
+float angle_to_measuredyaw = 4096/360;
+
 // This implementation of BLDCMotor control takes in a value from 0-359 as the "desired angle"
 //	The determination of what this "desired angle" is currently intended to be performed elsewhere
 //	This code simply drives the signals delivered to the motors,
@@ -62,7 +65,7 @@ float yawPID_output = 0;
 
 void set_desiredRoll(float desiredRoll){target_roll = desiredRoll;}
 void set_desiredPitch(float desiredPitch){target_pitch = desiredPitch;}
-void set_desiredYaw(float desiredYaw){target_yaw = desiredYaw;}
+void set_desiredYaw(float desiredYaw){target_yaw = (desiredYaw * angle_to_measuredyaw);}
 void set_operationModeRollPitch(int16_t setMode){rpMode = setMode;}
 void set_operationModeYaw(int16_t setMode){yMode = setMode;}
 
@@ -78,7 +81,7 @@ void YAW_PID(volatile AS5600_t *yawSense)
 		current_yaw_instruction = current_yaw_instruction + yawPID_output;
 		if(current_yaw_instruction > 360) current_yaw_instruction -= 360;
 		if(current_yaw_instruction < 0) current_yaw_instruction += 360;
-		BLDC_Output(current_yaw_instruction, 1);//write new instructed angle to pitch BLDC motor;
+		BLDC_Output(current_yaw_instruction, 3);//write new instructed angle to pitch BLDC motor;
 	}
 }
 
@@ -199,9 +202,9 @@ void BLDC_Output(float Angle1, int MotorNum)
 		Angle3 = Angle3 + (float)half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
 		
-		TIM1->CCR1 = Angle1 * 0.5;
-		TIM1->CCR2 = Angle2 * 0.5;
-		TIM1->CCR3 = Angle3 * 0.5;
+		TIM1->CCR1 = Angle1 * 0.7;
+		TIM1->CCR2 = Angle2 * 0.7;
+		TIM1->CCR3 = Angle3 * 0.7;
 	}
 	
 	
