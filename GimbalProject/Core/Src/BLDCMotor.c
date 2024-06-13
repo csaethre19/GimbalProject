@@ -226,10 +226,10 @@ void BLDCDisable(int MotorNum){
 void BLDC_PID_Init(){
 	rollPID.Kp = 0.4;
 	rollPID.Ki = 0.00000;
-	rollPID.Kd = 1;
+	rollPID.Kd = 0.5;
 	rollPID.tau = 0.02f;
-	rollPID.limMin = -25.0f;
-	rollPID.limMax = 25.0f;
+	rollPID.limMin = -20.0f;
+	rollPID.limMax = 20.0f;
 	rollPID.limMinInt = -5.0f;
 	rollPID.limMaxInt = 5.0f;
 	rollPID.integrator = 0.0f;
@@ -241,10 +241,10 @@ void BLDC_PID_Init(){
 	
 	pitchPID.Kp = 0.4;
 	pitchPID.Ki = 0.0000;
-	pitchPID.Kd = 1;
+	pitchPID.Kd = 0.5;
 	pitchPID.tau = 0.02f;
-	pitchPID.limMin = -25.0f;
-	pitchPID.limMax = 25.0f;
+	pitchPID.limMin = -20.0f;
+	pitchPID.limMax = 20.0f;
 	pitchPID.limMinInt = -5.0f;
 	pitchPID.limMaxInt = 5.0f;
 	pitchPID.integrator = 0.0f;

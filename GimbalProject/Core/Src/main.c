@@ -1159,14 +1159,14 @@ void disablePWMIN(){
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	HAL_Delay(300);
-	HAL_I2C_Init(&hi2c2);
+	//HAL_I2C_Init(&hi2c2);
 	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
-	Sample_MpuMoving();
+	//MPU_Init(&mpu_moving, 0x68);
+	//Sample_MpuMoving();
 	HAL_Delay(200);
 	//MPU_Init(&mpu_stationary, 0x69);
-	AS5600_Init(&yaw_sense, 0x36);
+	//AS5600_Init(&yaw_sense, 0x36);
 	HAL_Delay(100);
 	//---------------------DEFAULT Disable PWM control----------------------//
 	disablePWMIN();
@@ -1182,16 +1182,16 @@ void Custom_StartupRoutine() {
 	
 	//--------------------------Enable Power to the Motors------------------//
 	//
-	BLDCEnable(1);   //pitch = 1
-	BLDCEnable(2); //roll = 2
-	BLDCEnable(3); //yaw = 3
+	//BLDCEnable(1);   //pitch = 1
+	//BLDCEnable(2); //roll = 2
+	//BLDCEnable(3); //yaw = 3
 	//
 	
 	//---------------------------Disable Power to the Motors-----------------//
 	///*
-	//BLDCDisable(1);
-	//BLDCDisable(2);
-	//BLDCDisable(3);
+	BLDCDisable(1);
+	BLDCDisable(2);
+	BLDCDisable(3);
 	//*/
 	//----------------DEFAULT TO CENTERED PAYLOAD ORIENTATION---------------------//
 	set_desiredRoll(0.0f);
@@ -1203,9 +1203,9 @@ void Custom_StartupRoutine() {
 	set_operationModeYaw(1);
 
 	//----------------------ENABLE MOTOR PID----------------------//
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
-	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
