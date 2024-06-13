@@ -174,7 +174,7 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-	//                                        doPIDLoop();
+	doPIDLoop();
 	Sample_YawSensor();
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);

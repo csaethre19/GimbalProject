@@ -25,11 +25,6 @@ volatile float target_pitch = 0;        // Desired pitch angle
 volatile float target_roll = 0;        // Desired roll angle
 volatile float target_yaw = 0;         // Desired (relative) yaw angle target
 
-
-volatile int16_t measured_roll = 0;       // Measured roll angle
-volatile int16_t measured_pitch = 0;       // Measured pitch angle
-volatile int16_t measured_yaw = 0;        //Measured (relative) yaw angle
-
 volatile float current_pitch_instruction = 0; //currently instructed motor angle for pitch axis
 volatile float current_roll_instruction = 0;
 volatile float current_yaw_instruction = 0;
@@ -43,6 +38,8 @@ volatile int16_t yMode = 0;
 
 int lastPIDtime = 0;
 int lastYawPIDtime = 0;
+
+int Yawerror = 0;
 
 float rollPID_output = 0;
 float pitchPID_output = 0;
@@ -77,7 +74,7 @@ void YAW_PID(volatile AS5600_t *yawSense)
 	
 	if(yMode == 1){//Desired Yaw Orientation in RELATIVE mode-----------------
 		//YAW MOTOR
-		yawPID_output = PIDController_Update(&yawPID, target_yaw, yawSense->angle);
+		yawPID_output = PIDController_Update(&yawPID, target_yaw, yawSense->angle, 3);
 		current_yaw_instruction = current_yaw_instruction + yawPID_output;
 		if(current_yaw_instruction > 360) current_yaw_instruction -= 360;
 		if(current_yaw_instruction < 0) current_yaw_instruction += 360;
@@ -103,20 +100,18 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	if(rpMode == 1){//Absolute Position Mode Execute
 		// Need to add collision checking
 		//PITCH MOTOR
-		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outPitch);
+		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outRoll, 1);
 		current_pitch_instruction = current_pitch_instruction + pitchPID_output;
 		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
 		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
 		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
 		//ROLL MOTOR
-		rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outRoll);
+		rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outPitch, 2);
 		current_roll_instruction = current_roll_instruction + rollPID_output;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
 		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;
-		//YAW MOTOR
-		
-		
+
 	}
 	/*else{//Relative Position Mode Execute
 		//PITCH MOTOR
@@ -202,9 +197,9 @@ void BLDC_Output(float Angle1, int MotorNum)
 		Angle3 = Angle3 + (float)half_Pitch_TimARR;
 		//0.7 chosen to decrease amount of power delivered to motor, adjust after testing
 		
-		TIM1->CCR1 = Angle1 * 0.7;
-		TIM1->CCR2 = Angle2 * 0.7;
-		TIM1->CCR3 = Angle3 * 0.7;
+		TIM1->CCR1 = Angle1 * 0.5;
+		TIM1->CCR2 = Angle2 * 0.5;
+		TIM1->CCR3 = Angle3 * 0.5;
 	}
 	
 	
@@ -258,14 +253,14 @@ void BLDC_PID_Init(){
 	pitchPID.prevMeasurement = 0.0f;
 	pitchPID.out = 0.0f;
 	
-	yawPID.Kp = 0.2;
-	yawPID.Ki = 0.0000;
-	yawPID.Kd = 1;
+	yawPID.Kp = 0.3;
+	yawPID.Ki = 0.0;
+	yawPID.Kd = 0.3;
 	yawPID.tau = 0.02f;
-	yawPID.limMin = -10.0f;
-	yawPID.limMax = 10.0f;
-	yawPID.limMinInt = -5.0f;
-	yawPID.limMaxInt = 5.0f;
+	yawPID.limMin = -25.0f;
+	yawPID.limMax = 25.0f;
+	yawPID.limMinInt = -0.0f;
+	yawPID.limMaxInt = 0.0f;
 	yawPID.integrator = 0.0f;
 	yawPID.prevError = 0.0f;
 	yawPID.differentiator = 0.0f;
@@ -273,10 +268,17 @@ void BLDC_PID_Init(){
 	yawPID.out = 0.0f;
 }
 
-float PIDController_Update(PIDController * pid, float target_angle, float measured_angle){
-	
-	float error = target_angle - measured_angle;
-	
+float PIDController_Update(PIDController * pid, float target_angle, float measured_angle, int MotorNum){
+	float error;
+	if(MotorNum == 3){//Yaw requires unique calculation of error
+		error = target_angle - measured_angle;
+		if(error > 2048) {error = error - 4096; }//shorter path exists in opposite direction check
+		if(error < -2048){error = error + 4096; }
+		Yawerror = error;
+	}
+	else{
+		error = target_angle - measured_angle;
+	}
 	float proportional = pid->Kp * error;
 	
 	pid->integrator = pid->integrator + 0.5f * pid->Ki * pid->T * (error + pid->prevError);

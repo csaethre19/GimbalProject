@@ -52,4 +52,4 @@ void BLDCEnable(int MotorNum);
 void BLDCDisable(int MotorNum);
 
 void BLDC_PID_Init();
-float PIDController_Update(PIDController * pid, float target_angle, float measured_angle);
+float PIDController_Update(PIDController * pid, float target_angle, float measured_angle, int MotorNum);

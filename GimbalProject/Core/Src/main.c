@@ -151,7 +151,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  //MX_USART3_UART_Init();
+  MX_USART3_UART_Init();
   MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
@@ -163,7 +163,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	Custom_StartupRoutine();
 	//LED flash #1, startup complete
-	int counttracker = 0;
+	float counttracker = 0;
 	while(counttracker < 15){//flashy light shows chip is functioning
 		GPIOC->ODR |= GPIO_ODR_6;
 		HAL_Delay(100);
@@ -172,30 +172,38 @@ int main(void)
 		counttracker++;
 	}
 	
-
+	
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	int dirtrack;
+	counttracker =180;
   while (1)
   {
+		//BLDC_Output(counttracker,2);//
+		//counttracker += 5;
+
+		//if(counttracker > 350) counttracker = 1;
+
+		//HAL_Delay(1);
 		
 		if(doPID){
 			BLDC_PID(&mpu_moving, &mpu_stationary);
-			//PID_execute();
+			PID_execute();
 			doPID = 0;
 		}
 		
 		if(mpu_moving_newdata){
-			mpu_moving_newdata = 0;
 			Mahony_update(&mpu_moving);
+			mpu_moving_newdata = 0;
 		}
 		
 		if(yaw_sense_newdata){
-			yaw_sense_newdata = 0;
 			AS5600_Process_Angle(&yaw_sense);
 			YAW_PID(&yaw_sense);
+			yaw_sense_newdata = 0;
 		}
 
 		FREquencycounter++;
@@ -210,27 +218,30 @@ int main(void)
 			button_press_count++;
 		}
 		
+		/*
 		if(button_press_count > 2000){
 			//wait for button to be released to begin calibration
+			GPIOC->ODR |= GPIO_ODR_6;
 			if(~(GPIOC->IDR &= GPIO_IDR_13)){
 				if(BurstReadState == 0){
 					BurstReadState = 999;//A blocking I2C operation is occuring, don't start another I2C operation
 					AS5600_Set_Zero(&yaw_sense);
 					BurstReadState = 0;
-					//LED flash #1, startup complete
+					//DO SOME  IMU CALIBRATION-----
+					
+					//LED flash #1, cal complete
 					counttracker = 0;
-					while(counttracker < 15){//flashy light shows chip is functioning
+					while(counttracker < 30){//flashy light shows chip is functioning
 						GPIOC->ODR |= GPIO_ODR_6;
-						HAL_Delay(100);
+						HAL_Delay(50);
 						GPIOC->ODR &= ~GPIO_ODR_6;
 						counttracker++;
 					}
 				}
-				//DO CALIBRATION SEQUENCE
-				
+
 			}
 		}
-		
+		*/
 		
     /* USER CODE END WHILE */
 
@@ -870,16 +881,16 @@ void USART3_4_IRQHandler(void)
 					//processCommand(cmdBuffer); // Process the buffered command
 			//BEGIN: ANGLE CONTROL, RETRIEVE CURRENT ANGLE----------------------------------------------
 				if (strcmp(cmdBuffer, "p") == 0){
-					USART_Transmit_Float(mpu_moving.KalmanAnglePitch, 2);
+					USART_Transmit_Float(mpu_moving.outRoll, 2);//Roll and pitch calculations are flipped in struct
 					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "r") == 0){
-					USART_Transmit_Float(mpu_moving.KalmanAngleRoll, 2);				
+					USART_Transmit_Float(mpu_moving.outPitch, 2);//Roll and pitch calculations are flipped in struct outpitch = roll value		
 					USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "y") == 0){
-
-					USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
+					//FIX THIS--------------------------------------------------
+					//USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
 					USART_Transmit_Newline();
 					}//BEGIN: ANGLE CONTROL, SET TARGET ANGLE-------------------------------------------
 				else if(strncmp(cmdBuffer, "P", 1) == 0){
@@ -957,7 +968,7 @@ void USART3_4_IRQHandler(void)
 				} 
 				else {
 					// Command not recognized
-					USART_Transmit_String("ERROR");
+					USART_Transmit_String("ParseFail");
 				}
 						
           cmdBufferPos = 0; // Reset the buffer for the next command
@@ -995,24 +1006,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void init_PitchMotor()
 {
-  double PI = 3.1415926535897932;
-	double Angle1 = 0;
-	
-	//Angle1 Conversion
-	Angle1 = (double)Angle1 * PI;
-	Angle1 = Angle1 / 180;
-	Angle1 = sin(Angle1);
-
-	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle1 = Angle1 + 500;
-	Angle1 = Angle1 * 0.7;
-
   TIM_OC_InitTypeDef sConfigOC;
   
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	sConfigOC.Pulse = Angle1;
+	sConfigOC.Pulse = 30;
   HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); 
 
@@ -1028,23 +1027,12 @@ void init_PitchMotor()
 
 void init_RollMotor()
 {
-	double PI = 3.1415926535897932;
-	double Angle1 = 0;
-	
-	//Angle1 Conversion
-	Angle1 = (double)Angle1 * PI;
-	Angle1 = Angle1 / 180;
-	Angle1 = sin(Angle1);
-
-	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle1 = Angle1 + 500;
-
   TIM_OC_InitTypeDef sConfigOC;
   
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	sConfigOC.Pulse = Angle1;
+	sConfigOC.Pulse = 30;
   HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);  
 
@@ -1057,23 +1045,12 @@ void init_RollMotor()
 }
 void init_YawMotor()
 {
-	double PI = 3.1415926535897932;
-	double Angle1 = 0;
-	
-	//Angle1 Conversion
-	Angle1 = (double)Angle1 * PI;
-	Angle1 = Angle1 / 180;
-	Angle1 = sin(Angle1);
-
-	Angle1 = Angle1 * 500;//sin(angle1) produces -1 -> 1. We need positive range of values from 0 -> max pwm duty cycle value
-	Angle1 = Angle1 + 500;
-
   TIM_OC_InitTypeDef sConfigOC;
   
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	sConfigOC.Pulse = Angle1;
+	sConfigOC.Pulse = 30;
   HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);  
 
@@ -1082,6 +1059,7 @@ void init_YawMotor()
 
   HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);  
+	return;
 }
 
 
@@ -1110,16 +1088,13 @@ void PID_execute(){
 		if(yawbuffer < 900){}
 		else if(yawbuffer  > 2100){} 
 		else  {
-			yawbuffer = map(yawbuffer, 1000,2000,-70,70);
+			yawbuffer = map(yawbuffer, 1000,2000,0,360);
+			if(yawbuffer > 355) yawbuffer = 355;
+			if(yawbuffer < 5) yawbuffer = 5;
 			yaw_PWM = yawbuffer;
 			set_desiredYaw(yawbuffer);
 		}
-		
-		//CURRENT IMPLEMENTATION ISSUE:
-		//PWM only read correctly like 1/50th of the attempts, we filter out the bad ones (hopefully), this needs to be resolved
-		//set_desiredPitch(pitchbuffer);
-		//set_desiredRoll(rollbuffer);
-		//set_desiredYaw(yawbuffer);
+
 	}
 
 	//GPIOC->ODR ^= GPIO_ODR_6;
@@ -1183,16 +1158,19 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
-	HAL_Delay(500);
+	HAL_Delay(300);
 	HAL_I2C_Init(&hi2c2);
-	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	//HMC5883_Init(&mag_moving);
-	//MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
+	Sample_MpuMoving();
+	HAL_Delay(200);
 	//MPU_Init(&mpu_stationary, 0x69);
 	AS5600_Init(&yaw_sense, 0x36);
-
+	HAL_Delay(100);
 	//---------------------DEFAULT Disable PWM control----------------------//
 	disablePWMIN();
+	//enablePWMIN();
 	
 	//----------//-Deliver Power to Motors, in some default state------------//
 	init_PitchMotor();
@@ -1200,32 +1178,32 @@ void Custom_StartupRoutine() {
 	init_YawMotor();
 	
 	//---------------------Setup PID controller for brushless motors--------//
-	//BLDC_PID_Init();
+	BLDC_PID_Init();
 	
 	//--------------------------Enable Power to the Motors------------------//
 	//
-	//BLDCEnable(1);
-	//BLDCEnable(2);
-	//BLDCEnable(3);
+	BLDCEnable(1);   //pitch = 1
+	BLDCEnable(2); //roll = 2
+	BLDCEnable(3); //yaw = 3
 	//
 	
 	//---------------------------Disable Power to the Motors-----------------//
 	///*
-	BLDCDisable(1);
-	BLDCDisable(2);
-	BLDCDisable(3);
+	//BLDCDisable(1);
+	//BLDCDisable(2);
+	//BLDCDisable(3);
 	//*/
 	//----------------DEFAULT TO CENTERED PAYLOAD ORIENTATION---------------------//
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
-	set_desiredYaw(0.0f);
+	set_desiredYaw(20.0f);
 	
 	//----------------DEFAULT Roll & Pitch & Yaw to Aboslute Angle----------------//
 	set_operationModeRollPitch(1);
 	set_operationModeYaw(1);
 
 	//----------------------ENABLE MOTOR PID----------------------//
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
 	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
