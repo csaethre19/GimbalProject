@@ -20,6 +20,7 @@ Kalman_t KalmanRoll = {//KalmanY
 
 void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
+	//TWO PATHS CAN BE TAKEN, ONE FOR ICM42688-P, ONE FOR MPU6050.
 	//float A_cal[6] = {0.0, 0.0, 0.0, 1.000, 1.000, 1.000};
 	dataStruct->A_cal[0] = 0.0;dataStruct->A_cal[1] = 0.0;dataStruct->A_cal[2] = 0.0;
 	dataStruct->A_cal[3] = 1.000;dataStruct->A_cal[4] = 1.000;dataStruct->A_cal[5] = 1.000;
