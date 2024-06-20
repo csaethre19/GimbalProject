@@ -878,7 +878,7 @@ void USART3_4_IRQHandler(void)
 	
 	if ((USART3->ISR & USART_ISR_RXNE) != 0) {
 		char ch = USART3->RDR;
-		USART_Transmit_Byte(ch);
+		//USART_Transmit_Byte(ch);
 		
 		if (ch == '\r') // Command delimiter
     {
@@ -886,29 +886,29 @@ void USART3_4_IRQHandler(void)
 					//processCommand(cmdBuffer); // Process the buffered command
 			//BEGIN: ANGLE CONTROL, RETRIEVE CURRENT ANGLE----------------------------------------------
 				if (strcmp(cmdBuffer, "p") == 0){
-					USART_Transmit_Float(mpu_moving.outRoll, 2);//Roll and pitch calculations are flipped in struct
-					USART_Transmit_Newline();
+					//USART_Transmit_Float(mpu_moving.outRoll, 2);//Roll and pitch calculations are flipped in struct
+					//USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "r") == 0){
-					USART_Transmit_Float(mpu_moving.outPitch, 2);//Roll and pitch calculations are flipped in struct outpitch = roll value		
-					USART_Transmit_Newline();
+					//USART_Transmit_Float(mpu_moving.outPitch, 2);//Roll and pitch calculations are flipped in struct outpitch = roll value		
+					//USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "y") == 0){
 					//FIX THIS--------------------------------------------------
-					//USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
-					USART_Transmit_Newline();
+					////USART_Transmit_Float(mpu_moving.KalmanAngleYaw, 2);
+					//USART_Transmit_Newline();
 					}//BEGIN: ANGLE CONTROL, SET TARGET ANGLE-------------------------------------------
 				else if(strncmp(cmdBuffer, "P", 1) == 0){
 
 					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
-						USART_Transmit_String("P=");
-						USART_Transmit_Float(value, 2);
+						//USART_Transmit_String("P=");
+						//USART_Transmit_Float(value, 2);
 						set_desiredPitch(value); 
-						USART_Transmit_Newline();						
+						//USART_Transmit_Newline();						
 					}else{
-					USART_Transmit_String("ParseFail");						
+					//USART_Transmit_String("ParseFail");						
 					}
 				}
 				else if(strncmp(cmdBuffer, "R", 1) == 0){
@@ -916,12 +916,12 @@ void USART3_4_IRQHandler(void)
 					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
-						USART_Transmit_String("R=");
-						USART_Transmit_Float(value, 2);
+						//USART_Transmit_String("R=");
+						//USART_Transmit_Float(value, 2);
 						set_desiredRoll(value);
-						USART_Transmit_Newline();						
+						//USART_Transmit_Newline();						
 					}else{
-						USART_Transmit_String("ParseFail");						
+						//USART_Transmit_String("ParseFail");						
 					}
 				}
 				else if(strncmp(cmdBuffer, "Y", 1) == 0){
@@ -929,51 +929,51 @@ void USART3_4_IRQHandler(void)
 					char* extractedString = &cmdBuffer[1];
 					value = strtod(extractedString, &endPtr);
 					if(endPtr != extractedString){
-						USART_Transmit_String("Y=");
-						USART_Transmit_Float(value, 2);
+						//USART_Transmit_String("Y=");
+						//USART_Transmit_Float(value, 2);
 						set_desiredYaw(value);
-						USART_Transmit_Newline();						
+						//USART_Transmit_Newline();						
 					}else{
-						USART_Transmit_String("ParseFail");						
+						//USART_Transmit_String("ParseFail");						
 					}
 				}//BEGIN: INPUT CONFIGURATION-------------------------------------------------------
 				else if(strcmp(cmdBuffer, "pwm1") == 0){
 					
-						USART_Transmit_String("PWM_EN");
-						USART_Transmit_Newline();
+						//USART_Transmit_String("PWM_EN");
+						//USART_Transmit_Newline();
 						enablePWMIN();
 					
 				}
 				else if(strcmp(cmdBuffer, "pwm0") == 0){
 					
-						USART_Transmit_String("PWM_DIS");
-						USART_Transmit_Newline();
+						//USART_Transmit_String("PWM_DIS");
+						//USART_Transmit_Newline();
 						disablePWMIN();
 					
 				}///BEGIN MODE CONTROL-------------------------------------------(absolute==1  relative==0)
 				else if(strcmp(cmdBuffer, "A1") == 0){
 					set_operationModeYaw(1);
-					USART_Transmit_String("Yaw=Abs");
-					USART_Transmit_Newline();
+					//USART_Transmit_String("Yaw=Abs");
+					//USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "A0") == 0){
 					set_operationModeYaw(0);
-					USART_Transmit_String("Yaw=Rel");
-					USART_Transmit_Newline();
+					//USART_Transmit_String("Yaw=Rel");
+					//USART_Transmit_Newline();
 				}
 				else if(strcmp(cmdBuffer, "B1") == 0){
 					set_operationModeRollPitch(1);
-					USART_Transmit_String("RP=Abs");
-					USART_Transmit_Newline();
+					//USART_Transmit_String("RP=Abs");
+					//USART_Transmit_Newline();
 				} 
 				else if(strcmp(cmdBuffer, "B0") == 0){
 					set_operationModeRollPitch(0);
-					USART_Transmit_String("RP=Rel");
-					USART_Transmit_Newline();
+					//USART_Transmit_String("RP=Rel");
+					//USART_Transmit_Newline();
 				} 
 				else {
 					// Command not recognized
-					USART_Transmit_String("ParseFail");
+					//USART_Transmit_String("ParseFail");
 				}
 						
           cmdBufferPos = 0; // Reset the buffer for the next command
@@ -982,6 +982,7 @@ void USART3_4_IRQHandler(void)
     else
     {
 				cmdBuffer[cmdBufferPos++] = ch; // Store the character and move the position
+				//cmdBufferPos++;
     }
 		
 	}	
@@ -1256,7 +1257,7 @@ void BurstReadCheap_StateMachine(){
 					// If a NACK is received, exit with error
 					return; // Error code for NACK
 					if((BurstReadState > 0) & (BurstReadState < 16)){//Reading from MPU_Moving failed, report this error
-						USART_Transmit_Byte(71);//transmit G = 0d071 to user --> Moving IMU not working
+						//USART_Transmit_Byte(71);//transmit G = 0d071 to user --> Moving IMU not working
 						BurstReadState = 0;
 					}
 	}
