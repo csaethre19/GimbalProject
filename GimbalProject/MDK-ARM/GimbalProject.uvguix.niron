@@ -93,8 +93,8 @@
       <flags>2</flags>
       <showCmd>3</showCmd>
       <MinPosition>
-        <xPos>-1</xPos>
-        <yPos>-1</yPos>
+        <xPos>-32000</xPos>
+        <yPos>-32000</yPos>
       </MinPosition>
       <MaxPosition>
         <xPos>-1</xPos>
@@ -1865,17 +1865,17 @@
       <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>../Core/Src/main.c</Name>
-        <ColumnNumber>30</ColumnNumber>
-        <TopLine>381</TopLine>
-        <CurrentLine>1162</CurrentLine>
+        <ColumnNumber>24</ColumnNumber>
+        <TopLine>136</TopLine>
+        <CurrentLine>154</CurrentLine>
         <Folding>1</Folding>
-        <ContractedFolders>253,258,292,298,362,368,410,416,494,500,561,567,628,634,666,672,729,735,775,781,810,816,867,871,994,1010,1031,1049</ContractedFolders>
+        <ContractedFolders>255,260,294,300,364,370,412,418,496,502,563,569,630,636,668,674,731,737,777,783,812,818,869,1012,1033,1051,1070</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
       <Doc>
         <Name>..\Core\Src\BLDCMotor.c</Name>
         <ColumnNumber>19</ColumnNumber>
-        <TopLine>226</TopLine>
+        <TopLine>220</TopLine>
         <CurrentLine>227</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
@@ -1883,9 +1883,9 @@
       </Doc>
       <Doc>
         <Name>..\Core\Src\MPU6050.c</Name>
-        <ColumnNumber>64</ColumnNumber>
+        <ColumnNumber>7</ColumnNumber>
         <TopLine>10</TopLine>
-        <CurrentLine>23</CurrentLine>
+        <CurrentLine>24</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -1929,7 +1929,7 @@
       <Doc>
         <Name>../Core/Src/stm32f0xx_it.c</Name>
         <ColumnNumber>0</ColumnNumber>
-        <TopLine>250</TopLine>
+        <TopLine>265</TopLine>
         <CurrentLine>293</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
