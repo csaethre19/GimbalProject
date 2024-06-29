@@ -56,6 +56,8 @@
 ADC_HandleTypeDef hadc;
 
 I2C_HandleTypeDef hi2c2;
+DMA_HandleTypeDef hdma_i2c2_rx;
+DMA_HandleTypeDef hdma_i2c2_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
@@ -87,13 +89,28 @@ volatile int yaw_sense_newdata = 0;
 volatile int8_t bufferData;
 volatile double FREquencycounter = 0;
 volatile int button_press_count;
-volatile uint8_t i2c_queue = 0;
-volatile int uselesscounter = 0;
+
+/*
+i2c2 utilizes dma for all transactions
+a i2c_status is used to determine behaviors and callback functions given interrupts produced by DMA completing its function
+i2c_status:
+1 = MPU6050 DMA TX inprocess
+2 = MPU6050 DMA RX inprocess
+
+10 = AS5600 DMA TX inprocess
+11 = AS5600 DMA RX inprocess
+*/
+volatile uint8_t i2c2_tx_buffer[10];
+volatile uint8_t i2c2_rx_buffer[30];
+volatile uint8_t i2c_status = 0;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_ADC_Init(void);
 static void MX_I2C2_Init(void);
@@ -151,6 +168,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART3_UART_Init();
   MX_ADC_Init();
   MX_I2C2_Init();
@@ -210,11 +228,6 @@ int main(void)
 
 		FREquencycounter++;
 		
-		//-----------------------I2C queue handling stuff---------------//
-		if(i2c_queue > 5){
-			i2c_queue = 0;
-			Sample_YawSensor();
-		}
 		//------------------------BUTTON STUFF--------------------------//
 		//Short Press < 3 seconds = LED lights
 		//Long Press > 3 seconds = Calibration requested
@@ -819,6 +832,22 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_5_6_7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_5_6_7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_5_6_7_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -1173,26 +1202,28 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
-	FREquencycounter++;
+
 	HAL_I2C_Init(&hi2c2);
-	FREquencycounter++;
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-	FREquencycounter++;
+	
+	HAL_I2C_MspInit(&hi2c2);
+	
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+
 	//while (uselesscounter < 10000000){uselesscounter++;}
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
-	FREquencycounter++;
-	AS5600_Init(&yaw_sense, 0x36);
-	FREquencycounter++;
+	//MPU_Init(&mpu_moving, 0x68);
+
+	//AS5600_Init(&yaw_sense, 0x36);
+
 	//---------------------DEFAULT Disable PWM control----------------------//
 	disablePWMIN();
 	//enablePWMIN();
-	FREquencycounter++;
+
 	//----------//-Deliver Power to Motors, in some default state------------//
 	init_PitchMotor();
 	init_RollMotor();
 	init_YawMotor();
-	FREquencycounter++;
+
 	//---------------------Setup PID controller for brushless motors--------//
 	BLDC_PID_Init();
 	
@@ -1219,9 +1250,9 @@ void Custom_StartupRoutine() {
 	set_operationModeYaw(1);
 	
 	//----------------------ENABLE MOTOR PID----------------------//
-	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
-	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
@@ -1231,7 +1262,7 @@ void Sample_MpuMoving() {
   	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
 		BurstReadState = 1;//reading from mpu_moving
 	}
-	else{i2c_queue |= 0b00000010;}//if second bit is set, do a sample mpu_moving asap
+
 	
 }
 
@@ -1245,7 +1276,7 @@ void Sample_YawSensor() {
 		I2C_BurstRead_Cheap(yaw_sense.deviceAddr, ANG_h, 2);
 		BurstReadState = 51;//reading from mpu_moving
 	}
-	else{i2c_queue |= 0b00000001;}//if first bit is set, do a sample yawsensor asap
+
 }
 
 /*
@@ -1350,7 +1381,7 @@ void BurstReadCheap_StateMachine(){
 				mpu_moving.gyro_zlow = bufferData;
 				BurstReadState = 0;
 				mpu_moving_newdata = 1;
-				i2c_queue ++;
+
 				//last byte, set CR2_NACK
 				I2C2->CR2 |= I2C_CR2_NACK;
 				I2C2->CR2 |= I2C_CR2_STOP;
@@ -1378,6 +1409,30 @@ void BurstReadCheap_StateMachine(){
 	return;
 	
 }
+
+/**
+  * @brief  I2C error callbacks.
+  * @param  I2cHandle: I2C handle
+  * @note   This example shows a simple way to report transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
+{
+  /** Error_Handler() function is called when error occurs.
+    * 1- When Slave don't acknowledge it's address, Master restarts communication.
+    * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
+    */
+  if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF)
+  {
+    /* Turn Off LED_GREEN */
+   
+		
+    /* Turn On LED_RED */
+    
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
