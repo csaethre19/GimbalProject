@@ -3,6 +3,7 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
+<<<<<<< Updated upstream
 IDE-Version: µVision V5.39.0.0
 Copyright (C) 2023 ARM Ltd and ARM Germany GmbH. All rights reserved.
 License Information: job business, acompanu, LIC=SXJT4-FAD1Q-5JINE-I5TV2-QL62Z-JRCWQ
@@ -16,6 +17,21 @@ Linker/Locator:  ArmLink.exe V6.21
 Library Manager: ArmAr.exe V6.21
 Hex Converter:   FromElf.exe V6.21
 CPU DLL:         SARMCM3.DLL V5.39.0.0
+=======
+IDE-Version: µVision V5.40.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: nick ronnie, acompany, LIC=LB4EI-TNATJ-97E8J-7S80A-NJ0C2-Q06LT
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Cortex-M0/M0+ for ST  Version: 5.40.0.3
+Toolchain Path:  C:\Users\niron\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.22
+Assembler:       Armasm.exe V6.22
+Linker/Locator:  ArmLink.exe V6.22
+Library Manager: ArmAr.exe V6.22
+Hex Converter:   FromElf.exe V6.22
+CPU DLL:         SARMCM3.DLL V5.40.0.3
+>>>>>>> Stashed changes
 Dialog DLL:      DARMCM1.DLL V1.19.6.0
 Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.2.0.0
 Dialog DLL:      TARMCM1.DLL V1.14.6.0
@@ -25,6 +41,7 @@ C:\Users\niron\Desktop\Spring 2024\Embedded - 5780\GimbalProject\GimbalProject\M
 Project File Date:  04/23/2024
 
 <h2>Output:</h2>
+<<<<<<< Updated upstream
 *** Using Compiler 'V6.21', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'GimbalProject'
 assembling startup_stm32f072xb.s...
@@ -88,6 +105,13 @@ compiling TransformFunctions.c...
 compiling FilteringFunctions.c...
 linking...
 Program Size: Code=38432 RO-data=3384 RW-data=168 ZI-data=2784  
+=======
+*** Using Compiler 'V6.22', folder: 'C:\Users\niron\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
+Build target 'GimbalProject'
+compiling main.c...
+linking...
+Program Size: Code=35308 RO-data=3328 RW-data=20 ZI-data=3252  
+>>>>>>> Stashed changes
 FromELF: creating hex file...
 "GimbalProject\GimbalProject.axf" - 0 Error(s), 0 Warning(s).
 
@@ -122,6 +146,7 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE@5.6.0
 
    * Component: ARM::CMSIS:DSP&Source@1.15.0
+<<<<<<< Updated upstream
       Source file:   Source/BasicMathFunctions/BasicMathFunctions.c
       Source file:   Source/QuaternionMathFunctions/QuaternionMathFunctions.c
       Source file:   Source/BayesFunctions/BayesFunctions.c
@@ -157,6 +182,43 @@ Package Vendor: Keil
       Source file:   Source/TransformFunctions/TransformFunctions.c
       Source file:   Source/StatisticsFunctions/StatisticsFunctionsF16.c
 Build Time Elapsed:  00:00:07
+=======
+      Source file:   Source/InterpolationFunctions/InterpolationFunctionsF16.c
+      Source file:   Source/TransformFunctions/TransformFunctionsF16.c
+      Source file:   Source/BayesFunctions/BayesFunctionsF16.c
+      Source file:   Source/MatrixFunctions/MatrixFunctionsF16.c
+      Source file:   Source/StatisticsFunctions/StatisticsFunctionsF16.c
+      Source file:   Source/FastMathFunctions/FastMathFunctionsF16.c
+      Source file:   Source/SVMFunctions/SVMFunctionsF16.c
+      Source file:   Source/SupportFunctions/SupportFunctionsF16.c
+      Source file:   Source/FilteringFunctions/FilteringFunctionsF16.c
+      Source file:   Source/CommonTables/CommonTablesF16.c
+      Source file:   Source/DistanceFunctions/DistanceFunctionsF16.c
+      Include file:  Include/arm_common_tables_f16.h
+      Source file:   Source/BasicMathFunctions/BasicMathFunctions.c
+      Source file:   Source/QuaternionMathFunctions/QuaternionMathFunctions.c
+      Source file:   Source/CommonTables/CommonTables.c
+      Source file:   Source/ComplexMathFunctions/ComplexMathFunctions.c
+      Source file:   Source/BayesFunctions/BayesFunctions.c
+      Source file:   Source/ControllerFunctions/ControllerFunctions.c
+      Include file:  Include/arm_common_tables.h
+      Source file:   Source/DistanceFunctions/DistanceFunctions.c
+      Source file:   Source/FastMathFunctions/FastMathFunctions.c
+      Source file:   Source/FilteringFunctions/FilteringFunctions.c
+      Source file:   Source/MatrixFunctions/MatrixFunctions.c
+      Include file:  Include/arm_const_structs.h
+      Source file:   Source/StatisticsFunctions/StatisticsFunctions.c
+      Source file:   Source/SupportFunctions/SupportFunctions.c
+      Source file:   Source/SVMFunctions/SVMFunctions.c
+      Source file:   Source/TransformFunctions/TransformFunctions.c
+      Include file:  Include/arm_math.h
+      Include file:  Include/arm_math_f16.h
+      Include file:  Include/arm_const_structs_f16.h
+      Source file:   Source/InterpolationFunctions/InterpolationFunctions.c
+      Source file:   Source/BasicMathFunctions/BasicMathFunctionsF16.c
+      Source file:   Source/ComplexMathFunctions/ComplexMathFunctionsF16.c
+Build Time Elapsed:  00:00:02
+>>>>>>> Stashed changes
 </pre>
 </body>
 </html>

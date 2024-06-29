@@ -25,6 +25,11 @@
 
 /* USER CODE END Includes */
 extern DMA_HandleTypeDef hdma_i2c2_rx;
+<<<<<<< Updated upstream
+=======
+
+extern DMA_HandleTypeDef hdma_i2c2_tx;
+>>>>>>> Stashed changes
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -198,7 +203,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     hdma_i2c2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_i2c2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_i2c2_rx.Init.Mode = DMA_NORMAL;
+<<<<<<< Updated upstream
     hdma_i2c2_rx.Init.Priority = DMA_PRIORITY_LOW;
+=======
+    hdma_i2c2_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
+>>>>>>> Stashed changes
     if (HAL_DMA_Init(&hdma_i2c2_rx) != HAL_OK)
     {
       Error_Handler();
@@ -206,6 +215,25 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 
     __HAL_LINKDMA(hi2c,hdmarx,hdma_i2c2_rx);
 
+<<<<<<< Updated upstream
+=======
+    /* I2C2_TX Init */
+    hdma_i2c2_tx.Instance = DMA1_Channel4;
+    hdma_i2c2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_i2c2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_i2c2_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_i2c2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_i2c2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_i2c2_tx.Init.Mode = DMA_NORMAL;
+    hdma_i2c2_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    if (HAL_DMA_Init(&hdma_i2c2_tx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(hi2c,hdmatx,hdma_i2c2_tx);
+
+>>>>>>> Stashed changes
     /* I2C2 interrupt Init */
     HAL_NVIC_SetPriority(I2C2_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(I2C2_IRQn);
@@ -242,6 +270,10 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
     /* I2C2 DMA DeInit */
     HAL_DMA_DeInit(hi2c->hdmarx);
+<<<<<<< Updated upstream
+=======
+    HAL_DMA_DeInit(hi2c->hdmatx);
+>>>>>>> Stashed changes
 
     /* I2C2 interrupt DeInit */
     HAL_NVIC_DisableIRQ(I2C2_IRQn);
@@ -576,9 +608,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF1_USART3;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /* USART3 interrupt Init */
-    HAL_NVIC_SetPriority(USART3_4_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(USART3_4_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
 
   /* USER CODE END USART3_MspInit 1 */
@@ -608,8 +637,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4|GPIO_PIN_5);
 
-    /* USART3 interrupt DeInit */
-    HAL_NVIC_DisableIRQ(USART3_4_IRQn);
   /* USER CODE BEGIN USART3_MspDeInit 1 */
 
   /* USER CODE END USART3_MspDeInit 1 */

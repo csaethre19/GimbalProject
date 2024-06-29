@@ -58,6 +58,10 @@ ADC_HandleTypeDef hadc;
 
 I2C_HandleTypeDef hi2c2;
 DMA_HandleTypeDef hdma_i2c2_rx;
+<<<<<<< Updated upstream
+=======
+DMA_HandleTypeDef hdma_i2c2_tx;
+>>>>>>> Stashed changes
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
@@ -82,12 +86,29 @@ volatile int doPID = 0;
 volatile int pitch_PWM;
 volatile int roll_PWM;
 volatile int yaw_PWM;
+<<<<<<< Updated upstream
 volatile int doPIDCount = 0;
 volatile int PID_execcount = 0;
 volatile char I2C2_DMA_state = 0;
 uint8_t I2C2_DMA_buffer[14];//this buffer is the memory address
 volatile char Process_mpu_moving = 0;
 volatile char mpu_moving_kfilter_complete = 1;
+=======
+volatile int BurstReadState = 0;
+volatile int mpu_moving_newdata = 0;
+volatile int yaw_sense_newdata = 0;
+volatile int8_t bufferData;
+volatile double FREquencycounter = 0;
+volatile int button_press_count;
+
+uint8_t I2C2_txBuffer[10];
+uint8_t I2C2_rxBuffer[30];
+volatile uint8_t i2c_queue = 0;
+
+
+
+
+>>>>>>> Stashed changes
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -914,6 +935,7 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
+<<<<<<< Updated upstream
 	hdma_i2c2_rx.Instance = DMA1_Channel5;
     hdma_i2c2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_i2c2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -927,6 +949,14 @@ static void MX_DMA_Init(void)
     }
 
    __HAL_LINKDMA(&hi2c2, hdmarx, hdma_i2c2_rx);
+=======
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_5_6_7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_5_6_7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_5_6_7_IRQn);
+
+>>>>>>> Stashed changes
 }
 
 /**
@@ -1415,9 +1445,75 @@ void disablePWMIN(){
 	HAL_TIM_Base_Stop(&htim17);
 }
 
+<<<<<<< Updated upstream
 void enableADCIN(){
 	useADC = 1;
 	//FILL IN HOW TO STARTUP AND ENABLE ADC
+=======
+
+//This function call initializes the usage all peripherals,
+void Custom_StartupRoutine() {
+	//External Data Init-----------------------------------------------
+
+	HAL_I2C_Init(&hi2c2);
+
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+
+	//while (uselesscounter < 10000000){uselesscounter++;}
+	//HMC5883_Init(&mag_moving);
+	//MPU_Init(&mpu_moving, 0x68);
+
+	//AS5600_Init(&yaw_sense, 0x36);
+
+	//---------------------DEFAULT Disable PWM control----------------------//
+	disablePWMIN();
+	//enablePWMIN();
+
+	//----------//-Deliver Power to Motors, in some default state------------//
+	init_PitchMotor();
+	init_RollMotor();
+	init_YawMotor();
+
+	//---------------------Setup PID controller for brushless motors--------//
+	BLDC_PID_Init();
+	
+	//--------------------------Enable Power to the Motors------------------//
+	//
+	//BLDCEnable(1);   //pitch = 1
+	//BLDCEnable(2); //roll = 2
+	//BLDCEnable(3); //yaw = 3
+	//
+	
+	//---------------------------Disable Power to the Motors-----------------//
+	///*
+	BLDCDisable(1);
+	BLDCDisable(2);
+	BLDCDisable(3);
+	//*/
+	//----------------DEFAULT TO CENTERED PAYLOAD ORIENTATION---------------------//
+	set_desiredRoll(0.0f);
+	set_desiredPitch(0.0f);
+	set_desiredYaw(40.0f);
+	
+	//----------------DEFAULT Roll & Pitch & Yaw to Aboslute Angle----------------//
+	set_operationModeRollPitch(1);
+	set_operationModeYaw(1);
+	
+	//----------------------ENABLE MOTOR PID----------------------//
+	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
+	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+}
+
+void Sample_MpuMoving() {
+	//KFilter_2(&mpu_moving);
+	
+	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
+  	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+		BurstReadState = 1;//reading from mpu_moving
+	}
+	else{i2c_queue |= 0b00000010;}//if second bit is set, do a sample mpu_moving asap
+>>>>>>> Stashed changes
 	
 }
 
