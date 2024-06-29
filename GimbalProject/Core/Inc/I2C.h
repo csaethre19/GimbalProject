@@ -18,7 +18,7 @@ void I2C_SetUp();
 /*
 	Given a device with deviceAddr as its address, writes data to regAddr.
 */
-void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data);
+char I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data);
 
 /*
 	Given a device with deviceAddr as its address, returns data from register 

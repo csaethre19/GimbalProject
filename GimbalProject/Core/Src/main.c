@@ -87,6 +87,8 @@ volatile int yaw_sense_newdata = 0;
 volatile int8_t bufferData;
 volatile double FREquencycounter = 0;
 volatile int button_press_count;
+volatile uint8_t i2c_queue = 0;
+volatile int uselesscounter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,9 +130,7 @@ void Calibration();
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	
-	
-	
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -192,23 +192,29 @@ int main(void)
 		
 		if(doPID){
 			BLDC_PID(&mpu_moving, &mpu_stationary);
+			YAW_PID(&yaw_sense);
 			PID_execute();
 			doPID = 0;
 		}
 		
 		if(mpu_moving_newdata){
-			Mahony_update(&mpu_moving);
 			mpu_moving_newdata = 0;
+			Mahony_update(&mpu_moving);
+			
 		}
 		
 		if(yaw_sense_newdata){
-			AS5600_Process_Angle(&yaw_sense);
-			YAW_PID(&yaw_sense);
 			yaw_sense_newdata = 0;
+			AS5600_Process_Angle(&yaw_sense);
 		}
 
 		FREquencycounter++;
 		
+		//-----------------------I2C queue handling stuff---------------//
+		if(i2c_queue > 5){
+			i2c_queue = 0;
+			Sample_YawSensor();
+		}
 		//------------------------BUTTON STUFF--------------------------//
 		//Short Press < 3 seconds = LED lights
 		//Long Press > 3 seconds = Calibration requested
@@ -220,6 +226,8 @@ int main(void)
 			button_press_count++;
 			GPIOC->ODR |= GPIO_ODR_6;
 		}
+		
+		
 		
 		/*
 		if(button_press_count > 2000){
@@ -432,7 +440,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 7;
+  htim1.Init.Prescaler = 23;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -873,6 +881,7 @@ static void MX_GPIO_Init(void)
 void USART3_4_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_4_IRQn 0 */
+	if(cmdBufferPos > 50){cmdBufferPos = 0;}
 	double value = 0;
 	char* endPtr;
 	
@@ -982,7 +991,7 @@ void USART3_4_IRQHandler(void)
     else
     {
 				cmdBuffer[cmdBufferPos++] = ch; // Store the character and move the position
-				//cmdBufferPos++;
+				
     }
 		
 	}	
@@ -1164,24 +1173,26 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
-	HAL_Delay(300);
+	FREquencycounter++;
 	HAL_I2C_Init(&hi2c2);
+	FREquencycounter++;
 	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	FREquencycounter++;
+	//while (uselesscounter < 10000000){uselesscounter++;}
 	//HMC5883_Init(&mag_moving);
-	//MPU_Init(&mpu_moving, 0x68);
-	
-	HAL_Delay(200);
-	//AS5600_Init(&yaw_sense, 0x36);
-	HAL_Delay(100);
+	MPU_Init(&mpu_moving, 0x68);
+	FREquencycounter++;
+	AS5600_Init(&yaw_sense, 0x36);
+	FREquencycounter++;
 	//---------------------DEFAULT Disable PWM control----------------------//
 	disablePWMIN();
 	//enablePWMIN();
-	
+	FREquencycounter++;
 	//----------//-Deliver Power to Motors, in some default state------------//
 	init_PitchMotor();
 	init_RollMotor();
 	init_YawMotor();
-	
+	FREquencycounter++;
 	//---------------------Setup PID controller for brushless motors--------//
 	BLDC_PID_Init();
 	
@@ -1201,16 +1212,16 @@ void Custom_StartupRoutine() {
 	//----------------DEFAULT TO CENTERED PAYLOAD ORIENTATION---------------------//
 	set_desiredRoll(0.0f);
 	set_desiredPitch(0.0f);
-	set_desiredYaw(20.0f);
+	set_desiredYaw(40.0f);
 	
 	//----------------DEFAULT Roll & Pitch & Yaw to Aboslute Angle----------------//
 	set_operationModeRollPitch(1);
 	set_operationModeYaw(1);
-
+	
 	//----------------------ENABLE MOTOR PID----------------------//
-	//HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
+	HAL_TIM_Base_Start_IT(&htim1);//enable timer 1 interrupt (1  khz frequency)
 	//----------------------ENABLE MPU_MOVING SAMPLE--------------//
-	//HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
+	HAL_TIM_Base_Start_IT(&htim6);//enable timer 6 interrupt (200 hz frequency)
 }
 
 void Sample_MpuMoving() {
@@ -1220,6 +1231,7 @@ void Sample_MpuMoving() {
   	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
 		BurstReadState = 1;//reading from mpu_moving
 	}
+	else{i2c_queue |= 0b00000010;}//if second bit is set, do a sample mpu_moving asap
 	
 }
 
@@ -1233,6 +1245,7 @@ void Sample_YawSensor() {
 		I2C_BurstRead_Cheap(yaw_sense.deviceAddr, ANG_h, 2);
 		BurstReadState = 51;//reading from mpu_moving
 	}
+	else{i2c_queue |= 0b00000001;}//if first bit is set, do a sample yawsensor asap
 }
 
 /*
@@ -1337,9 +1350,11 @@ void BurstReadCheap_StateMachine(){
 				mpu_moving.gyro_zlow = bufferData;
 				BurstReadState = 0;
 				mpu_moving_newdata = 1;
+				i2c_queue ++;
 				//last byte, set CR2_NACK
 				I2C2->CR2 |= I2C_CR2_NACK;
 				I2C2->CR2 |= I2C_CR2_STOP;
+				
 				return;
 			}
 			case(51):{//----------AS5600 ANGLE Readout-----------//

@@ -13,7 +13,7 @@
 	data 			 - Either a register address or the data to be written to a register.
 
 */
-void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data) 
+char I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data) 
 {
 	I2C2->CR2 = 0; // Clear register
 	// Use SADD[7:1] bit field in CR2 register to set slave address to addr
@@ -33,8 +33,9 @@ void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data)
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
 		//GPIOC->ODR |= GPIO_ODR_6; // RED - I2C not working!
+		return 0;
 	}
-	
+	else{
 	// Set reg address
 	I2C2->TXDR = regAddr;
 	
@@ -45,7 +46,8 @@ void I2C_WriteRegister(uint16_t deviceAddr, uint8_t regAddr, uint8_t data)
 		
 	// Wait until TC flag set - transfer complete
 	while (!(I2C2->ISR & I2C_ISR_TC)) {}
-
+	return 1;
+	}
 }
 
 /*
