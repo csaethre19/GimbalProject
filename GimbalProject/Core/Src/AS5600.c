@@ -118,8 +118,10 @@ void AS5600_Read_Angle(volatile AS5600_t *dataStruct)
 //Note: This method will only process the angle. no other data is procesed or loaded regarding the AS5600 sensor
 void AS5600_Process_Angle(volatile AS5600_t *dataStruct)
 {
-	uint8_t angle_h = dataStruct->angle_high;
-	uint8_t angle_l = dataStruct->angle_low;
+	//uint8_t angle_h = dataStruct->angle_high;
+	//uint8_t angle_l = dataStruct->angle_low;
+	uint8_t angle_h = dataStruct->bufferinput[1];
+	uint8_t angle_l = dataStruct->bufferinput[0];
 	uint16_t Iangle = (uint16_t)(angle_h << 8 | angle_l);
 	Iangle = Iangle & (~(uint16_t)61440);
 	

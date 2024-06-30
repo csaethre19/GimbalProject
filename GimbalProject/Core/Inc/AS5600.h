@@ -71,6 +71,8 @@ typedef struct {
 	uint8_t angle_low;
 	uint8_t angle_high;
 	
+	uint8_t bufferinput[2];
+	
 } AS5600_t;
 
 /*

@@ -54,7 +54,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+volatile int heyDMAinterruptcalled = 0;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -65,6 +65,7 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_i2c2_rx;
 extern DMA_HandleTypeDef hdma_i2c2_tx;
+extern I2C_HandleTypeDef hi2c2;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim15;
@@ -165,7 +166,7 @@ void DMA1_Channel4_5_6_7_IRQHandler(void)
   HAL_DMA_IRQHandler(&hdma_i2c2_tx);
   HAL_DMA_IRQHandler(&hdma_i2c2_rx);
   /* USER CODE BEGIN DMA1_Channel4_5_6_7_IRQn 1 */
-
+	
   /* USER CODE END DMA1_Channel4_5_6_7_IRQn 1 */
 }
 
@@ -287,6 +288,23 @@ void TIM17_IRQHandler(void)
   /* USER CODE END TIM17_IRQn 1 */
 }
 
+/**
+  * @brief This function handles I2C2 global interrupt.
+  */
+void I2C2_IRQHandler(void)
+{
+  /* USER CODE BEGIN I2C2_IRQn 0 */
+
+  /* USER CODE END I2C2_IRQn 0 */
+  if (hi2c2.Instance->ISR & (I2C_FLAG_BERR | I2C_FLAG_ARLO | I2C_FLAG_OVR)) {
+    HAL_I2C_ER_IRQHandler(&hi2c2);
+  } else {
+    HAL_I2C_EV_IRQHandler(&hi2c2);
+  }
+  /* USER CODE BEGIN I2C2_IRQn 1 */
+
+  /* USER CODE END I2C2_IRQn 1 */
+}
 
 
 /* USER CODE BEGIN 1 */

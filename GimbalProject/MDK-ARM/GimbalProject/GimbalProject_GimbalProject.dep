@@ -1,10 +1,10 @@
 Dependencies for Project 'GimbalProject', Target 'GimbalProject': (DO NOT MODIFY !)
 CompilerVersion: 6220000::V6.22::ARMCLANG
-F (startup_stm32f072xb.s)(0x668039DD)(--target=arm-arm-none-eabi -mcpu=cortex-m0 -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-Wa,armasm,--pd,"__UVISION_VERSION SETA 540" -Wa,armasm,--pd,"STM32F072xB SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"-o gimbalproject/startup_stm32f072xb.o)
+F (startup_stm32f072xb.s)(0x66809510)(--target=arm-arm-none-eabi -mcpu=cortex-m0 -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-Wa,armasm,--pd,"__UVISION_VERSION SETA 540" -Wa,armasm,--pd,"STM32F072xB SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"-o gimbalproject/startup_stm32f072xb.o)
 F (C:\Keil_v5\Backup.002\ARM\ARMCLANG\include\dspfns.h)(0x00000000)()
-F (..\Core\Src\I2C.c)(0x66803924)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/i2c.o -MMD)
-I (..\Core\Inc\I2C.h)(0x66803924)
-I (..\Core\Inc\main.h)(0x66803924)
+F (..\Core\Src\I2C.c)(0x66809752)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/i2c.o -MMD)
+I (..\Core\Inc\I2C.h)(0x66807331)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -36,7 +36,7 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
 I (..\Core\Inc\USART.h)(0x66803924)
 F (..\Core\Src\USART.c)(0x66803924)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/usart.o -MMD)
 I (..\Core\Inc\USART.h)(0x66803924)
-I (..\Core\Inc\main.h)(0x66803924)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -67,7 +67,7 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
 F (..\Core\Src\MPU6050.c)(0x66803924)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/mpu6050.o -MMD)
 I (..\Core\Inc\MPU6050.h)(0x66803924)
-I (..\Core\Inc\main.h)(0x66803924)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -96,7 +96,7 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim_ex.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
-I (..\Core\Inc\I2C.h)(0x66803924)
+I (..\Core\Inc\I2C.h)(0x66807331)
 I (..\Core\Inc\USART.h)(0x66803924)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\arm_math.h)(0x64E3A7BE)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\arm_math_types.h)(0x64E3A7BE)
@@ -145,7 +145,7 @@ I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\filte
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\quaternion_math_functions.h)(0x64E3A7BE)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\window_functions.h)(0x64E3A7BE)
 I (..\Core\Inc\BLDCMotor.h)(0x66803924)
-I (..\Core\Inc\main.h)(0x66803924)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -175,11 +175,11 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim_ex.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
 I (..\Core\Inc\MPU6050.h)(0x66803924)
-I (..\Core\Inc\I2C.h)(0x66803924)
+I (..\Core\Inc\I2C.h)(0x66807331)
 I (..\Core\Inc\USART.h)(0x66803924)
-I (..\Core\Inc\AS5600.h)(0x66803924)
+I (..\Core\Inc\AS5600.h)(0x66807ED1)
 F (.\PWM_input.c)(0x66803924)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/pwm_input.o -MMD)
-I (..\Core\Inc\main.h)(0x66803924)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -211,8 +211,8 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
 F (..\Core\Inc\PWM_input.h)(0x667F5695)()
 F (..\Core\Src\HMC5883.c)(0x667F5695)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/hmc5883.o -MMD)
 I (..\Core\Inc\HMC5883.h)(0x667F5695)
-I (..\Core\Inc\I2C.h)(0x66803924)
-I (..\Core\Inc\main.h)(0x66803924)
+I (..\Core\Inc\I2C.h)(0x66807331)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -242,9 +242,9 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim_ex.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
 I (..\Core\Inc\USART.h)(0x66803924)
-F (..\Core\Src\AS5600.c)(0x66803924)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/as5600.o -MMD)
-I (..\Core\Inc\AS5600.h)(0x66803924)
-I (..\Core\Inc\main.h)(0x66803924)
+F (..\Core\Src\AS5600.c)(0x66807ECF)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/as5600.o -MMD)
+I (..\Core\Inc\AS5600.h)(0x66807ED1)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -273,7 +273,7 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim_ex.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
-I (..\Core\Inc\I2C.h)(0x66803924)
+I (..\Core\Inc\I2C.h)(0x66807331)
 I (..\Core\Inc\USART.h)(0x66803924)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\arm_math.h)(0x64E3A7BE)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\arm_math_types.h)(0x64E3A7BE)
@@ -297,8 +297,8 @@ I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\trans
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\filtering_functions.h)(0x64E3A7BE)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\quaternion_math_functions.h)(0x64E3A7BE)
 I (C:\Users\niron\AppData\Local\Arm\Packs\ARM\CMSIS-DSP\1.15.0\Include\dsp\window_functions.h)(0x64E3A7BE)
-F (../Core/Src/main.c)(0x6680512D)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/main.o -MMD)
-I (..\Core\Inc\main.h)(0x66803924)
+F (../Core/Src/main.c)(0x66809816)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/main.o -MMD)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -329,13 +329,13 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
 I (..\Core\Inc\USART.h)(0x66803924)
 I (..\Core\Inc\MPU6050.h)(0x66803924)
-I (..\Core\Inc\I2C.h)(0x66803924)
-I (..\Core\Inc\AS5600.h)(0x66803924)
+I (..\Core\Inc\I2C.h)(0x66807331)
+I (..\Core\Inc\AS5600.h)(0x66807ED1)
 I (..\Core\Inc\BLDCMotor.h)(0x66803924)
 I (..\Core\Inc\PWM_input.h)(0x667F5695)
 I (..\Core\Inc\HMC5883.h)(0x667F5695)
-F (../Core/Src/stm32f0xx_it.c)(0x66803C7A)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/stm32f0xx_it.o -MMD)
-I (..\Core\Inc\main.h)(0x66803924)
+F (../Core/Src/stm32f0xx_it.c)(0x6680951F)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/stm32f0xx_it.o -MMD)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)
@@ -364,16 +364,16 @@ I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim_ex.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart.h)(0x667F8A65)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_uart_ex.h)(0x667F8A65)
-I (..\Core\Inc\stm32f0xx_it.h)(0x668039DB)
+I (..\Core\Inc\stm32f0xx_it.h)(0x6680950E)
 I (..\Core\Inc\USART.h)(0x66803924)
 I (..\Core\Inc\BLDCMotor.h)(0x66803924)
 I (..\Core\Inc\MPU6050.h)(0x66803924)
-I (..\Core\Inc\I2C.h)(0x66803924)
-I (..\Core\Inc\AS5600.h)(0x66803924)
+I (..\Core\Inc\I2C.h)(0x66807331)
+I (..\Core\Inc\AS5600.h)(0x66807ED1)
 I (..\Core\Inc\DCMotor.h)(0x667F5695)
 I (..\Core\Inc\PWM_input.h)(0x667F5695)
-F (../Core/Src/stm32f0xx_hal_msp.c)(0x668039DB)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/stm32f0xx_hal_msp.o -MMD)
-I (..\Core\Inc\main.h)(0x66803924)
+F (../Core/Src/stm32f0xx_hal_msp.c)(0x6680950F)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc -I ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F0xx/Include -I ../Drivers/CMSIS/Include-I./RTE/_GimbalProject-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/Include-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.15.0/PrivateInclude-IC:/Users/niron/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/niron/AppData/Local/Arm/Packs/Keil/STM32F0xx_DFP/2.1.1/Drivers/CMSIS/Device/ST/STM32F0xx/Include-D__UVISION_VERSION="540" -DSTM32F072xB -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F072xB-o gimbalproject/stm32f0xx_hal_msp.o -MMD)
+I (..\Core\Inc\main.h)(0x66807ED1)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h)(0x667F8A65)
 I (..\Core\Inc\stm32f0xx_hal_conf.h)(0x667F5695)
 I (..\Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h)(0x667F8A65)

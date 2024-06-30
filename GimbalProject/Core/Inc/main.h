@@ -60,6 +60,7 @@ void doPIDLoop();
 void Sample_MpuMoving();
 void Sample_YawSensor();
 void BurstReadCheap_StateMachine();
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

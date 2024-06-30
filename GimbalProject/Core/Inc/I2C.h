@@ -43,3 +43,5 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr);
 
 void I2C_BurstRead_Cheap(uint16_t deviceAddr, uint8_t regAddr, uint16_t length);
 
+void I2C_DMA_Read(uint16_t deviceAddr, uint8_t regAddr, uint16_t length);
+

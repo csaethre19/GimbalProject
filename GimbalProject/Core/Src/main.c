@@ -89,6 +89,7 @@ volatile int yaw_sense_newdata = 0;
 volatile int8_t bufferData;
 volatile double FREquencycounter = 0;
 volatile int button_press_count;
+volatile int DMAREADCOMPLETE = 0;
 
 /*
 i2c2 utilizes dma for all transactions
@@ -100,9 +101,9 @@ i2c_status:
 10 = AS5600 DMA TX inprocess
 11 = AS5600 DMA RX inprocess
 */
-volatile uint8_t i2c2_tx_buffer[10];
-volatile uint8_t i2c2_rx_buffer[30];
-volatile uint8_t i2c_status = 0;
+uint8_t i2c2_tx_buffer[10];
+uint8_t i2c2_rx_buffer[30];
+volatile uint8_t i2c2_status = 0;
 
 
 /* USER CODE END PV */
@@ -133,6 +134,8 @@ void Custom_StartupRoutine();
 void Sample_MpuMoving();
 void BurstReadCheap_StateMachine();
 void Calibration();
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *I2CHandle);
+void I2C_DMA_Read(uint16_t deviceAddr, uint8_t regAddr, uint16_t length);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -240,6 +243,9 @@ int main(void)
 			GPIOC->ODR |= GPIO_ODR_6;
 		}
 		
+		if(i2c2_status == 0){//Yaw sensor (as5600) i2c read using dma for read
+				I2C_DMA_Read(0x36, ANG_h, 2);
+		}
 		
 		
 		/*
@@ -1202,18 +1208,13 @@ void disablePWMIN(){
 //This function call initializes the usage all peripherals,
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
-
 	HAL_I2C_Init(&hi2c2);
-	
-	HAL_I2C_MspInit(&hi2c2);
-	
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
-
-	//while (uselesscounter < 10000000){uselesscounter++;}
 	//HMC5883_Init(&mag_moving);
 	//MPU_Init(&mpu_moving, 0x68);
-
-	//AS5600_Init(&yaw_sense, 0x36);
+	AS5600_Init(&yaw_sense, 0x36);
+	HAL_I2C_MspInit(&hi2c2);
+	
 
 	//---------------------DEFAULT Disable PWM control----------------------//
 	disablePWMIN();
@@ -1259,10 +1260,11 @@ void Sample_MpuMoving() {
 	//KFilter_2(&mpu_moving);
 	
 	if((BurstReadState == 0) && (mpu_moving_newdata == 0)){
-  	I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
-		BurstReadState = 1;//reading from mpu_moving
+  	//I2C_BurstRead_Cheap(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+		//BurstReadState = 1;//reading from mpu_moving
+		I2C_DMA_Read(mpu_moving.deviceAddr, ACC_XOUT_HIGH, 14);
+		i2c2_status = 1;
 	}
-
 	
 }
 
@@ -1295,7 +1297,7 @@ void Sample_YawSensor() {
 	51 - 52 = Yaw Angle(Hall)_sensor
 */
 void BurstReadCheap_StateMachine(){
-	
+
 	//check for an I2C2 failure (NACKF)
 	if (I2C2->ISR & I2C_ISR_NACKF){
 					// If a NACK is received, exit with error
@@ -1419,18 +1421,60 @@ void BurstReadCheap_StateMachine(){
   */
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
 {
+	i2c2_status = 100;
   /** Error_Handler() function is called when error occurs.
     * 1- When Slave don't acknowledge it's address, Master restarts communication.
     * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
     */
   if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF)
   {
-    /* Turn Off LED_GREEN */
-   
 		
-    /* Turn On LED_RED */
     
   }
+}
+
+
+void I2C_DMA_Read(uint16_t deviceAddr, uint8_t regAddr, uint16_t length)
+{
+
+	
+	// Set the register address to start read from
+	I2C_SetRegAddress(deviceAddr, regAddr);
+	I2C2->CR1 |= I2C_CR1_RXIE;
+	I2C2->CR2 = 0; // Clear register
+	I2C2->CR2 |= (deviceAddr << 1); // Set the slave address 
+	I2C2->CR2 |= (length << 16); // Set the number of bytes you want to read
+	I2C2->CR2 |= (1 << 10); // Set the RD_WRN bit for read operation
+	
+	//configure I2C2 to generate interrupts when new byte is received
+	//enable RX buffer data ready interrupt
+	
+	I2C2->CR2 |= I2C_CR2_START; // Send the start condition
+	while (HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+    {
+    } 
+	while(HAL_I2C_Master_Receive_DMA(&hi2c2, (uint16_t)0x36, (uint8_t *)i2c2_rx_buffer, 2) != HAL_OK)
+    {
+      // Error_Handler() function is called when error occurs. 
+      
+    }
+		
+}
+
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	
+	if(i2c2_status == 1){}
+		
+	if(i2c2_status == 11){
+		i2c2_status = 0;
+		yaw_sense.bufferinput[1] = i2c2_rx_buffer[1];
+		yaw_sense.bufferinput[0] = i2c2_rx_buffer[0];
+		yaw_sense_newdata = 1;
+		DMAREADCOMPLETE++;
+	}
+	
+	
 }
 
 /* USER CODE END 4 */
@@ -1446,6 +1490,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+		i2c2_status++;
   }
   /* USER CODE END Error_Handler_Debug */
 }

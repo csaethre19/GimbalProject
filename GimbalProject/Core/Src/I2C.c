@@ -2,6 +2,7 @@
 
 #include "I2C.h"
 #include "USART.h"
+#include "main.h"
 
 
 
@@ -74,7 +75,7 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 	// Check if NACK set
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
-		USART_Transmit_String("Set Reg Address not working!\n\r");
+		//USART_Transmit_String("Set Reg Address not working!\n\r");
 	}
 	
 	// Write data into the TXDR 
@@ -226,7 +227,8 @@ void I2C_Ports_Config()
 	GPIOC->ODR |= GPIO_ODR_0;
 }
 
-void I2C_BurstRead_Cheap(uint16_t deviceAddr, uint8_t regAddr, uint16_t length) {
+void I2C_BurstRead_Cheap(uint16_t deviceAddr, uint8_t regAddr, uint16_t length) 
+{
 
 	// Set the register address to start read from
 	I2C_SetRegAddress(deviceAddr, regAddr);
@@ -241,3 +243,9 @@ void I2C_BurstRead_Cheap(uint16_t deviceAddr, uint8_t regAddr, uint16_t length) 
 	
 	I2C2->CR2 |= I2C_CR2_START; // Send the start condition
 }
+
+	
+
+
+
+
