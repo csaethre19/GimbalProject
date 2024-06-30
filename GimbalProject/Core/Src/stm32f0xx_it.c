@@ -49,7 +49,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+int i2c_hangup_tracker = 0;
+int old_i2c_state = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -161,6 +162,7 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 0 */
 	//PID_execute();
 	Sample_MpuMoving();
+	
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */
@@ -175,7 +177,7 @@ void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
 	doPIDLoop();
-	//Sample_YawSensor();
+
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */

@@ -148,7 +148,7 @@ typedef struct {
 	and enabling digital low pass filter setting. 
 	If MPU6050 initialization is successfull, UART messages will print to console to confirm this.
 */
-void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr);
+int MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr);
 
 
 /*

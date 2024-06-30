@@ -55,7 +55,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void PID_execute();
+void targetvalue_update();
 void doPIDLoop();
 void Sample_MpuMoving();
 void Sample_YawSensor();

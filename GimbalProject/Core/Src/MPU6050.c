@@ -18,7 +18,7 @@ Kalman_t KalmanRoll = {//KalmanY
         .R_measure = 0.0009f,
 };
 
-void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
+int MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 {
 	//TWO PATHS CAN BE TAKEN, ONE FOR ICM42688-P, ONE FOR MPU6050.
 	//float A_cal[6] = {0.0, 0.0, 0.0, 1.000, 1.000, 1.000};
@@ -42,8 +42,8 @@ void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 	I2C_SetRegAddress(deviceAddr, WHO_AM_I);
 	int8_t whoAmI = I2C_ReadRegister(MPU6050_ADDR);
 	int8_t expected_whoAmI = 0x68;
-	//if (whoAmI == expected_whoAmI) 	USART_Transmit_String("Successfully read WHO_AM_I"); 
-	//else USART_Transmit_String("Erorr: did not get expected WHO_AM_I"); 
+	if (whoAmI == expected_whoAmI) {	/*USART_Transmit_String("Successfully read WHO_AM_I");*/ }
+	else {return 0;}
 	//USART_Transmit_Newline();
 	
 	//USART_Transmit_String("WHO_AM_I=");
@@ -57,8 +57,8 @@ void MPU_Init(volatile MPU6050_t *dataStruct, uint16_t deviceAddr)
 
 if (pwr_mgmt == 0) 
 	{
-		USART_Transmit_String("MPU6050 Awake!");
-		USART_Transmit_Newline();
+		//USART_Transmit_String("MPU6050 Awake!");
+		//USART_Transmit_Newline();
 	}
 	
 	// Setting full-scale range to +-1000 degress/sec
@@ -101,6 +101,7 @@ if (pwr_mgmt == 0)
 	dataStruct->KalmanAngleRoll = 0.0;
 	dataStruct->KalmanAngleUncertaintyPitch = 9;
 	dataStruct->KalmanAngleUncertaintyRoll = 9;
+	return 1;
 }
 
 

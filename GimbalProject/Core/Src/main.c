@@ -81,9 +81,9 @@ volatile int doPID = 0;
 volatile int pitch_PWM;
 volatile int roll_PWM;
 volatile int yaw_PWM;
-volatile int BurstReadState = 0;
 volatile int mpu_moving_newdata = 0;
 volatile int yaw_sense_newdata = 0;
+volatile int BurstReadState = 0;
 volatile int8_t bufferData;
 volatile double FREquencycounter = 0;
 volatile int button_press_count;
@@ -116,6 +116,10 @@ void Custom_StartupRoutine();
 void Sample_MpuMoving();
 void BurstReadCheap_StateMachine();
 void Calibration();
+void RestartDevice(void){
+	__disable_irq();
+	NVIC_SystemReset();
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -151,7 +155,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART3_UART_Init();
+  //MX_USART3_UART_Init();
   MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
@@ -165,7 +169,7 @@ int main(void)
 	Custom_StartupRoutine();
 	//LED flash #1, startup complete
 	float counttracker = 0;
-	while(counttracker < 15){//flashy light shows chip is functioning
+	while(counttracker < 20){//flashy light shows chip is functioning
 		GPIOC->ODR |= GPIO_ODR_6;
 		HAL_Delay(100);
 		GPIOC->ODR &= ~GPIO_ODR_6;
@@ -179,8 +183,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	int dirtrack;
-	counttracker =180;
+	
   while (1)
   {
 		//BLDC_Output(counttracker,2);//
@@ -193,7 +196,7 @@ int main(void)
 		if(doPID){
 			BLDC_PID(&mpu_moving, &mpu_stationary);
 			YAW_PID(&yaw_sense);
-			PID_execute();
+			targetvalue_update();
 			doPID = 0;
 		}
 		
@@ -215,11 +218,12 @@ int main(void)
 			i2c_queue = 0;
 			Sample_YawSensor();
 		}
+		
 		//------------------------BUTTON STUFF--------------------------//
 		//Short Press < 3 seconds = LED lights
 		//Long Press > 3 seconds = Calibration requested
 		if(GPIOC->IDR &= GPIO_IDR_13){
-			button_press_count--;
+			button_press_count = 0;
 			GPIOC->ODR &= ~GPIO_ODR_6;
 		}
 		else{
@@ -1078,38 +1082,42 @@ void init_YawMotor()
 }
 
 
-void PID_execute(){
+void targetvalue_update(){
 	//Update Desired Angles
 	//USART CAN ALWAYS UPDATE DESIRED VALUES
 	if(usePWM == 1){//PWM provides values from 1000 to 2000, map to these ranges
 		int yawbuffer = provide_channel(1);
 		int pitchbuffer  = provide_channel(2);
 		int rollbuffer   = provide_channel(3);
+		//set_desiredPitch(pitchbuffer);
+		//set_desiredRoll(rollbuffer);
+		//set_desiredYaw(yawbuffer);
+		
 		//filter out garbage values
-		if(pitchbuffer < 900){}
-		else if(pitchbuffer  > 2100){} 
+		if(pitchbuffer < 1000){ pitchbuffer = 1000;}
+		else if(pitchbuffer  > 2000){ pitchbuffer = 2000;} 
 		else  {
 			pitchbuffer = map(pitchbuffer, 1000,2000,-70,70);
 			pitch_PWM = pitchbuffer;
 			set_desiredPitch(pitchbuffer);
 		}
-		if(rollbuffer < 900){}
-		else if(rollbuffer  > 2100){} 
+		if(rollbuffer < 1000){rollbuffer = 1000;}
+		else if(rollbuffer  > 2000){rollbuffer = 2000;} 
 		else  {
-			rollbuffer = map(rollbuffer, 1000,2000,-70,70);
+			rollbuffer = map(rollbuffer, 1000,2000,-50,50);
 			roll_PWM = rollbuffer;
 			set_desiredRoll(rollbuffer);
 		}
-		if(yawbuffer < 900){}
-		else if(yawbuffer  > 2100){} 
+		if(yawbuffer < 1000){yawbuffer = 10;}
+		else if(yawbuffer  > 2000){yawbuffer = 350;} 
 		else  {
-			yawbuffer = map(yawbuffer, 1000,2000,0,360);
+			yawbuffer = map(yawbuffer, 1000,2000,10,350);
 			if(yawbuffer > 355) yawbuffer = 355;
 			if(yawbuffer < 5) yawbuffer = 5;
 			yaw_PWM = yawbuffer;
 			set_desiredYaw(yawbuffer);
 		}
-
+		
 	}
 
 	//GPIOC->ODR ^= GPIO_ODR_6;
@@ -1176,17 +1184,16 @@ void Custom_StartupRoutine() {
 	FREquencycounter++;
 	HAL_I2C_Init(&hi2c2);
 	FREquencycounter++;
-	HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
+	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	FREquencycounter++;
-	//while (uselesscounter < 10000000){uselesscounter++;}
 	//HMC5883_Init(&mag_moving);
-	MPU_Init(&mpu_moving, 0x68);
+	if(MPU_Init(&mpu_moving, 0x68) == 0) RestartDevice();//Mpu init failed, restarting might fix this???
 	FREquencycounter++;
 	AS5600_Init(&yaw_sense, 0x36);
 	FREquencycounter++;
-	//---------------------DEFAULT Disable PWM control----------------------//
-	disablePWMIN();
-	//enablePWMIN();
+	//--------------------- PWM control----------------------//
+	//disablePWMIN();
+	enablePWMIN();
 	FREquencycounter++;
 	//----------//-Deliver Power to Motors, in some default state------------//
 	init_PitchMotor();
@@ -1391,6 +1398,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+		FREquencycounter--;
   }
   /* USER CODE END Error_Handler_Debug */
 }
