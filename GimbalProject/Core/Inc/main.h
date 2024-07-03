@@ -95,6 +95,8 @@ void BurstReadCheap_StateMachine();
 #define BLDC_3C_GPIO_Port GPIOA
 #define EN_BLDC3_Pin GPIO_PIN_11
 #define EN_BLDC3_GPIO_Port GPIOA
+#define eeprom_wp_Pin GPIO_PIN_4
+#define eeprom_wp_GPIO_Port GPIOB
 #define EN_BLDC2_Pin GPIO_PIN_5
 #define EN_BLDC2_GPIO_Port GPIOB
 #define EN_BLDC1_Pin GPIO_PIN_6

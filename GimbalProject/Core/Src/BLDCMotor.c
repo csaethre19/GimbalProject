@@ -74,8 +74,9 @@ void YAW_PID(volatile AS5600_t *yawSense)
 	
 	if(yMode == 1){//Desired Yaw Orientation in RELATIVE mode-----------------
 		//YAW MOTOR
-		yawPID_output = PIDController_Update(&yawPID, target_yaw, yawSense->angle, 3);
-		current_yaw_instruction = current_yaw_instruction + yawPID_output;
+		//yawPID_output = PIDController_Update(&yawPID, target_yaw, yawSense->angle, 3);
+		//current_yaw_instruction = current_yaw_instruction + yawPID_output;
+		current_yaw_instruction = current_yaw_instruction + 5;
 		if(current_yaw_instruction > 360) current_yaw_instruction -= 360;
 		if(current_yaw_instruction < 0) current_yaw_instruction += 360;
 		BLDC_Output(current_yaw_instruction, 3);//write new instructed angle to pitch BLDC motor;
@@ -100,14 +101,16 @@ void BLDC_PID(volatile MPU6050_t *targetOrientation, volatile MPU6050_t *station
 	if(rpMode == 1){//Absolute Position Mode Execute
 		// Need to add collision checking
 		//PITCH MOTOR
-		pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outRoll, 1);
-		current_pitch_instruction = current_pitch_instruction + pitchPID_output;
+		//pitchPID_output = PIDController_Update(&pitchPID, target_pitch, targetOrientation->outRoll, 1);
+		//current_pitch_instruction = current_pitch_instruction + pitchPID_output;
+		current_pitch_instruction = current_pitch_instruction + 5;
 		if(current_pitch_instruction > 360) current_pitch_instruction -= 360;
 		if(current_pitch_instruction < 0) current_pitch_instruction += 360;
 		BLDC_Output(current_pitch_instruction, 1);//write new instructed angle to pitch BLDC motor;
 		//ROLL MOTOR
-		rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outPitch, 2);
-		current_roll_instruction = current_roll_instruction + rollPID_output;
+		//rollPID_output = PIDController_Update(&rollPID, target_roll, targetOrientation->outPitch, 2);
+		//current_roll_instruction = current_roll_instruction + rollPID_output;/
+		current_roll_instruction = current_roll_instruction + 5;
 		if(current_roll_instruction > 360) current_roll_instruction -= 360;
 		if(current_roll_instruction < 0) current_roll_instruction += 360;
 		BLDC_Output(current_roll_instruction, 2);//write new instructed angle to roll BLDC motor;

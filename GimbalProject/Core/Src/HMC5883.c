@@ -8,7 +8,7 @@
 void HMC5883_Init(volatile HMC5883_t *dataStruct) {
 	I2C_WriteRegister(0x0D, 0x0B, 0x01);
 	I2C_WriteRegister(0x0D, 0x09, 0x1D);
-	USART_Transmit_String("HMC Init Complete");	
+	//USART_Transmit_String("HMC Init Complete");	
 }
 
 void HMC5883_ReadRawData(volatile HMC5883_t *dataStruct) {
@@ -29,9 +29,9 @@ void HMC5883_ReadRawData(volatile HMC5883_t *dataStruct) {
 	// Calculating Yaw Angle
 	
 	dataStruct->AngleYaw = atan2( y_raw, x_raw ) * 180.0 / 3.14159265;
-	USART_Transmit_String("MPU6050 Address: ");
-	USART_Transmit_Number(dataStruct->AngleYaw);
-	USART_Transmit_String("ReadRawdata Complete"); 
+	//USART_Transmit_String("MPU6050 Address: ");
+	//USART_Transmit_Number(dataStruct->AngleYaw);
+	//USART_Transmit_String("ReadRawdata Complete"); 
 }
 
 

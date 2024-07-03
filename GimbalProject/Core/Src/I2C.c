@@ -74,7 +74,7 @@ void I2C_SetRegAddress(uint16_t deviceAddr, uint8_t regAddr)
 	// Check if NACK set
 	if (I2C2->ISR & I2C_ISR_NACKF)
 	{
-		USART_Transmit_String("Set Reg Address not working!\n\r");
+		//USART_Transmit_String("Set Reg Address not working!\n\r");
 	}
 	
 	// Write data into the TXDR 
@@ -150,7 +150,7 @@ int I2C_ReadBurst(uint16_t deviceAddr, uint8_t regAddr, int8_t *dataBuffer, uint
 			if (I2C2->ISR & I2C_ISR_NACKF)
 			{
 					// If a NACK is received, exit with error
-					USART_Transmit_String("Read burst not working!\n\r");
+					//USART_Transmit_String("Read burst not working!\n\r");
 					return -1; // Error code for NACK
 			}
 
