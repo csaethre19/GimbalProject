@@ -152,12 +152,12 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+	
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART3_UART_Init();
+  //MX_USART3_UART_Init();
   MX_ADC_Init();
   MX_I2C2_Init();
   MX_TIM1_Init();
@@ -236,7 +236,7 @@ int main(void)
 		
 		
 		
-		/*
+		
 		if(button_press_count > 2000){
 			//wait for button to be released to begin calibration
 			GPIOC->ODR |= GPIO_ODR_6;
@@ -259,7 +259,7 @@ int main(void)
 
 			}
 		}
-		*/
+		
 		
     /* USER CODE END WHILE */
 
@@ -1243,15 +1243,16 @@ void disablePWMIN(){
 void Custom_StartupRoutine() {
 	//External Data Init-----------------------------------------------
 	FREquencycounter++;
+	HAL_I2C_DeInit(&hi2c2);
 	HAL_I2C_Init(&hi2c2);
 	FREquencycounter++;
 	//HAL_UART_Receive_IT(&huart3, &rx_data[rx_index], 1);
 	FREquencycounter++;
 	//HMC5883_Init(&mag_moving);
-	//MPU_Init(&mpu_moving, 0x68);
+	MPU_Init(&mpu_moving, 0x68);
 	//if(MPU_Init(&mpu_moving, 0x68) == 0) RestartDevice();//Mpu init failed, restarting might fix this???
 	FREquencycounter++;
-	//AS5600_Init(&yaw_sense, 0x36);
+	AS5600_Init(&yaw_sense, 0x36);
 	FREquencycounter++;
 	//--------------------- PWM control----------------------//
 	disablePWMIN();
@@ -1267,16 +1268,16 @@ void Custom_StartupRoutine() {
 	
 	//--------------------------Enable Power to the Motors------------------//
 	//
-	BLDCEnable(1);   //pitch = 1
-	BLDCEnable(2); //roll = 2
-	BLDCEnable(3); //yaw = 3
+	//BLDCEnable(1);   //pitch = 1
+	//BLDCEnable(2); //roll = 2
+	//BLDCEnable(3); //yaw = 3
 	//
 	
 	//---------------------------Disable Power to the Motors-----------------//
 	///*
-	//BLDCDisable(1);
-	//BLDCDisable(2);
-	//BLDCDisable(3);
+	BLDCDisable(1);
+	BLDCDisable(2);
+	BLDCDisable(3);
 	//*/
 	//----------------DEFAULT TO CENTERED PAYLOAD ORIENTATION---------------------//
 	set_desiredRoll(0.0f);

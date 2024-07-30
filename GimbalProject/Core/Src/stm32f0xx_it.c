@@ -160,8 +160,8 @@ void SysTick_Handler(void)
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 0 */
-	//PID_execute();
-	//Sample_MpuMoving();
+
+	Sample_MpuMoving();
 	
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
